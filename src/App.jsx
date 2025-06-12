@@ -1,35 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React from "react";
+import Sidebar from "./components/Sidebar/sidebar";
+import Header from "./components/Header/header";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <div className="layout">
+            <Sidebar />
+            <div className="main-content">
+                <Header />
+                <div className="content-area">
+                    {/* 여기에 페이지별 콘텐츠가 들어갈 수 있어요 */}
+                    <p style={{ padding: "24px" }}>여기에 본문 내용이 들어갑니다.</p>
+                </div>
+            </div>
+        </div>
+    );
 }
 
-export default App
+export default App;
