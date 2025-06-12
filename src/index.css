@@ -1,74 +1,68 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; /* 전체 페이지에 사용할 기본 글꼴 설정 */
-  line-height: 1.5;                        /* 줄 간격 */
-  font-weight: 400;                        /* 기본 글씨 굵기 */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 
-  color-scheme: light dark;               /* 다크모드/라이트모드 자동 감지 설정 */
-  color: rgba(255, 255, 255, 0.87);       /* 기본 글자 색상 (흰색 계열) */
-  background-color: #242424;             /* 기본 배경색 (다크모드용 진한 회색) */
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
 
-  font-synthesis: none;                  /* 자동 기울임/굵게 방지 */
-  text-rendering: optimizeLegibility;    /* 가독성 향상용 렌더링 옵션 */
-  -webkit-font-smoothing: antialiased;   /* 웹킷 브라우저용 부드러운 폰트 렌더링 */
-  -moz-osx-font-smoothing: grayscale;    /* macOS용 부드러운 폰트 렌더링 */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  font-weight: 500;               /* 링크는 약간 두껍게 */
-  color: #646cff;                /* 기본 링크 색상 (보라색 계열) */
-  text-decoration: inherit;      /* 기본 링크 밑줄 제거 */
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
 }
-
 a:hover {
-  color: #535bf2;                /* 마우스 올렸을 때 더 진한 파란색으로 변경 */
+  color: #535bf2;
 }
 
 body {
-  margin: 0;                     /* body 기본 여백 제거 */
-  place-items: center;          /* (grid/flex일 경우) 중앙 정렬, 지금은 적용 안 됨 */
-  min-width: 320px;             /* 최소 화면 너비 */
-  min-height: 100vh;            /* 최소 높이: 화면 전체 높이 */
-  display: block;               /* body는 기본적으로 block 요소임 (명시적으로 표시) */
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
 }
 
 h1 {
-  font-size: 3.2em;             /* 제목 크기 키움 */
-  line-height: 1.1;             /* 제목 줄 간격 좁게 */
+  font-size: 3.2em;
+  line-height: 1.1;
 }
 
 button {
-  border-radius: 8px;           /* 버튼 둥글게 */
-  border: 1px solid transparent;/* 기본 테두리 투명 */
-  padding: 0.6em 1.2em;         /* 버튼 안쪽 여백 */
-  font-size: 1em;               /* 버튼 글자 크기 */
-  font-weight: 500;             /* 약간 두껍게 */
-  font-family: inherit;         /* 전체 폰트 상속 */
-  background-color: #1a1a1a;    /* 어두운 회색 버튼 배경 (다크모드용) */
-  cursor: pointer;              /* 마우스 오버 시 손가락 커서 */
-  transition: border-color 0.25s; /* 테두리 색상 변경 부드럽게 */
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
 }
-
 button:hover {
-  border-color: #646cff;        /* 마우스 올렸을 때 보라색 테두리 */
+  border-color: #646cff;
 }
-
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color; /* 키보드 포커스 시 외곽선 표시 */
+  outline: 4px auto -webkit-focus-ring-color;
 }
 
-/* 💡 라이트모드가 활성화되었을 경우 적용되는 스타일 */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;               /* 기본 텍스트 색 (남색 계열) */
-    background-color: #ffffff;   /* 배경은 흰색 */
+    color: #213547;
+    background-color: #ffffff;
   }
-
   a:hover {
-    color: #747bff;              /* 링크 hover 색상 (연한 보라) */
+    color: #747bff;
   }
-
   button {
-    background-color: #f9f9f9;   /* 버튼 배경도 밝게 (연한 회색) */
+    background-color: #f9f9f9;
   }
 }
