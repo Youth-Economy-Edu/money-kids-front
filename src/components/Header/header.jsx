@@ -1,16 +1,19 @@
+// src/components/Header/header.jsx
 import React, { useState } from 'react';
 import './header.css';
-import { FaHandSparkles, FaLayerGroup, FaSignOutAlt } from 'react-icons/fa';
+import { FaLayerGroup, FaSignOutAlt } from 'react-icons/fa';
 
-const Header = () => {
+const Header = ({ title }) => {
     const [isExpanded, setIsExpanded] = useState(true);
 
+    // title이 없으면 헤더 자체 렌더링 안 함
+    if (!title) return null;
     return (
         <header className={`header ${isExpanded ? 'expanded' : 'collapsed'}`}>
             <div className="header-top">
                 <div className="user-info">
                     <h2 id="page-title-main">
-                        안녕하세요, 김학생님! <FaHandSparkles style={{ color: '#F59E0B' }} size={30} />
+                        {title}
                     </h2>
                     <p>오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
                 </div>

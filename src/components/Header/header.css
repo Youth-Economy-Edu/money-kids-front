@@ -24,12 +24,26 @@
 }
 
 .user-info p {
+    font-size: 14px;
     color: #8a8a8a;
 }
 
 .user-actions {
     display: flex;
     gap: 12px;
+}
+
+@media (max-width: 950px) {
+    .user-actions {
+        flex-direction: column; /* ✅ 세로로 전환 */
+        align-items: flex-end;   /* 오른쪽 정렬 유지 */
+        margin-top: 8px;         /* 위로 약간 공간 주기 */
+        gap: 4px;                /* 간격 줄이기 (선택) */
+    }
+
+    .user-actions .btn:first-child {
+        transform: translateY(-4px); /* ✅ 레벨 버튼 약간 위로 */
+    }
 }
 
 .btn {
@@ -76,6 +90,14 @@
     gap: 16px;
     margin: 1px 0;
     transition: opacity 0.3s ease;
+}
+
+/* 📱 반응형: 좁은 화면에서는 세로로 카드 배치 */
+@media (max-width: 900px) {
+    .stats-grid {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .stat-card {

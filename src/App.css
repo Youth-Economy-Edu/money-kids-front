@@ -18,7 +18,7 @@
 }
 
 /* 모바일에서 사이드바 숨겨졌을 때 margin 제거 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .main-content {
     margin-left: 0;
   }

@@ -8,26 +8,19 @@ import {
     FaChartLine,
     FaUsers,
     FaChartPie,
-    FaNewspaper,
+    FaNewspaper
 } from "react-icons/fa";
 import "./sidebar.css";
 
-const Sidebar = () => {
+const Sidebar = ({ onSelectMenu }) => {
     const [active, setActive] = useState("home");
-    const [isOpen, setIsOpen] = useState(window.innerWidth > 768);
+    const [isOpen, setIsOpen] = useState(window.innerWidth > 900);
 
-    const toggleSidebar = () => {
-        setIsOpen(!isOpen);
-    };
+    const toggleSidebar = () => setIsOpen(!isOpen);
 
-    // 화면 크기 변경 감지하여 반응형 자동 처리
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth <= 768) {
-                setIsOpen(false);
-            } else {
-                setIsOpen(true);
-            }
+            setIsOpen(window.innerWidth > 900);
         };
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
@@ -35,11 +28,11 @@ const Sidebar = () => {
 
     const menuItems = [
         { id: "home", label: "홈", icon: <FaHome /> },
-        { id: "learn", label: "경제배우기", icon: <FaGraduationCap />, badge: 3 },
+        { id: "learn", label: "경제배우기", icon: <FaGraduationCap /> },
         { id: "invest", label: "모의 투자", icon: <FaChartLine /> },
         { id: "parent", label: "학부모 페이지", icon: <FaUsers /> },
         { id: "analysis", label: "성향 분석", icon: <FaChartPie /> },
-        { id: "news", label: "경제 소식", icon: <FaNewspaper />, badge: 5 },
+        { id: "news", label: "경제 소식", icon: <FaNewspaper /> }
     ];
 
     return (
@@ -61,13 +54,13 @@ const Sidebar = () => {
                         <div
                             key={item.id}
                             className={`nav-item ${active === item.id ? "active" : ""}`}
-                            onClick={() => setActive(item.id)}
+                            onClick={() => {
+                                setActive(item.id);
+                                onSelectMenu(item.id);
+                            }}
                         >
                             <div className="nav-icon">{item.icon}</div>
                             <div className="nav-text">{item.label}</div>
-                            {item.badge && (
-                                <div className="notification-badge">{item.badge}</div>
-                            )}
                         </div>
                     ))}
                 </div>
