@@ -18,10 +18,10 @@ function App() {
 
   const renderPageContent = () => {
     return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: '60vh',
         color: 'var(--text-tertiary)',
         fontSize: '18px'
@@ -33,19 +33,19 @@ function App() {
 
   return (
     <div className="app">
-      <Sidebar 
+      <Sidebar
         currentPage={currentPage}
         onPageChange={handleNavigation}
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
       />
-      
+
       <div className="main-content">
-        <Header 
+        <Header
           currentPage={currentPage}
           onToggleSidebar={toggleSidebar}
         />
-        
+
         <main className="content">
           {renderPageContent()}
         </main>

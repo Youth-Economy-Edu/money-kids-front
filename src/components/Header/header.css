@@ -1,0 +1,145 @@
+/* header.css */
+
+.header {
+    background: white;
+    padding: 5px 32px 0;
+    border-bottom: 1px solid var(--neutral-light);
+    border-left: 1px solid var(--neutral-light);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info h2 {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.user-info p {
+    font-size: 14px;
+    color: #8a8a8a;
+}
+
+.user-actions {
+    display: flex;
+    gap: 12px;
+}
+
+@media (max-width: 950px) {
+    .user-actions {
+        flex-direction: column; /* ✅ 세로로 전환 */
+        align-items: flex-end;   /* 오른쪽 정렬 유지 */
+        margin-top: 8px;         /* 위로 약간 공간 주기 */
+        gap: 4px;                /* 간격 줄이기 (선택) */
+    }
+
+    .user-actions .btn:first-child {
+        transform: translateY(-4px); /* ✅ 레벨 버튼 약간 위로 */
+    }
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-white {
+    background: var(--neutral-lightest);
+    border: 1px solid var(--neutral-light);
+    color: var(--text-secondary);
+}
+
+.btn-secondary {
+    background: var(--neutral-lighter);
+    border: 1px solid var(--neutral-light);
+    color: var(--text-secondary);
+}
+
+/* 토글 영역 (감싸는 컨테이너) */
+.stats-container {
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+/* 열렸을 때: 충분한 높이 확보 */
+.stats-container.open {
+    max-height: 500px;
+}
+
+/* 닫혔을 때: 감춤 */
+.stats-container.closed {
+    max-height: 0;
+}
+
+/* 내부 카드 그리드 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 1px 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 📱 반응형: 좁은 화면에서는 세로로 카드 배치 */
+@media (max-width: 900px) {
+    .stats-grid {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.stat-card {
+    background: var(--background-main);
+    padding: 16px;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--neutral-lighter);
+}
+
+.stat-title {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.stat-change.positive {
+    color: var(--secondary-color);
+}
+
+.stat-change.neutral {
+    color: var(--text-tertiary);
+}
+
+/* 토글 버튼 고정 하단 바 */
+.stats-toggle-bar {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 8px;
+}
+
+/* 토글 버튼 스타일 */
+.stats-toggle-bar .btn {
+    font-size: 13px;
+    transform: scaleX(2.0) scaleY(0.7);
+    padding: 1px 1px;
+    border: none;
+    color: gray;
+    background-color: rgba(255, 255, 255, 0.0);
+}
