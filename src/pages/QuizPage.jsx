@@ -2,10 +2,10 @@ import React from 'react';
 
 const QuizPage = () => {
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       height: '60vh',
       color: 'var(--text-tertiary)',
       fontSize: '18px'
@@ -15,4 +15,4 @@ const QuizPage = () => {
   );
 };
 
-export default QuizPage; 
+export default QuizPage;
