@@ -1,63 +1,80 @@
-// src/components/Header/header.jsx
-import React, { useState } from 'react';
-import './header.css';
-import { FaLayerGroup, FaSignOutAlt } from 'react-icons/fa';
+import React from 'react';
 
-const Header = ({ title }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
+const Header = ({ currentPage, onToggleSidebar }) => {
+    const getPageTitle = () => {
+        const pageTitles = {
+            '홈': '안녕하세요, 김학생님! <i class="fas fa-hand-sparkles" style="color: #F59E0B;"></i>',
+            '경제배우기': '경제배우기 <i class="fas fa-angle-right" style="font-size:0.8em; margin-left: 8px;"></i>',
+            '모의투자': '모의투자 <i class="fas fa-angle-right" style="font-size:0.8em; margin-left: 8px;"></i>',
+            '학부모페이지': '학부모페이지 <i class="fas fa-angle-right" style="font-size:0.8em; margin-left: 8px;"></i>',
+            '성향분석': '성향분석 <i class="fas fa-angle-right" style="font-size:0.8em; margin-left: 8px;"></i>',
+            '경제소식': '경제소식 <i class="fas fa-angle-right" style="font-size:0.8em; margin-left: 8px;"></i>'
+        };
+        return pageTitles[currentPage] || '안녕하세요, 김학생님! <i class="fas fa-hand-sparkles" style="color: #F59E0B;"></i>';
+    };
 
-    // title이 없으면 헤더 자체 렌더링 안 함
-    if (!title) return null;
+    const statsData = [
+        {
+            title: '모의 투자 자산',
+            value: '₩1,250,000',
+            change: '+₩50,000 (4.2%)',
+            type: 'positive'
+        },
+        {
+            title: '완료한 퀴즈',
+            value: '45개',
+            change: '이번 주 +12개',
+            type: 'neutral'
+        },
+        {
+            title: '학습 연속일',
+            value: '7일🔥',
+            change: '목표: 30일',
+            type: 'neutral'
+        }
+    ];
+
     return (
-        <header className={`header ${isExpanded ? 'expanded' : 'collapsed'}`}>
-            <div className="header-top">
-                <div className="user-info">
-                    <h2 id="page-title-main">
-                        {title}
-                    </h2>
-                    <p>오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
-                </div>
-                <div className="user-actions">
-                    <button className="btn btn-white">
-                        <FaLayerGroup /> 레벨 3 (65%)
-                    </button>
-                    <button className="btn btn-secondary">
-                        <FaSignOutAlt /> 로그아웃
-                    </button>
-                </div>
-            </div>
+        <>
+            <button className="mobile-menu-toggle" onClick={onToggleSidebar}>
+                <i className="fas fa-bars"></i>
+            </button>
 
-            {/* 접기/펼치기 토글 영역 */}
-            <div className={`stats-container ${isExpanded ? 'open' : 'closed'}`}>
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-title">모의 투자 자산</div>
-                        <div className="stat-value">₩1,250,000</div>
-                        <div className="stat-change positive">+₩50,000 (4.2%)</div>
+            <div className="header">
+                <div className="header-top">
+                    <div className="user-info">
+                        <h2
+                            id="page-title-main"
+                            dangerouslySetInnerHTML={{ __html: getPageTitle() }}
+                        />
+                        <p>오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-title">완료한 퀴즈</div>
-                        <div className="stat-value">45개</div>
-                        <div className="stat-change neutral">이번 주 +12개</div>
+                    <div className="user-actions">
+                        <button className="btn btn-white">
+                            <i className="fas fa-layer-group"></i>
+                            <span className="btn-text">레벨 3 (65%)</span>
+                        </button>
+                        <button className="btn btn-secondary">
+                            <i className="fas fa-sign-out-alt"></i>
+                            <span className="btn-text">로그아웃</span>
+                        </button>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-title">학습 연속일</div>
-                        <div className="stat-value">
-                            7일 <i className="fas fa-fire" style={{ color: 'var(--danger-color)' }}></i>
-                        </div>
-                        <div className="stat-change neutral">목표: 30일</div>
+                </div>
+
+                <div className="stats-section">
+                    <div className="stats-grid">
+                        {statsData.map((stat, index) => (
+                            <div key={index} className="stat-card">
+                                <div className="stat-title">{stat.title}</div>
+                                <div className="stat-value">{stat.value}</div>
+                                <div className={`stat-change ${stat.type}`}>{stat.change}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
-
-            {/* 토글 버튼: 항상 아래 고정 */}
-            <div className="stats-toggle-bar">
-                <button className="btn btn-white" onClick={() => setIsExpanded(!isExpanded)}>
-                    {isExpanded ? '∧' : '∨'}
-                </button>
-            </div>
-        </header>
+        </>
     );
 };
 
-export default Header;
+export default Header; 

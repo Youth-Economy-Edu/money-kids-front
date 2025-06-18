@@ -1,50 +1,31 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import './styles/components.css';
-import './App.css';
-
-// 📘 경제 개념 학습 페이지
+import React from 'react';
+import Sidebar from './components/Sidebar/sidebar';
+import Header from './components/Header/header';
 import ConceptListPage from './pages/Learn/ConceptListPage';
-
-// 🧠 퀴즈 관련 페이지
 import QuizPage from './pages/Quiz/QuizPage';
 import QuizSolvePage from './pages/Quiz/QuizSolvePage';
-import QuizResultPage from './pages/Quiz/QuizResultPage';
+import ResultPage from './pages/Quiz/QuizResultPage'; // 여기를 수정 (QuizResultPage → ResultPage)
+import './styles/components.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
-    const [currentPage, setCurrentPage] = useState('홈');
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const handleNavigation = (page) => {
-        setCurrentPage(page);
-        setSidebarOpen(false);
-    };
-
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
-
     return (
         <Router>
-            <div className="layout">
-                <Sidebar
-                    currentPage={currentPage}
-                    onPageChange={handleNavigation}
-                    isOpen={sidebarOpen}
-                    onToggle={toggleSidebar}
-                />
-
+            <div className="app">
+                <Sidebar />
                 <div className="main-content">
-                    <Header currentPage={currentPage} onToggleSidebar={toggleSidebar} />
-
-                    <main className="content-area">
+                    <Header />
+                    <main className="content">
                         <Routes>
-                            <Route path="/" element={<ConceptListPage />} />
+                            <Route path="/" element={<HomePlaceholder />} />
+                            <Route path="/learn" element={<ConceptListPage />} />
                             <Route path="/quiz" element={<QuizPage />} />
                             <Route path="/quiz/solve" element={<QuizSolvePage />} />
-                            <Route path="/quiz/result" element={<QuizResultPage />} />
+                            <Route path="/quiz/result" element={<ResultPage />} />
+                            <Route path="/invest" element={<PlaceholderPage title="모의 투자" />} />
+                            <Route path="/parent" element={<PlaceholderPage title="학부모 페이지" />} />
+                            <Route path="/analysis" element={<PlaceholderPage title="성향 분석" />} />
+                            <Route path="/news" element={<PlaceholderPage title="경제 소식" />} />
                         </Routes>
                     </main>
                 </div>
@@ -52,5 +33,13 @@ function App() {
         </Router>
     );
 }
+
+const HomePlaceholder = () => (
+    <div className="placeholder">홈 페이지는 준비 중입니다.</div>
+);
+
+const PlaceholderPage = ({ title }) => (
+    <div className="placeholder">{title} 페이지는 준비 중입니다.</div>
+);
 
 export default App;

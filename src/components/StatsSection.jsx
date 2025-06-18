@@ -27,27 +27,27 @@ const StatsSection = () => {
   ];
 
   return (
-    <div className="stats-section">
-      <div className="stats-grid">
-        {statsData.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className="stat-title">{stat.title}</div>
-            <div className="stat-value">
-              {stat.value}
-              {stat.icon && stat.iconStyle && (
-                <i className={stat.icon} style={stat.iconStyle}></i>
-              )}
-            </div>
-            <div className={`stat-change ${stat.changeType}`}>
-              {stat.change}
-              {stat.icon && !stat.iconStyle && (
-                <i className={stat.icon}></i>
-              )}
-            </div>
-          </div>
-        ))}
+      <div className="stats-section">
+        <div className="stats-grid">
+          {statsData.map((stat, index) => (
+              <div key={index} className="stat-card">
+                <div className="stat-title">{stat.title}</div>
+                <div className="stat-value">
+                  {stat.value}
+                  {stat.icon && stat.iconStyle && (
+                      <i className={stat.icon} style={stat.iconStyle}></i>
+                  )}
+                </div>
+                <div className={`stat-change ${stat.changeType}`}>
+                  {stat.change}
+                  {stat.icon && !stat.iconStyle && (
+                      <i className={stat.icon}></i>
+                  )}
+                </div>
+              </div>
+          ))}
+        </div>
       </div>
-    </div>
   );
 };
 

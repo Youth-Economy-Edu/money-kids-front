@@ -1,43 +1,33 @@
-// src/components/Sidebar/sidebar.jsx
 import React, { useState, useEffect } from "react";
 import {
-    FaBars,
-    FaLandmark,
-    FaHome,
-    FaGraduationCap,
-    FaChartLine,
-    FaUsers,
-    FaChartPie,
-    FaNewspaper
+    FaBars, FaLandmark, FaHome, FaGraduationCap, FaChartLine, FaUsers, FaChartPie, FaNewspaper
 } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./sidebar.css";
 
-const Sidebar = ({ onSelectMenu }) => {
-    const [active, setActive] = useState("home");
+const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(window.innerWidth > 900);
-
-    const toggleSidebar = () => setIsOpen(!isOpen);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsOpen(window.innerWidth > 900);
-        };
+        const handleResize = () => setIsOpen(window.innerWidth > 900);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const menuItems = [
-        { id: "home", label: "홈", icon: <FaHome /> },
-        { id: "learn", label: "경제배우기", icon: <FaGraduationCap /> },
-        { id: "invest", label: "모의 투자", icon: <FaChartLine /> },
-        { id: "parent", label: "학부모 페이지", icon: <FaUsers /> },
-        { id: "analysis", label: "성향 분석", icon: <FaChartPie /> },
-        { id: "news", label: "경제 소식", icon: <FaNewspaper /> }
+        { id: "/", label: "홈", icon: <FaHome /> },
+        { id: "/learn", label: "경제배우기", icon: <FaGraduationCap /> },
+        { id: "/invest", label: "모의 투자", icon: <FaChartLine /> },
+        { id: "/parent", label: "학부모 페이지", icon: <FaUsers /> },
+        { id: "/analysis", label: "성향 분석", icon: <FaChartPie /> },
+        { id: "/news", label: "경제 소식", icon: <FaNewspaper /> }
     ];
 
     return (
         <>
-            <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+            <button className="mobile-menu-toggle" onClick={() => setIsOpen(!isOpen)}>
                 <FaBars />
             </button>
             <div className={`sidebar ${isOpen ? "open" : ""}`}>
@@ -50,15 +40,11 @@ const Sidebar = ({ onSelectMenu }) => {
                 </div>
 
                 <div className="nav-menu">
-                    {menuItems.map((item) => (
+                    {menuItems.map(item => (
                         <div
                             key={item.id}
-                            className={`nav-item ${active === item.id ? "active" : ""}`}
-                            onClick={() => {
-                                setActive(item.id);
-                                onSelectMenu(item.id);
-                            }}
-                        >
+                            className={`nav-item ${location.pathname === item.id ? "active" : ""}`}
+                            onClick={() => navigate(item.id)}>
                             <div className="nav-icon">{item.icon}</div>
                             <div className="nav-text">{item.label}</div>
                         </div>

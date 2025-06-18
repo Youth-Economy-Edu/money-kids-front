@@ -1,16 +1,16 @@
 import React from 'react';
 import styles from './CardDetailPopup.module.css';
 
-const CardDetailPopup = ({ title, content, onClose }) => {
+function CardDetailPopup({ title, content, onClose }) {
     return (
-        <div className={styles.overlay}>
-            <div className={styles.popup}>
-                <button className={styles.closeBtn} onClick={onClose}>×</button>
-                <h2 className={styles.title}>{title}</h2>
-                <p className={styles.content}>{content}</p>
+        <div className={styles['popup-overlay']}>
+            <div className={styles['popup-content']}>
+                <div className={styles['popup-title']}>{title}</div>
+                <div className={styles['popup-description']}>{content}</div>
+                <button className={styles['close-button']} onClick={onClose}>닫기</button>
             </div>
         </div>
     );
-};
+}
 
 export default CardDetailPopup;
