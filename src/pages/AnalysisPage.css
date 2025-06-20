@@ -1,0 +1,385 @@
+.analysis-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.analysis-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.analysis-header h1 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.analysis-header p {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.analysis-actions {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.btn-analyze {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-analyze:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-analyze:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message p {
+  color: #c62828;
+  margin: 0;
+}
+
+/* 분석 결과 */
+.analysis-result {
+  margin-bottom: 40px;
+}
+
+.result-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.main-result h2 {
+  color: var(--primary-color);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.tendency-type {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8f9ff, #fff5f5);
+  border-radius: 12px;
+}
+
+.tendency-type h3 {
+  color: var(--primary-color);
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.feedback {
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.guidance {
+  background: #f0f8ff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+.guidance h4 {
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.guidance p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tendency-scores {
+  margin-top: 32px;
+}
+
+.tendency-scores h4 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.scores-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.score-label {
+  min-width: 100px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.score-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  transition: width 0.6s ease;
+  border-radius: 4px;
+}
+
+.score-value {
+  min-width: 50px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 분석 결과가 없을 때 */
+.no-analysis {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
+.no-analysis-content h3 {
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.no-analysis-content p {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.analysis-benefits {
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.analysis-benefits h4 {
+  color: var(--primary-color);
+  margin-bottom: 16px;
+}
+
+.analysis-benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.analysis-benefits li {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.analysis-benefits li::before {
+  content: "✅";
+  position: absolute;
+  left: 0;
+}
+
+/* 분석 이력 */
+.analysis-history {
+  margin-bottom: 40px;
+}
+
+.analysis-history h3 {
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.history-item {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid var(--primary-color);
+}
+
+.history-date {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.history-content h4 {
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.history-content p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.mini-scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.mini-score {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.mini-score span:first-child {
+  color: var(--text-secondary);
+}
+
+.mini-score span:last-child {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* 분석 팁 */
+.analysis-tips {
+  margin-bottom: 40px;
+}
+
+.analysis-tips h3 {
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tip-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.tip-card:hover {
+  transform: translateY(-4px);
+}
+
+.tip-card h4 {
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.tip-card p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 로딩 상태 */
+.analysis-page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .analysis-page {
+    padding: 16px;
+  }
+  
+  .result-card {
+    padding: 24px;
+  }
+  
+  .tendency-type {
+    padding: 20px;
+  }
+  
+  .tendency-type h3 {
+    font-size: 24px;
+  }
+  
+  .score-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .score-label {
+    min-width: auto;
+  }
+  
+  .score-value {
+    text-align: left;
+  }
+  
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+} 

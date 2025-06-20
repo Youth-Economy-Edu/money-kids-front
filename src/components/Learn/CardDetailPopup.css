@@ -1,0 +1,536 @@
+/* CardDetailPopup 컴포넌트 스타일 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+    padding: 20px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.popup-content {
+    background: var(--background-primary);
+    border-radius: var(--border-radius-2xl);
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 팝업 헤더 */
+.popup-header {
+    position: relative;
+    padding: 40px 30px 30px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-off) 100%);
+    border-radius: var(--border-radius-2xl) var(--border-radius-2xl) 0 0;
+    overflow: hidden;
+}
+
+.popup-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    pointer-events: none;
+}
+
+.decoration-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    opacity: 0.6;
+}
+
+.decoration-dots {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.decoration-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.decoration-dots span:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.decoration-dots span:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.close-btn:hover {
+    background: white;
+    transform: scale(1.1);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.popup-badge-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-badge,
+.difficulty-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-2xl);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+}
+
+.category-badge {
+    background: var(--text-secondary);
+}
+
+.difficulty-badge i {
+    font-size: 0.9rem;
+}
+
+.popup-icon {
+    width: 100px;
+    height: 100px;
+    border: 4px solid;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 20px;
+    background: var(--background-primary);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+}
+
+.popup-icon:hover {
+    transform: rotate(10deg) scale(1.05);
+}
+
+.popup-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+.popup-meta {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.meta-item i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* 팝업 바디 */
+.popup-body {
+    padding: 30px;
+}
+
+.popup-body h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.popup-body h3 i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.content-section {
+    margin-bottom: 30px;
+}
+
+.popup-description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.learning-objectives {
+    margin-bottom: 20px;
+}
+
+.learning-objectives ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.learning-objectives li {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.learning-objectives li:last-child {
+    margin-bottom: 0;
+}
+
+.learning-objectives li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--color-basic);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.study-features {
+    margin-top: 20px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.feature-item {
+    background: var(--background-off);
+    padding: 20px 15px;
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.feature-item:hover {
+    background: var(--background-secondary);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.feature-item i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.feature-item span {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+/* 팝업 푸터 */
+.popup-footer {
+    padding: 20px 30px 30px;
+    background: var(--background-off);
+    border-radius: 0 0 var(--border-radius-2xl) var(--border-radius-2xl);
+}
+
+.progress-preview {
+    margin-bottom: 20px;
+}
+
+.progress-preview .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.progress-preview .progress-bar {
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-preview .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-preview .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-preview .progress-text {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.preview-btn,
+.start-btn {
+    flex: 1;
+    padding: 15px 25px;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.preview-btn {
+    background: var(--background-primary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+}
+
+.preview-btn:hover {
+    background: var(--background-secondary);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.start-btn {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.preview-btn i,
+.start-btn i {
+    font-size: 0.9rem;
+}
+
+/* 스크롤바 커스터마이징 */
+.popup-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+    background: var(--background-off);
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .popup-overlay {
+        padding: 15px;
+    }
+
+    .popup-content {
+        max-height: 95vh;
+    }
+
+    .popup-header {
+        padding: 35px 25px 25px;
+    }
+
+    .popup-title {
+        font-size: 1.7rem;
+    }
+
+    .popup-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
+    .popup-meta {
+        gap: 15px;
+    }
+
+    .meta-item {
+        font-size: 0.85rem;
+    }
+
+    .popup-body {
+        padding: 25px;
+    }
+
+    .popup-footer {
+        padding: 15px 25px 25px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .feature-item {
+        padding: 15px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup-header {
+        padding: 30px 20px 20px;
+    }
+
+    .popup-title {
+        font-size: 1.5rem;
+    }
+
+    .popup-badge-container {
+        gap: 8px;
+    }
+
+    .category-badge,
+    .difficulty-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+    .popup-body {
+        padding: 20px;
+    }
+
+    .popup-footer {
+        padding: 15px 20px 20px;
+    }
+
+    .popup-body h3 {
+        font-size: 1.2rem;
+    }
+
+    .learning-objectives li {
+        font-size: 0.9rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+} 

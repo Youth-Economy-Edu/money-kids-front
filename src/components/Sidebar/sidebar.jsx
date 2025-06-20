@@ -1,58 +1,78 @@
-import React, { useState, useEffect } from "react";
-import {
-    FaBars, FaLandmark, FaHome, FaGraduationCap, FaChartLine, FaUsers, FaChartPie, FaNewspaper
-} from "react-icons/fa";
-import { useNavigate, useLocation } from "react-router-dom";
-import "./sidebar.css";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './sidebar.css';
 
-const Sidebar = () => {
-    const [isOpen, setIsOpen] = useState(window.innerWidth > 900);
-    const navigate = useNavigate();
+function Sidebar() {
     const location = useLocation();
-
-    useEffect(() => {
-        const handleResize = () => setIsOpen(window.innerWidth > 900);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    const navigate = useNavigate();
+    const [isOpen, setIsOpen] = useState(false);
 
     const menuItems = [
-        { id: "/", label: "홈", icon: <FaHome /> },
-        { id: "/learn", label: "경제배우기", icon: <FaGraduationCap /> },
-        { id: "/invest", label: "모의 투자", icon: <FaChartLine /> },
-        { id: "/parent", label: "학부모 페이지", icon: <FaUsers /> },
-        { id: "/analysis", label: "성향 분석", icon: <FaChartPie /> },
-        { id: "/news", label: "경제 소식", icon: <FaNewspaper /> }
+        { path: '/', icon: 'fas fa-home', text: '홈', badge: null },
+        { path: '/learn', icon: 'fas fa-book', text: '경제 배우기', badge: null },
+        { path: '/quiz', icon: 'fas fa-question-circle', text: '퀴즈', badge: '3' },
+        { path: '/invest', icon: 'fas fa-chart-line', text: '모의 투자', badge: null },
+        { path: '/analysis', icon: 'fas fa-brain', text: '성향 분석', badge: null },
+        { path: '/news', icon: 'fas fa-newspaper', text: 'AI 경제 뉴스', badge: 'NEW' }
     ];
+
+    const handleNavigation = (path) => {
+        navigate(path);
+        setIsOpen(false);
+    };
 
     return (
         <>
             <button className="mobile-menu-toggle" onClick={() => setIsOpen(!isOpen)}>
-                <FaBars />
+                <i className={isOpen ? "fas fa-times" : "fas fa-bars"}></i>
             </button>
-            <div className={`sidebar ${isOpen ? "open" : ""}`}>
+            
+            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
                 <div className="logo">
-                    <FaLandmark className="logo-icon" />
-                    <div>
-                        <h1>경제 배우기</h1>
-                        <p>스마트 금융 교육</p>
+                    <div className="logo-container">
+                        <div className="logo-icon">
+                            <i className="fas fa-piggy-bank"></i>
+                        </div>
+                        <div className="logo-text">
+                            <h1>Money Kids</h1>
+                            <p>청소년 경제교육 플랫폼</p>
+                        </div>
                     </div>
                 </div>
-
-                <div className="nav-menu">
-                    {menuItems.map(item => (
+                
+                <nav className="nav-menu">
+                    {menuItems.map((item, index) => (
                         <div
-                            key={item.id}
-                            className={`nav-item ${location.pathname === item.id ? "active" : ""}`}
-                            onClick={() => navigate(item.id)}>
-                            <div className="nav-icon">{item.icon}</div>
-                            <div className="nav-text">{item.label}</div>
+                            key={item.path}
+                            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                            onClick={() => handleNavigation(item.path)}
+                            style={{ '--item-index': index }}
+                        >
+                            <i className={`nav-icon ${item.icon}`}></i>
+                            <span className="nav-text">{item.text}</span>
+                            {item.badge && (
+                                <span className={`nav-badge ${item.badge === 'NEW' ? 'new' : 'count'}`}>
+                                    {item.badge}
+                                </span>
+                            )}
                         </div>
                     ))}
+                </nav>
+                
+                <div className="sidebar-footer">
+                    <div className="profile-section">
+                        <div className="profile-avatar">
+                            <i className="fas fa-user"></i>
+                        </div>
+                        <div className="profile-info">
+                            <div className="profile-name">김머니</div>
+                            <div className="profile-level">Lv.12 경제박사</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </aside>
         </>
     );
-};
+}
 
 export default Sidebar;

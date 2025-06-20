@@ -1,0 +1,103 @@
+.server-status-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  z-index: 9999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  gap: 15px;
+}
+
+.banner-icon {
+  font-size: 1.2rem;
+  color: #fff;
+  animation: pulse 2s infinite;
+}
+
+.banner-message {
+  flex: 1;
+  min-width: 0;
+}
+
+.banner-message strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.banner-message p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.banner-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  opacity: 0.8;
+}
+
+.banner-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .banner-content {
+    padding: 10px 15px;
+    gap: 10px;
+  }
+  
+  .banner-message strong {
+    font-size: 0.9rem;
+  }
+  
+  .banner-message p {
+    font-size: 0.8rem;
+  }
+  
+  .banner-icon {
+    font-size: 1rem;
+  }
+} 

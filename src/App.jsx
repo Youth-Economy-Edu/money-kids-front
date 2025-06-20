@@ -1,45 +1,86 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar/sidebar';
 import Header from './components/Header/header';
+import ServerStatus from './components/ServerStatus';
 import ConceptListPage from './pages/Learn/ConceptListPage';
 import QuizPage from './pages/Quiz/QuizPage';
 import QuizSolvePage from './pages/Quiz/QuizSolvePage';
-import ResultPage from './pages/Quiz/QuizResultPage'; // 여기를 수정 (QuizResultPage → ResultPage)
+import ResultPage from './pages/Quiz/QuizResultPage';
+import AnalysisPage from './pages/AnalysisPage';
+import InvestmentPage from './pages/InvestmentPage';
+import StockDetailPage from './pages/StockDetailPage';
+import NewsPage from './pages/NewsPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import HomePage from './pages/HomePage';
 import './styles/components.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function App() {
-    return (
-        <Router>
-            <div className="app">
-                <Sidebar />
-                <div className="main-content">
-                    <Header />
-                    <main className="content">
-                        <Routes>
-                            <Route path="/" element={<HomePlaceholder />} />
-                            <Route path="/learn" element={<ConceptListPage />} />
-                            <Route path="/quiz" element={<QuizPage />} />
-                            <Route path="/quiz/solve" element={<QuizSolvePage />} />
-                            <Route path="/quiz/result" element={<ResultPage />} />
-                            <Route path="/invest" element={<PlaceholderPage title="모의 투자" />} />
-                            <Route path="/parent" element={<PlaceholderPage title="학부모 페이지" />} />
-                            <Route path="/analysis" element={<PlaceholderPage title="성향 분석" />} />
-                            <Route path="/news" element={<PlaceholderPage title="경제 소식" />} />
-                        </Routes>
-                    </main>
-                </div>
+// 앱 내부 컴포넌트 (AuthProvider 내부에서 실행)
+function AppContent() {
+    const { user, loading, isAuthenticated, logout } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="app-loading">
+                <div className="loading-spinner"></div>
+                <p>로딩 중...</p>
             </div>
-        </Router>
+        );
+    }
+
+    if (!isAuthenticated()) {
+        return (
+            <>
+                <ServerStatus />
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                </Routes>
+            </>
+        );
+    }
+
+    return (
+        <div className="app">
+            <ServerStatus />
+            <Sidebar />
+            <div className="main-content">
+                <Header currentUser={user} onLogout={logout} />
+                <main className="content">
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/home" element={<HomePage />} />
+                        <Route path="/dashboard" element={<HomePage />} />
+                        <Route path="/learn" element={<ConceptListPage />} />
+                        <Route path="/quiz" element={<QuizPage />} />
+                        <Route path="/quiz/solve" element={<QuizSolvePage />} />
+                        <Route path="/quiz/result" element={<ResultPage />} />
+                        <Route path="/invest" element={<InvestmentPage />} />
+                        <Route path="/stock/:stockCode" element={<StockDetailPage />} />
+                        <Route path="/analysis" element={<AnalysisPage />} />
+                        <Route path="/news" element={<NewsPage />} />
+                        <Route path="/login" element={<Navigate to="/" replace />} />
+                        <Route path="/signup" element={<Navigate to="/" replace />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </main>
+            </div>
+        </div>
     );
 }
 
-const HomePlaceholder = () => (
-    <div className="placeholder">홈 페이지는 준비 중입니다.</div>
-);
-
-const PlaceholderPage = ({ title }) => (
-    <div className="placeholder">{title} 페이지는 준비 중입니다.</div>
-);
+// 메인 App 컴포넌트
+function App() {
+    return (
+        <AuthProvider>
+            <Router>
+                <AppContent />
+            </Router>
+        </AuthProvider>
+    );
+}
 
 export default App;

@@ -1,0 +1,744 @@
+.investment-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.investment-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.investment-header h1 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.investment-header p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.user-welcome {
+  color: #7c3aed !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* 잔고 카드 */
+.balance-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.balance-card h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+}
+
+.balance-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.balance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.balance-item span:first-child {
+  opacity: 0.9;
+}
+
+.balance-amount {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.balance-amount.total {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.balance-amount.positive {
+  color: #4caf50;
+}
+
+.balance-amount.negative {
+  color: #f44336;
+}
+
+.balance-amount.neutral {
+  color: inherit;
+}
+
+/* 탭 네비게이션 */
+.tab-navigation {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tab-button:hover:not(.active) {
+  background: #f5f5f5;
+}
+
+/* 정보 메시지 */
+.info-message {
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.info-message p {
+  color: #1976d2;
+  margin: 0;
+}
+
+/* 에러 메시지 */
+.error-message {
+  background: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message p {
+  color: #c62828;
+  margin: 0;
+}
+
+/* 주식 시장 섹션 */
+.market-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.market-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.market-controls h3 {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ranking-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ranking-btn {
+  background: #f5f5f5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ranking-btn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.ranking-btn:hover:not(.active) {
+  background: #e0e0e0;
+}
+
+/* 주식 카드 그리드 */
+.stocks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* 클릭 가능한 요소 스타일 */
+.stock-card .clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
+}
+
+.stock-card .clickable:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.stock-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.stock-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stock-rank {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stock-info {
+  margin-bottom: 16px;
+  padding-right: 40px;
+}
+
+.stock-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stock-code {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+}
+
+.stock-category {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.stock-price {
+  margin-bottom: 16px;
+}
+
+.current-price {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.price-change {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.price-change.positive {
+  color: #d32f2f;
+}
+
+.price-change.negative {
+  color: #1976d2;
+}
+
+.price-change.neutral {
+  color: #666;
+}
+
+.stock-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-wishlist {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.btn-wishlist:hover {
+  background: #f5f5f5;
+}
+
+.btn-buy, .btn-sell {
+  flex: 1;
+  background: #f5f5f5;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-buy {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.btn-buy:hover {
+  background: #d32f2f;
+  color: white;
+}
+
+.btn-sell {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.btn-sell:hover {
+  background: #1976d2;
+  color: white;
+}
+
+/* 빈 상태 */
+.empty-stocks, .empty-portfolio, .empty-history {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-stocks p, .empty-portfolio p, .empty-history p {
+  margin: 8px 0;
+}
+
+.retry-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+}
+
+/* 포트폴리오 섹션 */
+.portfolio-section, .history-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-section h3, .history-section h3 {
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.portfolio-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+}
+
+.portfolio-item h4 {
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+
+.portfolio-item p {
+  margin: 0 0 12px 0;
+  color: var(--text-secondary);
+}
+
+.portfolio-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 거래 내역 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.trade-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trade-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.trade-type.buy {
+  background: #d32f2f;
+}
+
+.trade-type.sell {
+  background: #1976d2;
+}
+
+.stock-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.trade-details {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 거래 모달 */
+.trade-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.trade-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.trade-modal h3 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.modal-stock-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-stock-info h4 {
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+
+.modal-stock-info p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.trade-form {
+  margin-bottom: 24px;
+}
+
+.trade-form label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.trade-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.total-amount {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancel, .btn-confirm {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: #f5f5f5;
+  color: var(--text-secondary);
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.btn-confirm.buy {
+  background: #d32f2f;
+  color: white;
+}
+
+.btn-confirm.buy:hover {
+  background: #b71c1c;
+}
+
+.btn-confirm.sell {
+  background: #1976d2;
+  color: white;
+}
+
+.btn-confirm.sell:hover {
+  background: #1565c0;
+}
+
+/* 로딩 */
+.investment-page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .investment-page {
+    padding: 16px;
+  }
+
+  .stocks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .balance-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .investment-page {
+    padding: 12px;
+  }
+
+  .balance-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .balance-item {
+    padding: 8px 0;
+  }
+
+  .tab-navigation {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tab-button {
+    padding: 12px;
+  }
+
+  .market-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ranking-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stocks-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stock-card {
+    padding: 16px;
+  }
+
+  .stock-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-buy, .btn-sell {
+    width: 100%;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-modal {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+
+  .trade-details {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .investment-page {
+    padding: 8px;
+  }
+
+  .investment-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .balance-card {
+    padding: 16px;
+  }
+
+  .market-section, .portfolio-section, .history-section {
+    padding: 16px;
+  }
+
+  .stock-info {
+    padding-right: 30px;
+  }
+
+  .stock-rank {
+    top: 8px;
+    right: 8px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .current-price {
+    font-size: 18px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .ranking-controls {
+    gap: 4px;
+  }
+
+  .ranking-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+} 
