@@ -1,0 +1,407 @@
+/* 성공 모달 오버레이 */
+.success-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 폭죽 컨테이너 */
+.fireworks-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 폭죽 */
+.firework {
+  position: absolute;
+  animation: launch 0.8s ease-out forwards;
+}
+
+.firework-1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0.2s;
+}
+
+.firework-2 {
+  top: 30%;
+  right: 20%;
+  animation-delay: 0.4s;
+}
+
+.firework-3 {
+  top: 15%;
+  right: 15%;
+  animation-delay: 0.6s;
+}
+
+.firework-4 {
+  top: 25%;
+  left: 20%;
+  animation-delay: 0.8s;
+}
+
+/* 폭발 효과 */
+.explosion {
+  position: relative;
+  width: 10px;
+  height: 10px;
+}
+
+.spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ff6b6b;
+  border-radius: 50%;
+  animation: explode 1.5s ease-out forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+.spark:nth-child(1) { 
+  background: #ff6b6b; 
+  animation-name: explode1;
+}
+.spark:nth-child(2) { 
+  background: #ffa726; 
+  animation-name: explode2;
+}
+.spark:nth-child(3) { 
+  background: #42a5f5; 
+  animation-name: explode3;
+}
+.spark:nth-child(4) { 
+  background: #ab47bc; 
+  animation-name: explode4;
+}
+.spark:nth-child(5) { 
+  background: #66bb6a; 
+  animation-name: explode5;
+}
+.spark:nth-child(6) { 
+  background: #ff8a65; 
+  animation-name: explode6;
+}
+.spark:nth-child(7) { 
+  background: #29b6f6; 
+  animation-name: explode7;
+}
+.spark:nth-child(8) { 
+  background: #ec407a; 
+  animation-name: explode8;
+}
+.spark:nth-child(9) { 
+  background: #fdd835; 
+  animation-name: explode9;
+}
+.spark:nth-child(10) { 
+  background: #26c6da; 
+  animation-name: explode10;
+}
+.spark:nth-child(11) { 
+  background: #7e57c2; 
+  animation-name: explode11;
+}
+.spark:nth-child(12) { 
+  background: #ef5350; 
+  animation-name: explode12;
+}
+
+/* 성공 모달 */
+.success-modal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  overflow: hidden;
+  animation: modalPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 매수 모달 - 파란색 계열 */
+.success-modal.buy {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* 매도 모달 - 빨간색 계열 */
+.success-modal.sell {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.success-modal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 2s infinite;
+}
+
+.success-content {
+  position: relative;
+  z-index: 1;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: bounce 1s ease-out infinite alternate;
+}
+
+.success-title {
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.success-details {
+  margin-bottom: 25px;
+}
+
+.stock-info {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.stock-name {
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.quantity {
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 1.3rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.success-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.celebration-text {
+  color: #ffd700;
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0.3) rotateY(180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotateY(90deg);
+  }
+  100% {
+    transform: scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes launch {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 개별 폭발 애니메이션 */
+@keyframes explode1 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(60px, 0) scale(1); opacity: 0; }
+}
+
+@keyframes explode2 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(42px, 42px) scale(1); opacity: 0; }
+}
+
+@keyframes explode3 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(0, 60px) scale(1); opacity: 0; }
+}
+
+@keyframes explode4 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(-42px, 42px) scale(1); opacity: 0; }
+}
+
+@keyframes explode5 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(-60px, 0) scale(1); opacity: 0; }
+}
+
+@keyframes explode6 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(-42px, -42px) scale(1); opacity: 0; }
+}
+
+@keyframes explode7 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(0, -60px) scale(1); opacity: 0; }
+}
+
+@keyframes explode8 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(42px, -42px) scale(1); opacity: 0; }
+}
+
+@keyframes explode9 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(85px, 21px) scale(1); opacity: 0; }
+}
+
+@keyframes explode10 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(21px, 85px) scale(1); opacity: 0; }
+}
+
+@keyframes explode11 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(-85px, 21px) scale(1); opacity: 0; }
+}
+
+@keyframes explode12 {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { opacity: 1; }
+  100% { transform: translate(-21px, -85px) scale(1); opacity: 0; }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+  100% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.5); }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+  50% { 
+    transform: scale(1.1) rotate(180deg);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 215, 0, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .success-modal {
+    padding: 30px 20px;
+    margin: 20px;
+  }
+  
+  .success-icon {
+    font-size: 3rem;
+  }
+  
+  .success-title {
+    font-size: 1.6rem;
+  }
+  
+  .stock-info {
+    font-size: 1rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .celebration-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* 매수용 폭죽 - 파란색 계열 */
+.success-modal.buy .spark:nth-child(1) { background: #4facfe; }
+.success-modal.buy .spark:nth-child(2) { background: #00f2fe; }
+.success-modal.buy .spark:nth-child(3) { background: #42a5f5; }
+.success-modal.buy .spark:nth-child(4) { background: #29b6f6; }
+.success-modal.buy .spark:nth-child(5) { background: #26c6da; }
+.success-modal.buy .spark:nth-child(6) { background: #00bcd4; }
+.success-modal.buy .spark:nth-child(7) { background: #4dd0e1; }
+.success-modal.buy .spark:nth-child(8) { background: #80deea; }
+.success-modal.buy .spark:nth-child(9) { background: #b3e5fc; }
+.success-modal.buy .spark:nth-child(10) { background: #e1f5fe; }
+.success-modal.buy .spark:nth-child(11) { background: #039be5; }
+.success-modal.buy .spark:nth-child(12) { background: #0277bd; }
+
+/* 매도용 폭죽 - 빨간색/주황색 계열 */
+.success-modal.sell .spark:nth-child(1) { background: #fa709a; }
+.success-modal.sell .spark:nth-child(2) { background: #fee140; }
+.success-modal.sell .spark:nth-child(3) { background: #ff6b6b; }
+.success-modal.sell .spark:nth-child(4) { background: #ffa726; }
+.success-modal.sell .spark:nth-child(5) { background: #ff8a65; }
+.success-modal.sell .spark:nth-child(6) { background: #ffab40; }
+.success-modal.sell .spark:nth-child(7) { background: #ff7043; }
+.success-modal.sell .spark:nth-child(8) { background: #ec407a; }
+.success-modal.sell .spark:nth-child(9) { background: #fdd835; }
+.success-modal.sell .spark:nth-child(10) { background: #ffcc02; }
+.success-modal.sell .spark:nth-child(11) { background: #ef5350; }
+.success-modal.sell .spark:nth-child(12) { background: #f44336; } 

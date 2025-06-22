@@ -1,0 +1,272 @@
+.user-debug-page {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding: 20px;
+}
+
+.debug-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.debug-container h1 {
+    color: #1f2937;
+    margin-bottom: 8px;
+    font-size: 2rem;
+}
+
+.debug-container > p {
+    color: #6b7280;
+    margin-bottom: 32px;
+    font-size: 1.1rem;
+}
+
+.debug-sections {
+    display: grid;
+    gap: 24px;
+}
+
+.debug-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.debug-section h2 {
+    color: #1f2937;
+    margin-bottom: 16px;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+.debug-section h3 {
+    color: #374151;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+}
+
+.user-info-container {
+    margin-bottom: 24px;
+}
+
+.raw-data {
+    margin-bottom: 24px;
+}
+
+.raw-data pre {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    color: #374151;
+    font-family: 'Courier New', monospace;
+}
+
+.quick-info {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.info-item strong {
+    color: #374151;
+    font-weight: 600;
+}
+
+.preset-users {
+    margin-bottom: 24px;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.test-login-form {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-info {
+    background: #06b6d4;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #0891b2;
+}
+
+.btn-outline {
+    background: white;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+.api-test-info {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.api-test-info p {
+    margin-bottom: 16px;
+    color: #0369a1;
+}
+
+.api-urls {
+    display: grid;
+    gap: 12px;
+}
+
+.api-url {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #bae6fd;
+}
+
+.api-url strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #0369a1;
+    font-size: 14px;
+}
+
+.api-url code {
+    display: block;
+    background: #f1f5f9;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .user-debug-page {
+        padding: 16px;
+    }
+    
+    .debug-container h1 {
+        font-size: 1.75rem;
+    }
+    
+    .debug-section {
+        padding: 20px;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preset-buttons {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+} 
