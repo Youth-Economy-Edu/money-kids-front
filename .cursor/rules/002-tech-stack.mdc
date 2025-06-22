@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 주요 스택 및 우선순위 지정
+- Spring Boot (JPA, QueryDSL)
+- RDB (MySQL, H2 memory DB for test)
+- Redis cache DB
+- Kafka 이벤트 스트리밍
+- ANS S3 저장소
+- 프론트엔드는 React Web 사용
+- GCP 의 안연인식 API 활용
+- 000 사이트 대상 데이터 크롤링 수행
+# 참고 규칙 문서
+- [002-tech-stack.mdc](mdc:.cursor/rules/002-tech-stack.mdc)
+- [003-development-guide.mdc](mdc:.cursor/rules/003-development-guide.mdc)

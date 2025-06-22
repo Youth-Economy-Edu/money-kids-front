@@ -1,0 +1,52 @@
+/* MainLayout.css - Mobile First Design */
+
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--background-primary);
+}
+
+/* 모바일 우선 - 사이드바 숨김 */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.content-area {
+    flex: 1;
+    padding: 1rem;
+    padding-bottom: 90px; /* 하단 탭바 여백 */
+    background: var(--background-primary);
+    overflow-y: auto;
+    padding-top: 0; /* Header와의 간격 제거 */
+}
+
+/* CSS 변수 추가 */
+:root {
+    --background-primary: #f8fafc;
+}
+
+/* 데스크톱에서만 사이드바 표시 */
+@media (min-width: 1024px) {
+    .main-layout {
+        flex-direction: row;
+    }
+
+    .main-content {
+        margin-left: 250px;
+        transition: margin-left 0.3s ease;
+    }
+
+    .content-area {
+        padding: 24px 32px;
+        padding-bottom: 24px; /* 데스크톱에서는 하단 여백 제거 */
+    }
+
+    /* 사이드바가 닫혔을 때 */
+    .sidebar.closed ~ .main-content {
+        margin-left: 70px;
+    }
+}

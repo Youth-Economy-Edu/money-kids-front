@@ -1,0 +1,24 @@
+---
+description: 
+globs: .cursor/tools/temp/**/*,.cursor/tools/**/*
+alwaysApply: false
+---
+# MCP/빌드/커맨드라인/IDE 도구 관리 규칙
+#[CONTEXT-AUTO] MCP 관련 IDE 작업(설정, 실행, 플러그인 등) 발생 시 이 규칙이 자동으로 컨텍스트에 포함됨
+1. MCP 서버 사용
+- 공식 배포된 MCP 서버만 사용하며, 커스텀 MCP는 별도 검증 후 도입
+- MCP 서버 버전 및 설정은 mdc 또는 README에 명시
+- MCP 서버 장애 발생 시 즉시 롤백 및 장애 리포트 작성
+- MCP 서버 설치는 반드시 MCP Installer로 사용
+2. 빌드 도구 사용
+- Gradle, Maven 등 표준 빌드 도구만 사용
+- 빌드 스크립트는 버전관리(Git)에 포함, 커스텀 태스크는 주석 필수
+- 빌드 환경(로컬/CI)별 설정 분리, 환경별 README 작성
+3. 커맨드라인 기반 extension 도구 사용
+- 공식 배포/검증된 CLI 도구만 사용, 임의 스크립트는 리뷰 후 도입
+- 주요 커맨드/옵션은 문서화, 반복 작업은 Makef1le/Shell Script로 관리
+- 보안상 민감 정보는 환경변수로 관리, 직접 노출 금지
+4. IDE 제공 도구 사용
+- JetBrains, VSCode 등 IDE 기본 제공 도구 우선 활용
+- IDE 플러그인/확장 설치 시 팀 내 공유 및 버전 통일
+- IDE 설정(코드 스타일, 포맷터 등)은 .editorconfig 등으로 프로젝트 내 공유

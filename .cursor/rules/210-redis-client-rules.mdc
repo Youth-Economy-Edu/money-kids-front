@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Globs: src/main/java/**/«Redis*, src/main/ resources/**/redis*, application.yml
+# Redis 클라이언트 선택 규칙
+- Lettuce 사용 조건:
+- 단순 캐싱 사용 사례
+- 기본적인 키-값 읽기/쓰기
+- 가벼운 의존성이 선호되는 경우
+- Spring Data Redis 기본 기능으로 충분한 경우
+- Redisson 사용 조건:
+- 분산 락이 필요한 경우
+- 공유 분산 객체가 필요한 경우
+- 더 복잡한 클러스터 조정이 필요한 경우
+- Java 컬렉션과 유사한 API가 선호되는 경우
+- 동일한 캐시 목적으로 Lettuce와 Redisson을 혼용하지 말 것

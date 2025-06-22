@@ -1,0 +1,20 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+Globs: **/*.ts, **/*.js, **/*.py, **/*.java, **/*.html, **/*.yml, **/*.yaml
+
+# MCP 호출 컨텍스트 핵심 규칙
+
+- 목적: MCP 호출 시 컨텍스트별(동기/비동기/배치) 표준 처리 방식 정의
+- 동기(Sync): 즉시 응답, UI/핵심, timeout 필수  
+  `await mcp.syncCall({context:'immediate', priority:'high', timeout:5000})`
+- 비동기(Async): 백그라운드, 병렬, callback/재시도  
+  `mcp.asyncCall({context:'background', priority:'low', callback:fn})`
+- 배치(Batch): 대량/주기, 청크, 진행률  
+  `mcp.batchCall({context:'batch', batchSize:1000, interval:5000})`
+- 우선순위: High(실시간/핵심), Medium(일반/주기), Low(로깅/통계)
+- UI: 동기, timeout, 에러핸들링 필수
+- 백그라운드: 비동기, 재시도, 리소스 모니터링
+- 배치: 청크, 진행률, 실패복구

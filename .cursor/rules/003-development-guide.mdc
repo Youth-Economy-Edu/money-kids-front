@@ -1,0 +1,21 @@
+---
+description: Architectual
+globs: 
+alwaysApply: false
+---
+# 아키텍처 핵심 설명 및 디자인패턴 가이드
+- 경제교육 플랫폼의 여러 기능은 MSA(Microservice Architecture)로 분리 개발/배포한다.
+- 각 서비스는 독립적 배포, DB 스키마 분리, API 명세 준수.
+- 서비스 간 통신은 REST, Kafka 등 메시지 기반으로 제한.
+- Katka 이벤트 기반 비동기 처리
+- 서비스 간 데이터 동기화, 이벤트 발행/구독 패턴 적용.
+- 이벤트 메시지는 불변(immutable) 객체로 설계.
+- 장애 복구를 위한 재처리(Replay) 전략 명시.
+- 이벤트 기반 분산 트랜잭션(Choreography)
+- Saga 패턴 활용, 각 서비스는 자신의 상태만 관리.
+- 이벤트 수신 후 상태 변경 및 후속 이벤트 발행 책임.
+- 트랜잭션 실패 시 보상(Compensation) 이벤트 설계 필수.
+- Redis 분산 캐시 및 분산 락
+- 캐시 일관성 보장 위해 TTL, Pub/Sub 활용.
+- 분산 락은 Redisson 등 라이브러리 사용 권장,
+- 라 회득 실패 시 재시도/백오프(backoff) 정책 적용.

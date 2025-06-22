@@ -1,5 +1,6 @@
 /* index.css 또는 global.css */
 
+/* 전역 CSS 변수 정의 */
 :root {
   --primary-color: #3B82F6;
   --primary-color-dark: #2563EB;
@@ -19,10 +20,80 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* 색상 시스템 */
+  --primary-color: #3b82f6;
+  --primary-light: #eff6ff;
+  --primary-dark: #1e40af;
+
+  --secondary-color: #6b7280;
+  --secondary-light: #f3f4f6;
+
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #06b6d4;
+
+  /* 텍스트 색상 */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #ffffff;
+
+  /* 배경 색상 */
+  --background-primary: #f8fafc;
+  --background-secondary: #ffffff;
+  --background-light: #f9fafb;
+
+  /* 중성 색상 */
+  --neutral-light: #e5e7eb;
+  --neutral-medium: #d1d5db;
+  --neutral-dark: #374151;
+
+  /* 그림자 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* 폰트 */
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+
+  /* 기타 */
+  --border-radius: 8px;
+  --transition: all 0.2s ease;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* 기본 리셋 */
+* {
+  box-sizing: border-box;
+}
+
+body {
 html, body, #root {
   margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* 기본 요소 스타일링 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
   padding: 0;
   height: 100%;
   width: 100%;
@@ -35,13 +106,75 @@ html, body, #root {
 a {
   color: inherit;
   text-decoration: none;
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
 }
 
 /* 버튼 리셋 */
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+/* 버튼 기본 스타일 */
 button {
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   border: none;
   background: none;
   padding: 0;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 입력 요소 기본 스타일 */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 0.875rem;
+  border: 1px solid var(--neutral-light);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem;
+  transition: var(--transition);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 유틸리티 클래스 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

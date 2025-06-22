@@ -1,0 +1,149 @@
+/* TendencyAnalysis.css - Menu Style */
+
+.tendency-menu-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.menu-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.menu-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.menu-card {
+    background: var(--background-secondary);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--neutral-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color, var(--primary-color));
+    transition: width 0.3s ease;
+}
+
+.menu-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.menu-card:hover::before {
+    width: 8px;
+}
+
+.menu-card:active {
+    transform: translateY(0);
+}
+
+.menu-card-header {
+    margin-bottom: 0.75rem;
+}
+
+.menu-card-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.menu-card-body p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.menu-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.menu-arrow {
+    color: var(--accent-color, var(--primary-color));
+    font-size: 1.25rem;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+}
+
+.menu-card:hover .menu-arrow {
+    transform: translateX(4px);
+}
+
+/* 태블릿 이상에서 그리드 확장 */
+@media (min-width: 768px) {
+    .tendency-menu-container {
+        padding: 2rem;
+        max-width: 800px;
+    }
+
+    .menu-header h1 {
+        font-size: 2rem;
+    }
+
+    .menu-header p {
+        font-size: 1rem;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .menu-card {
+        padding: 2rem;
+    }
+
+    .menu-card-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .menu-card-body p {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .tendency-menu-container {
+        max-width: 1200px;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+
+

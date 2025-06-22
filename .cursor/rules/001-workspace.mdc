@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// 분량이 많아지는 경우 아래 내용을 001, 002, 003 으로 분리 # 프로젝트 개요
+- 청소년 경제교육 플랫폼 제작 프로젝트의 백엔드 API 서비스 개발
+- 금융 상식과 재테크 기법, 경제 윤리 및 글로벌 경제 동향 등의 정보를 다릅니다
+- 백엔드+ 프론트엔드 + 이벤트 기반의 분산 시스템 구축
+- AI API 호출을 통한 트렌디한 기능 추가 예정
+# 참고 규칙 스크립트
+- [002-tech-stack.mdc](mdc:.cursor/rules/002-tech-stack.mdc)
+- [003-development-guide.mdc](mdc:.cursor/rules/003-development-guide.mdc)
+- [012-cursor-tools.mdc](mdc:.cursor/rules/012-cursor-tools.mdc)
+I

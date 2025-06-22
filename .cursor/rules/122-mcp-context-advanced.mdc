@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+Globs: **/*.ts, **/*.js, **/*.py, **/*.java, **/*.html, **/*.yml, **/*.yaml
+
+# MCP 고급 운영 규칙
+
+- 리소스 관리: 메모리/연결풀/캐시 정책
+- 보안: 인증/인가, 암호화, 접근제어
+- 확장성: 수평확장, 부하분산, 캐싱
