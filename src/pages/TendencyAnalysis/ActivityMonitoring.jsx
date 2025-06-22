@@ -23,7 +23,7 @@ const ActivityMonitoring = () => {
     const [selectedPeriod, setSelectedPeriod] = useState(7);
     
     // 로그인한 유저의 ID를 localStorage에서 가져오기
-    const childId = localStorage.getItem("userId") || "user001"; // 기본값으로 user001 사용
+    const childId = localStorage.getItem("userId") || "master"; // 기본값으로 master 사용 (실제 데이터 있음)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -133,7 +133,30 @@ const ActivityMonitoring = () => {
 
     // 일별 활동 바 차트
     const getDailyActivityData = () => {
-        if (!activityData) return null;
+        if (!activityData || !activityData.dailyActivities) {
+            // 기본 데이터 제공
+            const defaultDailyData = [
+                { day: "월", count: 0 },
+                { day: "화", count: 0 },
+                { day: "수", count: 0 },
+                { day: "목", count: 0 },
+                { day: "금", count: 0 },
+                { day: "토", count: 0 },
+                { day: "일", count: 0 }
+            ];
+            
+            return {
+                labels: defaultDailyData.map(item => item.day),
+                datasets: [{
+                    label: '활동 수',
+                    data: defaultDailyData.map(item => item.count),
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            };
+        }
         
         return {
             labels: activityData.dailyActivities.map(item => item.day),

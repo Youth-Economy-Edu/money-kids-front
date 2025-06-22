@@ -1,0 +1,166 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 프론트엔드 응집성 규칙
+
+## 개요
+이 규칙은 관련 코드를 함께 유지하고 모듈이 잘 정의된 단일 목적을 가지도록 하는 원칙을 정의합니다.
+
+## 폼 응집성 고려
+
+**규칙:** 폼 요구사항에 따라 필드 수준 또는 폼 수준의 응집성을 선택합니다.
+
+**이유:**
+- 필드 독립성(필드 수준)과 폼 통일성(폼 수준) 사이의 균형 유지
+- 요구사항에 따라 관련 폼 로직을 적절히 그룹화
+
+#### 권장 패턴 (필드 수준 예시):
+```tsx
+import { useForm } from "react-hook-form";
+
+export function Form() {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    /* defaultValues 등 */
+  });
+
+  const onSubmit = handleSubmit((formData) => {
+    console.log("폼 제출:", formData);
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        <input
+          {...register("name", {
+            validate: (value) =>
+              value.trim() === "" ? "이름을 입력해주세요." : true,
+          })}
+          placeholder="이름"
+        />
+        {errors.name && <p>{errors.name.message}</p>}
+      </div>
+      <div>
+        <input
+          {...register("email", {
+            validate: (value) =>
+              /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)
+                ? true
+                : "유효하지 않은 이메일 주소입니다.",
+          })}
+          placeholder="이메일"
+        />
+        {errors.email && <p>{errors.email.message}</p>}
+      </div>
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+
+#### 권장 패턴 (폼 수준 예시):
+```tsx
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  name: z.string().min(1, "이름을 입력해주세요."),
+  email: z.string().min(1, "이메일을 입력해주세요.").email("유효하지 않은 이메일입니다."),
+});
+
+export function Form() {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", email: "" },
+  });
+
+  const onSubmit = handleSubmit((formData) => {
+    console.log("폼 제출:", formData);
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        <input {...register("name")} placeholder="이름" />
+        {errors.name && <p>{errors.name.message}</p>}
+      </div>
+      <div>
+        <input {...register("email")} placeholder="이메일" />
+        {errors.email && <p>{errors.email.message}</p>}
+      </div>
+      <button type="submit">제출</button>
+    </form>
+  );
+}
+```
+
+**가이드라인:** 독립적인 검증, 비동기 검사, 재사용 가능한 필드의 경우 **필드 수준**을 선택하세요. 관련 필드, 위자드 폼, 상호 의존적인 검증의 경우 **폼 수준**을 선택하세요.
+
+## 기능/도메인별 코드 구성
+
+**규칙:** 코드 유형이 아닌 기능/도메인별로 디렉토리를 구성합니다.
+
+**이유:**
+- 관련 파일을 함께 유지하여 응집성 향상
+- 기능 이해, 개발, 유지보수, 삭제를 단순화
+
+#### 권장 패턴:
+```
+src/
+├── components/ # 공유/공통 컴포넌트
+├── hooks/      # 공유/공통 훅
+├── utils/      # 공유/공통 유틸리티
+├── domains/
+│   ├── user/
+│   │   ├── components/
+│   │   │   └── UserProfileCard.tsx
+│   │   ├── hooks/
+│   │   │   └── useUser.ts
+│   │   └── index.ts # 선택적 배럴 파일
+│   ├── product/
+│   │   ├── components/
+│   │   │   └── ProductList.tsx
+│   │   ├── hooks/
+│   │   │   └── useProducts.ts
+│   │   └── ...
+│   └── order/
+│       ├── components/
+│       │   └── OrderSummary.tsx
+│       ├── hooks/
+│       │   └── useOrder.ts
+│       └── ...
+└── App.tsx
+```
+
+## 매직 넘버와 로직 연결
+
+**규칙:** 상수를 관련 로직 근처에 정의하거나 이름이 명확하게 연결되도록 합니다.
+
+**이유:**
+- 상수를 나타내는 로직과 연결하여 응집성 향상
+- 관련 상수를 업데이트하지 않고 로직을 업데이트하여 발생하는 조용한 실패 방지
+
+#### 권장 패턴:
+```typescript
+// 상수가 명확하게 명명되고 애니메이션 로직 근처에 정의됨
+const ANIMATION_DELAY_MS = 300;
+
+async function onLikeClick() {
+  await postLike(url);
+  // 지연이 상수를 사용하여 애니메이션과의 연결 유지
+  await delay(ANIMATION_DELAY_MS);
+  await refetchPostLike();
+}
+```
+
+_상수가 의존하는 로직과 함께 유지되거나 관계를 명확히 보여주는 이름을 가지도록 하세요._

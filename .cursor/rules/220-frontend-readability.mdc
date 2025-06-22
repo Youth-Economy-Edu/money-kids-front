@@ -1,0 +1,189 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 프론트엔드 가독성 규칙
+
+## 개요
+이 규칙은 프론트엔드 코드의 가독성을 향상시키기 위한 주요 원칙과 패턴을 정의합니다.
+
+## 매직 넘버 명명
+
+**규칙:** 매직 넘버는 의미 있는 상수로 대체하여 명확성을 높입니다.
+
+**이유:**
+- 의미 없는 값에 의미를 부여하여 명확성 향상
+- 유지보수성 개선
+
+#### 권장 패턴:
+```typescript
+const ANIMATION_DELAY_MS = 300;
+
+async function onLikeClick() {
+  await postLike(url);
+  await delay(ANIMATION_DELAY_MS); // 애니메이션 대기 시간을 명확히 표시
+  await refetchPostLike();
+}
+```
+
+## 구현 세부사항 추상화
+
+**규칙:** 복잡한 로직/상호작용을 전용 컴포넌트/HOC로 추상화합니다.
+
+**이유:**
+- 관심사 분리를 통한 인지 부하 감소
+- 컴포넌트의 가독성, 테스트 용이성, 유지보수성 향상
+
+#### 권장 패턴 1: 인증 가드
+```tsx
+function App() {
+  return (
+    <AuthGuard> {/* 래퍼가 인증 확인을 처리 */}
+      <LoginStartPage />
+    </AuthGuard>
+  );
+}
+
+function AuthGuard({ children }) {
+  const status = useCheckLoginStatus();
+  useEffect(() => {
+    if (status === "LOGGED_IN") {
+      location.href = "/home";
+    }
+  }, [status]);
+
+  return status !== "LOGGED_IN" ? children : null;
+}
+```
+
+#### 권장 패턴 2: 전용 상호작용 컴포넌트
+```tsx
+function InviteButton({ name }) {
+  const handleClick = async () => {
+    const canInvite = await overlay.openAsync(({ isOpen, close }) => (
+      <ConfirmDialog
+        title={`Share with ${name}`}
+        // ... 다이얼로그 설정
+      />
+    ));
+
+    if (canInvite) {
+      await sendPush();
+    }
+  };
+
+  return <Button onClick={handleClick}>Invite</Button>;
+}
+```
+
+## 조건부 렌더링 코드 경로 분리
+
+**규칙:** 크게 다른 조건부 UI/로직을 별도의 컴포넌트로 분리합니다.
+
+**이유:**
+- 복잡한 조건문을 피하여 가독성 향상
+- 각 특화된 컴포넌트가 명확한 단일 책임을 가지도록 보장
+
+#### 권장 패턴:
+```tsx
+function SubmitButton() {
+  const isViewer = useRole() === "viewer";
+  return isViewer ? <ViewerSubmitButton /> : <AdminSubmitButton />;
+}
+
+function ViewerSubmitButton() {
+  return <TextButton disabled>Submit</TextButton>;
+}
+
+function AdminSubmitButton() {
+  useEffect(() => {
+    showAnimation();
+  }, []);
+  return <Button type="submit">Submit</Button>;
+}
+```
+
+## 복잡한 삼항 연산자 단순화
+
+**규칙:** 복잡한/중첩된 삼항 연산자를 `if`/`else` 또는 IIFE로 대체합니다.
+
+**이유:**
+- 조건부 로직을 빠르게 파악하기 쉽게 만듦
+- 전반적인 코드 유지보수성 향상
+
+#### 권장 패턴:
+```typescript
+const status = (() => {
+  if (ACondition && BCondition) return "BOTH";
+  if (ACondition) return "A";
+  if (BCondition) return "B";
+  return "NONE";
+})();
+```
+
+## 시선 이동 최소화 (단순 로직 공동 배치)
+
+**규칙:** 단순하고 지역화된 로직은 공동 배치하거나 인라인 정의를 사용합니다.
+
+**이유:**
+- 위에서 아래로 읽고 빠르게 이해할 수 있게 함
+- 컨텍스트 전환(시선 이동)으로 인한 인지 부하 감소
+
+#### 권장 패턴 A: 인라인 `switch`
+```tsx
+function Page() {
+  const user = useUser();
+  switch (user.role) {
+    case "admin":
+      return <AdminView />;
+    case "viewer":
+      return <ViewerView />;
+    default:
+      return null;
+  }
+}
+```
+
+#### 권장 패턴 B: 공동 배치된 단순 정책 객체
+```tsx
+function Page() {
+  const user = useUser();
+  const policy = {
+    admin: { canInvite: true, canView: true },
+    viewer: { canInvite: false, canView: true },
+  }[user.role];
+
+  if (!policy) return null;
+
+  return (
+    <div>
+      <Button disabled={!policy.canInvite}>Invite</Button>
+      <Button disabled={!policy.canView}>View</Button>
+    </div>
+  );
+}
+```
+
+## 복잡한 조건 명명
+
+**규칙:** 복잡한 불리언 조건을 명명된 변수에 할당합니다.
+
+**이유:**
+- 조건의 의미를 명시적으로 만듦
+- 인지 부하를 줄여 가독성과 자체 문서화 개선
+
+#### 권장 패턴:
+```typescript
+const matchedProducts = products.filter((product) => {
+  const isSameCategory = product.categories.some(
+    (category) => category.id === targetCategory.id
+  );
+  const isPriceInRange = product.prices.some(
+    (price) => price >= minPrice && price <= maxPrice
+  );
+  return isSameCategory && isPriceInRange;
+});
+```
+
+**가이드라인:** 로직이 복잡하거나, 재사용되거나, 단위 테스트가 필요한 경우에만 조건을 명명하세요. 매우 단순하고 한 번만 사용되는 조건은 명명하지 마세요.

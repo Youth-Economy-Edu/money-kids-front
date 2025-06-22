@@ -1,0 +1,115 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 프론트엔드 예측 가능성 규칙
+
+## 개요
+이 규칙은 코드가 이름, 매개변수, 컨텍스트에 따라 예상대로 동작하도록 보장하는 원칙을 정의합니다.
+
+## 반환 타입 표준화
+
+**규칙:** 유사한 함수/훅에 대해 일관된 반환 타입을 사용합니다.
+
+**이유:**
+- 개발자가 반환 값의 형태를 예측할 수 있어 코드 예측 가능성 향상
+- 일관성 없는 타입으로 인한 혼란과 잠재적 오류 감소
+
+#### 권장 패턴 1: API 훅 (React Query)
+```typescript
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+
+function useUser(): UseQueryResult<UserType, Error> {
+  const query = useQuery({ queryKey: ["user"], queryFn: fetchUser });
+  return query;
+}
+
+function useServerTime(): UseQueryResult<Date, Error> {
+  const query = useQuery({
+    queryKey: ["serverTime"],
+    queryFn: fetchServerTime,
+  });
+  return query;
+}
+```
+
+#### 권장 패턴 2: 검증 함수
+```typescript
+type ValidationResult = { ok: true } | { ok: false; reason: string };
+
+function checkIsNameValid(name: string): ValidationResult {
+  if (name.length === 0) return { ok: false, reason: "이름은 비워둘 수 없습니다." };
+  if (name.length >= 20) return { ok: false, reason: "이름은 20자를 초과할 수 없습니다." };
+  return { ok: true };
+}
+
+function checkIsAgeValid(age: number): ValidationResult {
+  if (!Number.isInteger(age)) return { ok: false, reason: "나이는 정수여야 합니다." };
+  if (age < 18) return { ok: false, reason: "나이는 18세 이상이어야 합니다." };
+  if (age > 99) return { ok: false, reason: "나이는 99세 이하여야 합니다." };
+  return { ok: true };
+}
+
+// 사용 예시
+const nameValidation = checkIsNameValid(name);
+if (!nameValidation.ok) {
+  console.error(nameValidation.reason);
+}
+```
+
+## 숨겨진 로직 드러내기 (단일 책임)
+
+**규칙:** 숨겨진 부작용을 피하고, 함수는 시그니처에서 암시하는 동작만 수행해야 합니다.
+
+**이유:**
+- 의도하지 않은 부작용 없이 예측 가능한 동작 보장
+- 관심사 분리(SRP)를 통한 더 견고하고 테스트 가능한 코드 생성
+
+#### 권장 패턴:
+```typescript
+// 함수는 잔액만 가져옴
+async function fetchBalance(): Promise<number> {
+  const balance = await http.get<number>("...");
+  return balance;
+}
+
+// 호출자가 필요한 곳에서 명시적으로 로깅 수행
+async function handleUpdateClick() {
+  const balance = await fetchBalance(); // 가져오기
+  logging.log("balance_fetched"); // 로깅 (명시적 동작)
+  await syncBalance(balance); // 다른 동작
+}
+```
+
+## 고유하고 설명적인 이름 사용 (모호성 피하기)
+
+**규칙:** 커스텀 래퍼/함수에 고유하고 설명적인 이름을 사용하여 모호성을 피합니다.
+
+**이유:**
+- 모호성을 피하고 예측 가능성 향상
+- 개발자가 이름에서 특정 동작(예: 인증 추가)을 직접 이해할 수 있게 함
+
+#### 권장 패턴:
+```typescript
+// httpService.ts - 더 명확한 모듈 이름
+import { http as httpLibrary } from "@some-library/http";
+
+export const httpService = {
+  // 고유한 모듈 이름
+  async getWithAuth(url: string) {
+    // 설명적인 함수 이름
+    const token = await fetchToken();
+    return httpLibrary.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+};
+
+// fetchUser.ts - 사용 시 인증이 명확히 표시됨
+import { httpService } from "./httpService";
+export async function fetchUser() {
+  // 'getWithAuth'라는 이름이 동작을 명시적으로 보여줌
+  return await httpService.getWithAuth("...");
+}
+```

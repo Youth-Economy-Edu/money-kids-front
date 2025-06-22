@@ -35,7 +35,7 @@ const LearningProgress = () => {
     const [error, setError] = useState(null);
     
     // 로그인한 유저의 ID를 localStorage에서 가져오기
-    const childId = localStorage.getItem("userId") || "user001"; // 기본값으로 user001 사용
+    const childId = localStorage.getItem("userId") || "master"; // 기본값으로 master 사용 (실제 데이터 있음)
 
     useEffect(() => {
         const fetchData = async () => {

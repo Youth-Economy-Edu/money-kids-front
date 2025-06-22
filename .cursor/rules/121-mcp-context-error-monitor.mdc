@@ -1,0 +1,26 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+Globs: **/*.ts, **/*.js, **/*.py, **/*.java, **/*.html, **/*.yml, **/*.yaml
+
+# MCP 에러 처리 및 모니터링 규칙
+
+- 에러 처리: timeout/재시도/폴백(cache) 옵션 활용  
+  `mcp.call({timeout:5000, retry:3, fallback:{strategy:'cache',ttl:3600}})`
+- 모니터링: 응답시간, 처리량, 에러율, 리소스, 로그레벨(ERROR/WARN/INFO/DEBUG)
+- 예시 핸들러:
+  ```js
+  class MCPHandler {
+    async process(ctx) {
+      const cfg = this.getContextConfig(ctx);
+      return await this.executeWithRetry(cfg);
+    }
+  }
+  ```
+- 예시 에러/모니터링 클래스:
+  ```js
+  class MCPError extends Error {}
+  class MCPMonitor { track(metric) {} }
+  ```
