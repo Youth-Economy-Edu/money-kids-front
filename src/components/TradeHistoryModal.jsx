@@ -85,6 +85,28 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // 날짜/시간 포맷팅 함수
+  const formatTradeDate = (dateString) => {
+    if (!dateString) return '정보 없음';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '정보 없음';
+      
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (error) {
+      console.error('날짜 파싱 오류:', error);
+      return '정보 없음';
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -173,7 +195,7 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
                       </div>
                       <div className="trade-detail-item">
                         <span className="detail-label">거래시간</span>
-                        <span className="detail-value">{trade.date || trade.tradeDate || '정보 없음'}</span>
+                        <span className="detail-value">{formatTradeDate(trade.date || trade.tradeDate)}</span>
                       </div>
                     </div>
                   </div>

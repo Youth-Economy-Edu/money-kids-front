@@ -4,6 +4,7 @@ import './InvestmentPage.css';
 import StockTradeModal from '../components/StockTradeModal';
 import StockChart from '../components/StockChart';
 import TradeHistoryModal from '../components/TradeHistoryModal';
+import TradeSuccessModal from '../components/TradeSuccessModal';
 import { recordMultipleStockPrices } from '../utils/stockHistory';
 
 const InvestmentPage = () => {
@@ -28,8 +29,12 @@ const InvestmentPage = () => {
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
   const [showTradeHistory, setShowTradeHistory] = useState(false);
-
-
+  const [showTradeSuccess, setShowTradeSuccess] = useState(false);
+  const [tradeSuccessInfo, setTradeSuccessInfo] = useState({ 
+    tradeType: '', 
+    stockName: '', 
+    quantity: 0 
+  });
 
   // 사용자 포인트 및 포트폴리오 정보 가져오기
   const fetchUserData = async () => {
@@ -64,13 +69,13 @@ const InvestmentPage = () => {
       
       const stocksData = await stocksResponse.json();
       
-      // 4. 오늘의 평가 손익 계산 (전일 대비 변화)
-      let todayProfitLoss = 0; // 오늘의 평가 손익
-      let yesterdayValue = 0; // 전일 가치
+      // 4. 총 평가 손익 계산 (매수가 기준)
+      let totalProfitLoss = 0; // 총 평가 손익
+      let totalInvestment = 0; // 총 투자 금액
       let currentStockValue = 0; // 현재 가치
       
       if (portfolioData.stocks && portfolioData.stocks.length > 0) {
-        console.log('=== 오늘의 평가 손익 계산 ===');
+        console.log('=== 총 평가 손익 계산 (매수가 기준) ===');
         
         // 수량이 0보다 큰 주식만 계산
         const activeStocks = portfolioData.stocks.filter(stock => stock.quantity > 0);
@@ -80,44 +85,48 @@ const InvestmentPage = () => {
           const currentStock = stocksData.find(s => s.name === portfolioStock.stockName);
           if (currentStock) {
             // 현재 가치 = 현재가 × 보유 수량
-            const todayValue = currentStock.price * portfolioStock.quantity;
-            currentStockValue += todayValue;
+            const currentValue = currentStock.price * portfolioStock.quantity;
+            currentStockValue += currentValue;
             
-            // 전일 가치 = 전일가 × 보유 수량
-            const beforePrice = currentStock.beforePrice || currentStock.price;
-            const yesterdayStockValue = beforePrice * portfolioStock.quantity;
-            yesterdayValue += yesterdayStockValue;
+            // 총 투자 금액 (매수가 기준)
+            const investmentAmount = portfolioStock.totalValue;
+            totalInvestment += investmentAmount;
             
-            // 이 주식의 오늘 손익
-            const stockProfitLoss = todayValue - yesterdayStockValue;
-            todayProfitLoss += stockProfitLoss;
+            // 이 주식의 손익 = 현재 가치 - 투자 금액
+            const stockProfitLoss = currentValue - investmentAmount;
+            totalProfitLoss += stockProfitLoss;
+            
+            // 평균 매수가
+            const avgBuyPrice = portfolioStock.quantity > 0 
+              ? Math.round(investmentAmount / portfolioStock.quantity) 
+              : currentStock.price;
             
             console.log(`${portfolioStock.stockName}:`);
             console.log(`  보유수량: ${portfolioStock.quantity}주`);
-            console.log(`  전일가: ₩${beforePrice.toLocaleString()}`);
+            console.log(`  평균 매수가: ₩${avgBuyPrice.toLocaleString()}`);
             console.log(`  현재가: ₩${currentStock.price.toLocaleString()}`);
-            console.log(`  전일 가치: ₩${yesterdayStockValue.toLocaleString()}`);
-            console.log(`  현재 가치: ₩${todayValue.toLocaleString()}`);
-            console.log(`  오늘 손익: ₩${stockProfitLoss.toLocaleString()}`);
+            console.log(`  총 투자금액: ₩${investmentAmount.toLocaleString()}`);
+            console.log(`  현재 가치: ₩${currentValue.toLocaleString()}`);
+            console.log(`  손익: ₩${stockProfitLoss.toLocaleString()}`);
           }
         }
       }
       
-      // 5. 오늘의 수익률 계산
-      const todayProfitRate = yesterdayValue > 0 
-        ? ((todayProfitLoss / yesterdayValue) * 100).toFixed(1) 
+      // 5. 총 수익률 계산
+      const totalProfitRate = totalInvestment > 0 
+        ? ((totalProfitLoss / totalInvestment) * 100).toFixed(1) 
         : 0;
       
-      console.log('=== 오늘의 손익 요약 ===');
-      console.log(`전일 총 가치: ₩${yesterdayValue.toLocaleString()}`);
+      console.log('=== 총 손익 요약 ===');
+      console.log(`총 투자금액: ₩${totalInvestment.toLocaleString()}`);
       console.log(`현재 총 가치: ₩${currentStockValue.toLocaleString()}`);
-      console.log(`오늘의 평가 손익: ₩${todayProfitLoss.toLocaleString()}`);
-      console.log(`오늘의 수익률: ${todayProfitRate}%`);
+      console.log(`총 평가 손익: ₩${totalProfitLoss.toLocaleString()}`);
+      console.log(`총 수익률: ${totalProfitRate}%`);
       
       setPortfolioSummary({
         totalAsset: currentStockValue,
-        profitLoss: todayProfitLoss,
-        profitRate: parseFloat(todayProfitRate),
+        profitLoss: totalProfitLoss,
+        profitRate: parseFloat(totalProfitRate),
         cash: userPoints
       });
       
@@ -240,8 +249,6 @@ const InvestmentPage = () => {
     }
   };
 
-
-
   // 관심 종목 가져오기 함수 추가
   const fetchFavoriteStocks = async () => {
     try {
@@ -351,33 +358,43 @@ const InvestmentPage = () => {
       
       // 4. 데이터 가공
       const processedOwnedStocks = ownedStocks.map(stock => {
-        // 전일 대비 변화량 계산
-        const change = stock.price - (stock.beforePrice || stock.price);
-        
-        // 등락률 계산 (전일 가격이 0이면 0% 처리)
-        const changeRate = stock.beforePrice 
-          ? ((change / stock.beforePrice) * 100).toFixed(2) 
-          : 0;
-        
-        // 변화 타입 결정 (상승, 하락, 유지)
-        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        
-        // 포트폴리오에서 실제 보유 수량 가져오기
+        // 포트폴리오에서 실제 보유 수량과 총 투자 금액 가져오기
         const portfolioStock = portfolioStocks.find(s => s.stockName === stock.name);
         const quantity = portfolioStock ? portfolioStock.quantity : 0;
+        const totalValue = portfolioStock ? portfolioStock.totalValue : 0;
+        
+        // 평균 매수가 계산 (총 투자 금액 ÷ 보유 수량)
+        const avgBuyPrice = quantity > 0 ? Math.round(totalValue / quantity) : stock.price;
+        
+        // 매수가 대비 변화량과 수익률 계산
+        const change = stock.price - avgBuyPrice;
+        const changeRate = avgBuyPrice > 0 
+          ? ((change / avgBuyPrice) * 100).toFixed(2) 
+          : 0;
+        
+        // 변화 타입 결정 (수익, 손실, 동일)
+        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+        
+        console.log(`${stock.name} 수익률 계산:`);
+        console.log(`  보유수량: ${quantity}주`);
+        console.log(`  총 투자금액: ₩${totalValue.toLocaleString()}`);
+        console.log(`  평균 매수가: ₩${avgBuyPrice.toLocaleString()}`);
+        console.log(`  현재가: ₩${stock.price.toLocaleString()}`);
+        console.log(`  수익/손실: ₩${change.toLocaleString()} (${changeRate}%)`);
         
         return {
           id: stock.id,
           name: stock.name,
           code: stock.code || '-',
           price: stock.price,
-          beforePrice: stock.beforePrice || stock.price,
+          beforePrice: avgBuyPrice, // 전일가 대신 평균 매수가 표시
           change: change,
           changeRate: parseFloat(changeRate),
           volume: stock.volume || 0,
           changeType: changeType,
           category: stock.category || '',
-          quantity: quantity // 보유 수량 추가
+          quantity: quantity,
+          avgBuyPrice: avgBuyPrice // 평균 매수가 추가
         };
       });
       
@@ -414,14 +431,19 @@ const InvestmentPage = () => {
       
       // 주식별 보유 수량 계산
       const stockQuantities = {};
+      const stockTotalCosts = {}; // 총 매수 금액 추가
+      
       allTrades.forEach(trade => {
         if (!stockQuantities[trade.stockId]) {
           stockQuantities[trade.stockId] = 0;
+          stockTotalCosts[trade.stockId] = 0;
         }
         stockQuantities[trade.stockId] += trade.quantity;
+        stockTotalCosts[trade.stockId] += trade.quantity * trade.price; // 매수 금액 누적
       });
       
       console.log('주식별 보유 수량:', stockQuantities);
+      console.log('주식별 총 매수 금액:', stockTotalCosts);
       
       // 수량이 0보다 큰 주식만 필터링
       const ownedStockIds = Object.keys(stockQuantities).filter(stockId => stockQuantities[stockId] > 0);
@@ -447,25 +469,39 @@ const InvestmentPage = () => {
       
       // 데이터 가공
       const processedOwnedStocks = ownedStocks.map(stock => {
-        const change = stock.price - (stock.beforePrice || stock.price);
-        const changeRate = stock.beforePrice 
-          ? ((change / stock.beforePrice) * 100).toFixed(2) 
+        const quantity = stockQuantities[stock.id] || 0;
+        const totalCost = stockTotalCosts[stock.id] || 0;
+        
+        // 평균 매수가 계산
+        const avgBuyPrice = quantity > 0 ? Math.round(totalCost / quantity) : stock.price;
+        
+        // 매수가 대비 변화량과 수익률 계산
+        const change = stock.price - avgBuyPrice;
+        const changeRate = avgBuyPrice > 0 
+          ? ((change / avgBuyPrice) * 100).toFixed(2) 
           : 0;
         const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        const quantity = stockQuantities[stock.id] || 0;
+        
+        console.log(`${stock.name} 수익률 계산 (거래내역 기준):`);
+        console.log(`  보유수량: ${quantity}주`);
+        console.log(`  총 매수금액: ₩${totalCost.toLocaleString()}`);
+        console.log(`  평균 매수가: ₩${avgBuyPrice.toLocaleString()}`);
+        console.log(`  현재가: ₩${stock.price.toLocaleString()}`);
+        console.log(`  수익/손실: ₩${change.toLocaleString()} (${changeRate}%)`);
         
         return {
           id: stock.id,
           name: stock.name,
           code: stock.code || '-',
           price: stock.price,
-          beforePrice: stock.beforePrice || stock.price,
+          beforePrice: avgBuyPrice, // 전일가 대신 평균 매수가 표시
           change: change,
           changeRate: parseFloat(changeRate),
           volume: stock.volume || 0,
           changeType: changeType,
           category: stock.category || '',
-          quantity: quantity
+          quantity: quantity,
+          avgBuyPrice: avgBuyPrice
         };
       });
       
@@ -754,45 +790,41 @@ const InvestmentPage = () => {
     setSelectedStock(null);
   };
 
-  // 모달 닫기 핸들러
-  const handleCloseModal = (needsRefresh) => {
-    setShowTradeModal(false);
-    setSelectedStock(null);
+  // 거래 완료 후 호출되는 핸들러
+  const handleTradeComplete = async (tradeInfo) => {
+    console.log('거래 완료 - 전체 데이터 새로고침 중...');
     
-    // 거래 성공 후 데이터 새로고침
-    if (needsRefresh) {
-      console.log('거래 완료 - 전체 데이터 새로고침 중...');
-      
-      // 사용자 포트폴리오 정보 새로고침
-      fetchUserData();
-      
-      // 현재 활성화된 필터에 따라 데이터 새로고침
-      if (activeFilter === '보유') {
-        fetchOwnedStocks();
-      } else if (activeFilter === '관심') {
-        fetchFavoriteStocks();
-      } else if (activeFilter === '인기') {
-        fetchPopularStocks();
-      } else {
-        fetchStocks();
-      }
-      
-      // 추가: 전체 주식 데이터도 새로고침하여 최신 정보 반영
-      setTimeout(() => {
-        fetchStocks();
-      }, 500);
-      
-      // 백엔드 데이터 동기화를 위해 추가 새로고침
-      setTimeout(() => {
-        if (activeFilter === '보유') {
-          console.log('보유 주식 재조회 (백엔드 동기화)');
-          fetchOwnedStocks();
-        }
-      }, 1000);
+    // 성공 모달 정보 설정
+    if (tradeInfo) {
+      setTradeSuccessInfo(tradeInfo);
+      setShowTradeSuccess(true);
+    }
+    
+    // 포트폴리오 및 주식 데이터 새로고침
+    await Promise.all([
+      fetchUserData(),
+      updateCurrentViewPrices()
+    ]);
+    
+    // 현재 활성화된 필터에 따라 데이터 새로고침
+    if (activeFilter === '보유') {
+      fetchOwnedStocks();
+    } else if (activeFilter === '관심') {
+      fetchFavoriteStocks();
+    } else if (activeFilter === '인기') {
+      fetchPopularStocks();
+    } else {
+      fetchStocks();
     }
   };
 
-  // 빠른 거래 핸들러 수정
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    setShowTradeModal(false);
+    setSelectedStock(null);
+  };
+
+  // 빠른 거래 핸들러
   const handleQuickTrade = () => {
     // 첫 번째 주식을 선택하거나, 없으면 알림 표시
     if (filteredStocks.length > 0) {
@@ -871,7 +903,7 @@ const InvestmentPage = () => {
 
       {/* 주식 목록 */}
       <div className="stock-list">
-        <div className="stock-header">
+        <div className={`stock-header ${activeFilter === '보유' ? 'holdings-view' : ''}`}>
           <div>종목명</div>
           <div className="sortable-header" onClick={() => handleSort('price')}>
             현재가 {getSortIcon('price')}
@@ -882,7 +914,10 @@ const InvestmentPage = () => {
           <div className="sortable-header" onClick={() => handleSort('changeRate')}>
             등락률 {getSortIcon('changeRate')}
           </div>
-
+          {activeFilter === '보유' && (
+            <div>보유량</div>
+          )}
+          <div></div>
         </div>
 
         {loading ? (
@@ -895,7 +930,7 @@ const InvestmentPage = () => {
           filteredStocks.map(stock => (
             <div 
               key={stock.id} 
-              className={`stock-item ${activeFilter === '인기' && topStocks.includes(stock.id) ? 'top-stock' : ''}`} 
+              className={`stock-item ${activeFilter === '인기' && topStocks.includes(stock.id) ? 'top-stock' : ''} ${activeFilter === '보유' ? 'holdings-view' : ''}`} 
               onClick={() => handleStockClick(stock)}
             >
               <div>
@@ -909,11 +944,16 @@ const InvestmentPage = () => {
               </div>
               <div style={{ fontWeight: 600 }}>₩{stock.price.toLocaleString()}</div>
               <div className={`price-${stock.changeType}`}>
-                {stock.change > 0 ? '+' : stock.change < 0 ? '-' : ''}₩{Math.abs(stock.change).toLocaleString()}
+                {stock.change > 0 ? '+' : stock.change < 0 ? '-' : ''}{Math.abs(stock.change).toLocaleString()}
               </div>
               <div className={`price-${stock.changeType}`}>
                 {stock.changeRate > 0 ? '+' : stock.changeRate < 0 ? '-' : ''}{Math.abs(stock.changeRate)}%
               </div>
+              {activeFilter === '보유' && (
+                <div className="quantity-display">
+                  {stock.quantity}주
+                </div>
+              )}
               <div className="stock-actions">
                 <button 
                   className="chart-btn"
@@ -934,10 +974,11 @@ const InvestmentPage = () => {
       </button>
 
       {/* 거래 모달 */}
-      {showTradeModal && selectedStock && (
+      {selectedStock && showTradeModal && (
         <StockTradeModal 
           stock={selectedStock} 
-          onClose={handleCloseModal} 
+          onClose={handleCloseModal}
+          onTradeComplete={handleTradeComplete}
         />
       )}
 
@@ -954,6 +995,17 @@ const InvestmentPage = () => {
         <TradeHistoryModal 
           isOpen={showTradeHistory}
           onClose={() => setShowTradeHistory(false)} 
+        />
+      )}
+
+      {/* 거래 성공 모달 */}
+      {showTradeSuccess && (
+        <TradeSuccessModal 
+          isOpen={showTradeSuccess}
+          tradeType={tradeSuccessInfo.tradeType}
+          stockName={tradeSuccessInfo.stockName}
+          quantity={tradeSuccessInfo.quantity}
+          onClose={() => setShowTradeSuccess(false)} 
         />
       )}
     </div>

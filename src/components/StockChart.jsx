@@ -63,7 +63,51 @@ const StockChart = ({ stock, onClose }) => {
   // 실제 주가 변동 패턴을 반영한 시뮬레이션 데이터 생성
   const generateRealisticSimulation = (stock, range) => {
     const now = new Date();
-    const dataPoints = range === '1D' ? 24 : range === '1W' ? 7 : range === '1M' ? 30 : 90;
+    let dataPoints, intervalMs, timeFormat;
+    
+    // 시간 범위별 설정
+    switch (range) {
+      case '1M':
+        dataPoints = 5; // 5개 1분봉
+        intervalMs = 1 * 60 * 1000; // 1분 간격
+        timeFormat = 'time';
+        break;
+      case '5M':
+        dataPoints = 6; // 6개 5분봉
+        intervalMs = 5 * 60 * 1000; // 5분 간격
+        timeFormat = 'time';
+        break;
+      case '10M':
+        dataPoints = 6; // 6개 10분봉
+        intervalMs = 10 * 60 * 1000; // 10분 간격
+        timeFormat = 'time';
+        break;
+      case '1H':
+        dataPoints = 6; // 6개 1시간봉
+        intervalMs = 60 * 60 * 1000; // 1시간 간격
+        timeFormat = 'time';
+        break;
+      case '1D':
+        dataPoints = 7; // 7개 1일봉
+        intervalMs = 24 * 60 * 60 * 1000; // 1일 간격
+        timeFormat = 'date';
+        break;
+      case '1W':
+        dataPoints = 8; // 8개 1주봉
+        intervalMs = 7 * 24 * 60 * 60 * 1000; // 1주 간격
+        timeFormat = 'date';
+        break;
+      case '1Mon':
+        dataPoints = 6; // 6개 1월봉
+        intervalMs = 30 * 24 * 60 * 60 * 1000; // 1달 간격
+        timeFormat = 'date';
+        break;
+      default:
+        dataPoints = 6;
+        intervalMs = 60 * 60 * 1000;
+        timeFormat = 'time';
+    }
+    
     const basePrice = stock.beforePrice || stock.price;
     const currentPrice = stock.price;
     const totalChange = currentPrice - basePrice;
@@ -83,13 +127,19 @@ const StockChart = ({ stock, onClose }) => {
     };
     
     for (let i = dataPoints - 1; i >= 0; i--) {
-      let date;
-      if (range === '1D') {
-        date = new Date(now.getTime() - (i * 60 * 60 * 1000)); // 1시간 간격
-        labels.push(date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+      const date = new Date(now.getTime() - (i * intervalMs));
+      
+      // 시간 포맷
+      if (timeFormat === 'time') {
+        labels.push(date.toLocaleTimeString('ko-KR', { 
+          hour: '2-digit', 
+          minute: '2-digit'
+        }));
       } else {
-        date = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)); // 1일 간격
-        labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
+        labels.push(date.toLocaleDateString('ko-KR', { 
+          month: 'short', 
+          day: 'numeric' 
+        }));
       }
       
       // 실제적인 가격 변동 시뮬레이션

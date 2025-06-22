@@ -64,16 +64,16 @@ export const getStockHistory = (stockId, range = '1H') => {
   
   switch (range) {
     case '1M':
-      startTime = new Date(now.getTime() - 1 * 60 * 1000); // 1분
+      startTime = new Date(now.getTime() - 5 * 60 * 1000); // 5분으로 확장 (1분봉 5개)
       break;
     case '5M':
-      startTime = new Date(now.getTime() - 5 * 60 * 1000); // 5분
+      startTime = new Date(now.getTime() - 30 * 60 * 1000); // 30분으로 확장 (5분봉 6개)
       break;
     case '10M':
-      startTime = new Date(now.getTime() - 10 * 60 * 1000); // 10분
+      startTime = new Date(now.getTime() - 60 * 60 * 1000); // 1시간으로 확장 (10분봉 6개)
       break;
     case '1H':
-      startTime = new Date(now.getTime() - 60 * 60 * 1000); // 1시간
+      startTime = new Date(now.getTime() - 6 * 60 * 60 * 1000); // 6시간으로 확장 (1시간봉 6개)
       break;
     case '1D':
       startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1일
