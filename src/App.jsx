@@ -47,7 +47,10 @@ function App() {
 
     const renderLayout = (content) => (
         <div className="layout">
-            <Sidebar onSelectMenu={setSelectedMenu} />
+            <Sidebar
+                onSelectMenu={setSelectedMenu}
+                selectedMenu={selectedMenu}
+            />
             <div className="main-content">
                 <Header title={getHeaderTitle(selectedMenu, userName)} />
                 <div className="content-area">{content}</div>
@@ -66,5 +69,6 @@ function App() {
         </Router>
     );
 }
+
 
 export default App;

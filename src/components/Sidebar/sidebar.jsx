@@ -12,11 +12,8 @@ import {
 } from "react-icons/fa";
 import "./sidebar.css";
 
-const Sidebar = ({ onSelectMenu }) => {
-    const [active, setActive] = useState("home");
+const Sidebar = ({ onSelectMenu, selectedMenu }) => {
     const [isOpen, setIsOpen] = useState(window.innerWidth > 900);
-
-    const toggleSidebar = () => setIsOpen(!isOpen);
 
     useEffect(() => {
         const handleResize = () => {
@@ -37,7 +34,7 @@ const Sidebar = ({ onSelectMenu }) => {
 
     return (
         <>
-            <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+            <button className="mobile-menu-toggle" onClick={() => setIsOpen(!isOpen)}>
                 <FaBars />
             </button>
             <div className={`sidebar ${isOpen ? "open" : ""}`}>
@@ -53,11 +50,8 @@ const Sidebar = ({ onSelectMenu }) => {
                     {menuItems.map((item) => (
                         <div
                             key={item.id}
-                            className={`nav-item ${active === item.id ? "active" : ""}`}
-                            onClick={() => {
-                                setActive(item.id);
-                                onSelectMenu(item.id);
-                            }}
+                            className={`nav-item ${selectedMenu === item.id ? "active" : ""}`}
+                            onClick={() => onSelectMenu(item.id)}
                         >
                             <div className="nav-icon">{item.icon}</div>
                             <div className="nav-text">{item.label}</div>
@@ -68,5 +62,6 @@ const Sidebar = ({ onSelectMenu }) => {
         </>
     );
 };
+
 
 export default Sidebar;
