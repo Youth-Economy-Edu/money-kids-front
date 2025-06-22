@@ -25,38 +25,45 @@ import InvestmentPortfolio from './pages/TendencyAnalysis/InvestmentPortfolio'
 import ActivityMonitoring from './pages/TendencyAnalysis/ActivityMonitoring'
 import Recommendations from './pages/TendencyAnalysis/Recommendations'
 import './App.css'
+// src/App.jsx
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Sidebar from "./components/Sidebar/sidebar";
+import Header from "./components/Header/header";
+import Home from "./pages/Home/home.jsx";
+import Login from "./pages/Login/login.jsx";
+import Register from "./pages/Register/register.jsx";
+import "./App.css";
 
-// 홈 페이지 컴포넌트
-const HomePage = () => (
-  <div className="welcome-content">
-    <h1>Money Kids에 오신 것을 환영합니다!</h1>
-    <p>경제 교육을 통해 스마트한 금융 습관을 기르세요.</p>
+export const ROUTES = {
+    LOGIN: "/login",
+    REGISTER: "/register",
+    HOME: "/home",
+};
 
-    <div className="feature-cards">
-      <div className="feature-card">
-        <h3>📚 경제 학습</h3>
-        <p>기초부터 고급까지 체계적인 경제 교육</p>
-      </div>
-
-      <div className="feature-card">
-        <h3>📈 모의 투자</h3>
-        <p>안전한 환경에서 투자 경험 쌓기</p>
-      </div>
-
-      <div className="feature-card">
-        <h3>📊 성향 분석</h3>
-        <p>나만의 투자 성향 파악하기</p>
-      </div>
-
-      <div className="feature-card">
-        <h3>📰 경제 뉴스</h3>
-        <p>최신 경제 동향과 뉴스 확인</p>
-      </div>
-    </div>
-  </div>
-);
+const getHeaderTitle = (menuId, userName) => {
+    switch (menuId) {
+        case "home":
+            return `안녕하세요, ${userName}님! 👋`;
+        case "learn":
+            return "경제 공부를 시작해볼까요? 📘";
+        case "invest":
+            return "모의 투자 거래 현황 📈";
+        case "parent":
+            return "학부모 전용 안내 페이지 🧑‍🏫";
+        case "analysis":
+            return "나의 투자 성향 분석 🧠";
+        case "news":
+            return "오늘의 경제 뉴스 📰";
+        default:
+            return "";
+    }
+};
 
 function App() {
+    const [selectedMenu, setSelectedMenu] = useState("home");
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("userId"));
+    const [userName, setUserName] = useState(() => localStorage.getItem("userName") || "");
   // 기본 페이지를 '모의 투자'로 설정
   const [currentPage, setCurrentPage] = useState('모의투자');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,10 +73,35 @@ function App() {
     setSidebarOpen(false);
   };
 
+    const handleLogin = (username) => {
+        setIsLoggedIn(true);
+        setUserName(username);
+        localStorage.setItem("userId", username);
+        localStorage.setItem("userName", username);
+    };
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+    const renderLayout = (content) => (
+        <div className="layout">
+            <Sidebar onSelectMenu={setSelectedMenu} />
+            <div className="main-content">
+                <Header title={getHeaderTitle(selectedMenu, userName)} />
+                <div className="content-area">{content}</div>
+            </div>
+        </div>
+    );
+
+    return (
+        <Router>
+            <Routes>
+                <Route path={ROUTES.LOGIN} element={<Login onLogin={handleLogin} />} />
+                <Route path={ROUTES.REGISTER} element={<Register />} />
+                <Route path={ROUTES.HOME} element={renderLayout(<Home onNavigate={setSelectedMenu} />)} />
+                <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+            </Routes>
+        </Router>
   const renderPageContent = () => {
     switch(currentPage) {
       case '모의투자':

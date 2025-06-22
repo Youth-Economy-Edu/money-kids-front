@@ -1,0 +1,101 @@
+/* src/pages/Login.css */
+
+:root {
+    --primary-color: #3b82f6;       /* Toss Blue */
+    --kakao-color: #fee500;
+    --google-color: #ffffff;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --border-radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f3f4f6; /* light gray */
+}
+
+.login-form {
+    background-color: white;
+    padding: 40px 32px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.login-form h2 {
+    text-align: center;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.login-form input {
+    padding: 14px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    transition: border 0.2s ease;
+}
+
+.login-form input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.login-form button[type="submit"] {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.login-form button[type="submit"]:hover {
+    background-color: #2563eb;
+}
+
+.social-login {
+    padding: 12px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.social-login:hover {
+    transform: translateY(-2px);
+}
+
+.kakao {
+    background-color: var(--kakao-color);
+    color: #000000;
+}
+
+.google {
+    background-color: var(--google-color);
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
