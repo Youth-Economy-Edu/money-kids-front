@@ -15,12 +15,18 @@ function QuizSolvePage() {
 
     useEffect(() => {
         const fetchQuizzes = async () => {
-            try {
-                const response = await fetch(`/api/quizzes/random?level=${level}`);
-                const result = await response.json();
-                setQuizzes(result.data);
-            } catch (err) {
-                console.error(err);
+            const savedQuizzes = sessionStorage.getItem(`quiz-level-${level}`);
+            if (savedQuizzes) {
+                setQuizzes(JSON.parse(savedQuizzes));
+            } else {
+                try {
+                    const response = await fetch(`/api/quizzes/random?level=${level}`);
+                    const result = await response.json();
+                    setQuizzes(result.data);
+                    sessionStorage.setItem(`quiz-level-${level}`, JSON.stringify(result.data));
+                } catch (err) {
+                    console.error(err);
+                }
             }
         };
         fetchQuizzes();
@@ -37,7 +43,7 @@ function QuizSolvePage() {
                 correctCount++;
             }
         });
-        navigate(`/quiz/result?correct=${correctCount}&total=${quizzes.length}`);
+        navigate(`/quiz/result?correct=${correctCount}&total=${quizzes.length}&level=${level}`);
     };
 
     return (
@@ -48,26 +54,14 @@ function QuizSolvePage() {
                     <div key={quiz.id} className={styles.quizCard}>
                         <p className={styles.question}>{quiz.question}</p>
                         <div className={styles.buttonGroup}>
-                            <button
-                                className={`${styles.answerButton} ${userAnswers[quiz.id] === 'O' ? styles.selected : ''}`}
-                                onClick={() => handleAnswer(quiz.id, 'O')}
-                            >
-                                O
-                            </button>
-                            <button
-                                className={`${styles.answerButton} ${userAnswers[quiz.id] === 'X' ? styles.selected : ''}`}
-                                onClick={() => handleAnswer(quiz.id, 'X')}
-                            >
-                                X
-                            </button>
+                            <button className={`${styles.answerButton} ${userAnswers[quiz.id] === 'O' ? styles.selected : ''}`} onClick={() => handleAnswer(quiz.id, 'O')}>O</button>
+                            <button className={`${styles.answerButton} ${userAnswers[quiz.id] === 'X' ? styles.selected : ''}`} onClick={() => handleAnswer(quiz.id, 'X')}>X</button>
                         </div>
                     </div>
                 ))}
             </div>
             {quizzes.length > 0 && (
-                <button className={styles.submitButton} onClick={handleSubmit}>
-                    제출하기
-                </button>
+                <button className={styles.submitButton} onClick={handleSubmit}>제출하기</button>
             )}
         </div>
     );

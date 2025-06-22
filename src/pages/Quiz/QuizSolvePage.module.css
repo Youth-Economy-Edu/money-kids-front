@@ -1,71 +1,59 @@
 .container {
-    padding: 40px;
-    text-align: center;
+    padding: 20px;
 }
 
 .title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 30px;
+    font-size: 24px;
+    margin-bottom: 16px;
+    text-align: center;
 }
 
 .quizList {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .quizCard {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 15px;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid var(--neutral-light);
+    border-radius: 8px;
+    padding: 16px;
+    background-color: var(--neutral-lightest);
 }
 
 .question {
     font-size: 18px;
-    font-weight: 500;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .buttonGroup {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 20px;
 }
 
 .answerButton {
-    padding: 12px 20px;
-    font-size: 20px;
-    border: 2px solid var(--primary-color);
+    padding: 10px 20px;
+    font-size: 16px;
     border-radius: 8px;
-    cursor: pointer;
+    border: 2px solid var(--neutral-medium);
     background-color: white;
-    transition: 0.2s;
+    cursor: pointer;
 }
 
-.answerButton:hover {
-    background-color: var(--primary-color-light);
-}
-
-.selected {
+.answerButton.selected {
+    border-color: var(--primary-color);
     background-color: var(--primary-color);
     color: white;
 }
 
 .submitButton {
-    margin-top: 30px;
-    padding: 15px 50px;
-    font-size: 22px;
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 18px;
     border: none;
-    border-radius: 12px;
-    background-color: var(--primary-color);
+    border-radius: 8px;
+    background-color: var(--secondary-color);
     color: white;
     cursor: pointer;
-    transition: 0.3s;
-}
-
-.submitButton:hover {
-    background-color: var(--primary-color-dark);
 }

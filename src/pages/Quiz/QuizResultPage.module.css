@@ -1,30 +1,47 @@
 .container {
+    padding: 20px;
     text-align: center;
-    margin-top: 100px;
 }
 
 .title {
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 30px;
+    font-size: 24px;
+    margin-bottom: 16px;
 }
 
 .resultText {
-    font-size: 26px;
-    margin-bottom: 40px;
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
-.button {
-    padding: 14px 40px;
-    font-size: 22px;
+.rewardBox {
+    padding: 20px;
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    background-color: var(--neutral-lightest);
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.retryButton, .levelButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.retryButton {
     background-color: var(--primary-color);
     color: white;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.button:hover {
-    background-color: var(--primary-color-dark);
+.levelButton {
+    background-color: var(--neutral-medium);
+    color: white;
 }
