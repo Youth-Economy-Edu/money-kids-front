@@ -7,7 +7,8 @@ const Sidebar = ({ currentPage, onPageChange, isOpen, onToggle }) => {
     { id: '모의투자', icon: 'fas fa-chart-line', text: '모의투자' },
     { id: '학부모페이지', icon: 'fas fa-users', text: '학부모페이지' },
     { id: '성향분석', icon: 'fas fa-chart-pie', text: '성향분석', badge: 5 },
-    { id: '경제소식', icon: 'fas fa-newspaper', text: '경제소식' }
+    { id: '경제소식', icon: 'fas fa-newspaper', text: '경제소식' },
+    { id: '사용자디버그', icon: 'fas fa-bug', text: '사용자디버그' }
   ];
 
   const handleNavClick = (pageId, event) => {

@@ -153,11 +153,12 @@
 
 .stock-item {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
   padding: 16px;
   border-bottom: 1px solid var(--neutral-lighter);
   cursor: pointer;
   transition: background-color 0.2s ease;
+  align-items: center;
 }
 
 .stock-item:hover {
@@ -298,4 +299,33 @@
   .stock-item > div:nth-child(4) {
     display: none;
   }
+}
+
+/* 주식 액션 버튼 */
+.stock-actions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.chart-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #657786;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.chart-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
 }

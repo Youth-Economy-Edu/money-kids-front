@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { tradeAPI, publicAPI } from '../utils/apiClient';
 import './StockTradeModal.css';
 
 const StockTradeModal = ({ stock, onClose }) => {
+  const { getCurrentUserId, getCurrentUserName, user } = useAuth();
   const [activeTab, setActiveTab] = useState('buy');
   const [quantity, setQuantity] = useState(1);
   const [userPoints, setUserPoints] = useState(0);
   const [ownedQuantity, setOwnedQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [userId] = useState('test_trader'); // 테스트용 고정 사용자 ID
+  const userId = getCurrentUserId(); // AuthContext에서 사용자 ID 가져오기
   const [isFavorite, setIsFavorite] = useState(false); // 관심 종목 상태 추가
 
   // 사용자 포인트 및 보유 주식 정보 가져오기
@@ -21,12 +24,19 @@ const StockTradeModal = ({ stock, onClose }) => {
           setUserPoints(pointsData.data.points || 0);
         }
         
-        // 보유 주식 정보 가져오기
-        const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`);
+        // 보유 주식 정보 가져오기 (캐시 방지)
+        const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         if (portfolioResponse.ok) {
           const portfolioData = await portfolioResponse.json();
           const ownedStock = portfolioData.stocks?.find(s => s.stockName === stock.name);
           setOwnedQuantity(ownedStock?.quantity || 0);
+          console.log(`${stock.name} 보유 수량:`, ownedStock?.quantity || 0);
         }
         
         // 관심 종목 여부 확인
@@ -57,46 +67,12 @@ const StockTradeModal = ({ stock, onClose }) => {
   // 관심 종목 토글 함수 추가
   const toggleFavorite = async () => {
     try {
-      const endpoint = 'http://localhost:8080/api/stocks/favorite';
-
-      // SaveWishlistDto 형식에 맞게 요청 데이터 구성
-      const requestData = {
-        userId: userId,
-        stockId: stock.id
-      };
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      if (response.ok) {
-        // 성공적으로 요청이 처리되면 상태 업데이트
-        setIsFavorite(!isFavorite);
-        console.log(`관심종목 ${!isFavorite ? '추가' : '제거'} 성공:`, stock.name);
-      } else {
-        // 오류 응답 처리
-        console.error('관심 종목 설정 오류 상태:', response.status);
-        let errorMessage = '서버 오류가 발생했습니다.';
-
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          // JSON 파싱 실패 시 텍스트로 시도
-          const errorText = await response.text();
-          if (errorText) errorMessage = errorText;
-        }
-
-        console.error('관심 종목 설정 오류 응답:', errorMessage);
-        alert(`관심 종목 ${!isFavorite ? '추가' : '제거'} 실패: ${errorMessage}`);
-      }
+      await publicAPI.toggleFavoriteStock(userId, stock.id);
+      setIsFavorite(!isFavorite);
+      console.log(`관심종목 ${!isFavorite ? '추가' : '제거'} 성공:`, stock.name);
     } catch (error) {
       console.error('관심 종목 설정 오류:', error);
-      alert('관심 종목 설정 중 오류가 발생했습니다.');
+      alert(`관심 종목 ${!isFavorite ? '추가' : '제거'} 실패: ${error.message}`);
     }
   };
 
@@ -134,37 +110,37 @@ const StockTradeModal = ({ stock, onClose }) => {
         return;
       }
 
-      // TradeController 엔드포인트 사용
-      const endpoint = activeTab === 'buy'
-        ? 'http://localhost:8080/api/stocks/trade/buy'
-        : 'http://localhost:8080/api/stocks/trade/sell';
+      console.log('거래 요청:', { stockId: stock.id, quantity, type: tradeType });
 
-      // TradeRequest DTO 형식에 맞게 요청 데이터 구성
-      const requestData = {
-        stockId: stock.id.toString(),
-        quantity: quantity
-      };
-
-      console.log('거래 요청 데이터:', requestData); // 요청 데이터 로깅
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (response.ok) {
-        alert(`${stock.name} ${quantity}주 ${tradeType} 완료!`);
-        onClose(true); // 거래 성공 시 true 전달
+      // 새로운 API 클라이언트 사용
+      if (activeTab === 'buy') {
+        await tradeAPI.buyStock(stock.id, quantity);
       } else {
-        const errorData = await response.text();
-        alert(`거래 실패: ${errorData}`);
+        await tradeAPI.sellStock(stock.id, quantity);
+      }
+
+      // 거래 성공 시 로컬 거래내역 업데이트
+      const tradeRecord = {
+        stockId: stock.id,
+        quantity: activeTab === 'buy' ? quantity : -quantity,
+        date: new Date().toISOString().split('T')[0],
+        price: stock.price
+      };
+      
+      // 로컬 스토리지에 거래내역 추가
+      const existingTrades = JSON.parse(localStorage.getItem('localTrades') || '[]');
+      existingTrades.push(tradeRecord);
+      localStorage.setItem('localTrades', JSON.stringify(existingTrades));
+      
+      alert(`${stock.name} ${quantity}주 ${tradeType} 완료!`);
+      
+      // 거래 성공 시 부모 컴포넌트에 새로고침 요청
+      if (onClose) {
+        onClose(true); // 거래 성공 시 true 전달하여 데이터 새로고침 요청
       }
     } catch (err) {
       console.error('거래 오류:', err);
-      alert('거래 처리 중 오류가 발생했습니다.');
+      alert(`거래 실패: ${err.message}`);
     } finally {
       setLoading(false);
     }

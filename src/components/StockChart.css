@@ -1,0 +1,297 @@
+.stock-chart-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.stock-chart-container {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stock-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.stock-code {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #f8f9fa;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #657786;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #e9ecef;
+  color: #2c3e50;
+}
+
+.price-info {
+  padding: 20px 25px;
+  text-align: center;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.current-price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.price-change {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.price-change.positive {
+  color: #27ae60;
+}
+
+.price-change.negative {
+  color: #e74c3c;
+}
+
+.price-change.neutral {
+  color: #95a5a6;
+}
+
+.time-range-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 25px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.time-btn {
+  padding: 8px 16px;
+  border: 1px solid #e1e8ed;
+  background: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #657786;
+  min-width: 50px;
+}
+
+.time-btn:hover {
+  border-color: #4a90e2;
+  color: #4a90e2;
+}
+
+.time-btn.active {
+  background: #4a90e2;
+  border-color: #4a90e2;
+  color: white;
+}
+
+.chart-wrapper {
+  padding: 25px;
+  height: 400px;
+  position: relative;
+}
+
+.chart-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #657786;
+}
+
+.chart-loading i {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #4a90e2;
+}
+
+.chart-loading p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chart-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #e74c3c;
+}
+
+.chart-error p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chart-footer {
+  padding: 15px 25px;
+  border-top: 1px solid #f1f3f4;
+  background: #f8f9fa;
+  border-radius: 0 0 16px 16px;
+}
+
+.chart-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  text-align: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .stock-chart-modal {
+    padding: 10px;
+  }
+  
+  .stock-chart-container {
+    max-height: 95vh;
+  }
+  
+  .chart-header {
+    padding: 15px 20px;
+  }
+  
+  .stock-name {
+    font-size: 1.3rem;
+  }
+  
+  .price-info {
+    padding: 15px 20px;
+  }
+  
+  .current-price {
+    font-size: 2rem;
+  }
+  
+  .price-change {
+    font-size: 1rem;
+  }
+  
+  .time-range-buttons {
+    padding: 15px 20px;
+    flex-wrap: wrap;
+  }
+  
+  .time-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .chart-wrapper {
+    padding: 20px;
+    height: 300px;
+  }
+  
+  .chart-footer {
+    padding: 12px 20px;
+  }
+}
+
+/* 평균 매수가 정보 */
+.avg-price-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.avg-price-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-right: 8px;
+}
+
+.avg-price-value {
+  font-weight: 600;
+  color: #ff9800;
+}
+
+/* 분봉/일봉 토글 */
+.view-toggle {
+  display: flex;
+  gap: 0;
+  margin: 0 24px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.toggle-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+}
+
+.toggle-button.active {
+  background: white;
+  color: #4285f4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+} 

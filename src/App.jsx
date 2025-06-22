@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import InvestmentPage from './pages/InvestmentPage';
+
+import UserDebugPage from './pages/UserDebugPage';
 import './styles/components.css';
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
     switch(currentPage) {
       case '모의투자':
         return <InvestmentPage />;
+      
+      case '사용자디버그':
+        return <UserDebugPage />;
       default:
         return (
           <div style={{ 
@@ -39,25 +45,27 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <Sidebar 
-        currentPage={currentPage}
-        onPageChange={handleNavigation}
-        isOpen={sidebarOpen}
-        onToggle={toggleSidebar}
-      />
-      
-      <div className="main-content">
-        <Header 
+    <AuthProvider>
+      <div className="app">
+        <Sidebar 
           currentPage={currentPage}
-          onToggleSidebar={toggleSidebar}
+          onPageChange={handleNavigation}
+          isOpen={sidebarOpen}
+          onToggle={toggleSidebar}
         />
         
-        <main className="content">
-          {renderPageContent()}
-        </main>
+        <div className="main-content">
+          <Header 
+            currentPage={currentPage}
+            onToggleSidebar={toggleSidebar}
+          />
+          
+          <main className="content">
+            {renderPageContent()}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }
 
