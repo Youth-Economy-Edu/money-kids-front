@@ -5,6 +5,7 @@ import ConceptListPage from './pages/Learn/ConceptListPage';
 import QuizPage from './pages/Quiz/QuizPage';
 import QuizSolvePage from './pages/Quiz/QuizSolvePage';
 import ResultPage from './pages/Quiz/QuizResultPage'; // 여기를 수정 (QuizResultPage → ResultPage)
+import NewsPage from './pages/NewsPage';
 import './styles/components.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ function App() {
                             <Route path="/invest" element={<PlaceholderPage title="모의 투자" />} />
                             <Route path="/parent" element={<PlaceholderPage title="학부모 페이지" />} />
                             <Route path="/analysis" element={<PlaceholderPage title="성향 분석" />} />
-                            <Route path="/news" element={<PlaceholderPage title="경제 소식" />} />
+                            <Route path="/news" element={<NewsPage />} />
                         </Routes>
                     </main>
                 </div>
