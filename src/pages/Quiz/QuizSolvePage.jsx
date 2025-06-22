@@ -8,16 +8,30 @@ function useQuery() {
 
 function QuizSolvePage() {
     const query = useQuery();
-    const level = query.get('level');
+    const level = query.get('level') || query.get('difficulty');  // 🔥 파라미터 호환 완전 해결
     const [quizzes, setQuizzes] = useState([]);
     const [userAnswers, setUserAnswers] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!level) {
+            navigate('/quiz');  // 잘못된 진입 방지
+            return;
+        }
+
         const fetchQuizzes = async () => {
             const savedQuizzes = sessionStorage.getItem(`quiz-level-${level}`);
             if (savedQuizzes) {
-                setQuizzes(JSON.parse(savedQuizzes));
+                try {
+                    const parsed = JSON.parse(savedQuizzes);
+                    if (Array.isArray(parsed)) {
+                        setQuizzes(parsed);
+                    } else {
+                        setQuizzes([]);
+                    }
+                } catch {
+                    setQuizzes([]);
+                }
             } else {
                 try {
                     const response = await fetch(`/api/quizzes/random?level=${level}`);
@@ -26,11 +40,12 @@ function QuizSolvePage() {
                     sessionStorage.setItem(`quiz-level-${level}`, JSON.stringify(result.data));
                 } catch (err) {
                     console.error(err);
+                    setQuizzes([]);
                 }
             }
         };
         fetchQuizzes();
-    }, [level]);
+    }, [level, navigate]);
 
     const handleAnswer = (quizId, answer) => {
         setUserAnswers(prev => ({ ...prev, [quizId]: answer }));
@@ -50,17 +65,23 @@ function QuizSolvePage() {
         <div className={styles.container}>
             <h2 className={styles.title}>퀴즈 시작!</h2>
             <div className={styles.quizList}>
-                {quizzes.map((quiz) => (
+                {Array.isArray(quizzes) && quizzes.map((quiz) => (
                     <div key={quiz.id} className={styles.quizCard}>
                         <p className={styles.question}>{quiz.question}</p>
                         <div className={styles.buttonGroup}>
-                            <button className={`${styles.answerButton} ${userAnswers[quiz.id] === 'O' ? styles.selected : ''}`} onClick={() => handleAnswer(quiz.id, 'O')}>O</button>
-                            <button className={`${styles.answerButton} ${userAnswers[quiz.id] === 'X' ? styles.selected : ''}`} onClick={() => handleAnswer(quiz.id, 'X')}>X</button>
+                            <button
+                                className={`${styles.answerButton} ${userAnswers[quiz.id] === 'O' ? styles.selected : ''}`}
+                                onClick={() => handleAnswer(quiz.id, 'O')}
+                            >O</button>
+                            <button
+                                className={`${styles.answerButton} ${userAnswers[quiz.id] === 'X' ? styles.selected : ''}`}
+                                onClick={() => handleAnswer(quiz.id, 'X')}
+                            >X</button>
                         </div>
                     </div>
                 ))}
             </div>
-            {quizzes.length > 0 && (
+            {Array.isArray(quizzes) && quizzes.length > 0 && (
                 <button className={styles.submitButton} onClick={handleSubmit}>제출하기</button>
             )}
         </div>
