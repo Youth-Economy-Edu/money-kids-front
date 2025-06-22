@@ -1,26 +1,214 @@
-.learn-card {
-    background: white;
-    padding: 20px;
-    margin: 10px;
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    width: 250px;
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* 학습 카드 - 현대적인 디자인 */
+.learnCard {
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    padding: 24px;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
 }
 
-.learn-card:hover {
-    transform: scale(1.05);
+.learnCard:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: var(--difficulty-color, #3B82F6);
 }
 
-.learn-card h3 {
-    font-size: 20px;
+.learnCard:hover .cardGlow {
+    opacity: 1;
+}
+
+.learnCard.completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #10B981;
+}
+
+.cardGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(var(--difficulty-color, 59, 130, 246), 0.1) 0%, 
+        transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.difficultyBadge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(var(--difficulty-color, 59, 130, 246), 0.1);
+    color: var(--difficulty-color, #3B82F6);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: black;
-    word-break: keep-all;
+    border: 1px solid rgba(var(--difficulty-color, 59, 130, 246), 0.2);
+}
+
+.difficultyEmoji {
+    font-size: 1rem;
+}
+
+.difficultyName {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.completedIcon {
+    font-size: 1.2rem;
+    animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -10px, 0);
+    }
+    70% {
+        transform: translate3d(0, -5px, 0);
+    }
+    90% {
+        transform: translate3d(0, -2px, 0);
+    }
+}
+
+.cardContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cardTitle {
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 16px 0;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+}
+
+.completed .cardTitle {
+    color: #0f766e;
+}
+
+.cardFooter {
+    margin-top: auto;
+}
+
+.learnButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--difficulty-color, #3B82F6);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 16px;
+    background: rgba(var(--difficulty-color, 59, 130, 246), 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(var(--difficulty-color, 59, 130, 246), 0.2);
+    transition: all 0.2s ease;
+}
+
+.completed .learnButton {
+    color: #10B981;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.arrowIcon {
+    font-style: normal;
+    transition: transform 0.2s ease;
+    font-size: 1rem;
+}
+
+.learnCard:hover .arrowIcon {
+    transform: translateX(4px);
+}
+
+/* 호버 효과 개선 */
+.learnCard:hover .learnButton {
+    background: var(--difficulty-color, #3B82F6);
+    color: white;
+    border-color: var(--difficulty-color, #3B82F6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--difficulty-color, 59, 130, 246), 0.3);
+}
+
+.completed:hover .learnButton {
+    background: #10B981;
+    color: white;
+    border-color: #10B981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 카드 활성화 효과 */
+.learnCard:active {
+    transform: translateY(-4px) scale(0.98);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .learnCard {
+        padding: 20px;
+        min-height: 180px;
+    }
+    
+    .cardTitle {
+        font-size: 1rem;
+    }
+    
+    .difficultyBadge {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .learnButton {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .learnCard {
+        padding: 16px;
+        min-height: 160px;
+    }
+    
+    .cardTitle {
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+    }
+    
+    .difficultyBadge {
+        gap: 4px;
+    }
+    
+    .difficultyName {
+        font-size: 0.7rem;
+    }
 }

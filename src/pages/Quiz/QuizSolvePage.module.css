@@ -1,71 +1,373 @@
+/* 이상형테스트 스타일 퀴즈 해결 페이지 */
 .container {
-    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5cf6 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pattern" patternUnits="userSpaceOnUse" width="100" height="100"><text x="10" y="25" font-size="15" fill="white" opacity="0.03">🧠</text><text x="60" y="60" font-size="12" fill="white" opacity="0.02">✨</text><text x="30" y="80" font-size="14" fill="white" opacity="0.025">💡</text></pattern></defs><rect width="100%" height="100%" fill="url(%23pattern)"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+}
+
+.header {
     text-align: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
 }
 
 .title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea, #764ba2, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.02em;
 }
 
+.subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+/* 진행률 바 */
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2, #8b5cf6);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progressFill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progressText {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 600;
+}
+
+/* 퀴즈 리스트 */
 .quizList {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
 }
 
 .quizCard {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 15px;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.quizCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.quizCard:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(102, 126, 234, 0.3);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.quizCard:hover::before {
+    left: 100%;
+}
+
+.questionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.questionNumber {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.statusIcon {
+    font-size: 1.5rem;
+    animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .question {
-    font-size: 18px;
-    font-weight: 500;
-    margin-bottom: 15px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    text-align: center;
 }
 
 .buttonGroup {
     display: flex;
-    justify-content: space-around;
+    gap: 20px;
+    justify-content: center;
 }
 
 .answerButton {
-    padding: 12px 20px;
-    font-size: 20px;
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
+    flex: 1;
+    max-width: 140px;
+    padding: 20px;
+    border: 3px solid transparent;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    background-color: white;
-    transition: 0.2s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
 }
 
-.answerButton:hover {
-    background-color: var(--primary-color-light);
+.yesButton {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(21, 128, 61, 0.1));
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
 }
 
-.selected {
-    background-color: var(--primary-color);
+.noButton {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(185, 28, 28, 0.1));
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.yesButton:hover {
+    transform: translateY(-5px) scale(1.05);
+    border-color: #22c55e;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(21, 128, 61, 0.2));
+    box-shadow: 0 15px 35px rgba(34, 197, 94, 0.3);
+}
+
+.noButton:hover {
+    transform: translateY(-5px) scale(1.05);
+    border-color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+    box-shadow: 0 15px 35px rgba(239, 68, 68, 0.3);
+}
+
+.yesButton.selected {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
+    border-color: #22c55e;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(34, 197, 94, 0.4);
+}
+
+.noButton.selected {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-color: #ef4444;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4);
+}
+
+.buttonEmoji {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.buttonText {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* 제출 버튼 */
+.submitContainer {
+    text-align: center;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
 }
 
 .submitButton {
-    margin-top: 30px;
-    padding: 15px 50px;
-    font-size: 22px;
-    border: none;
-    border-radius: 12px;
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5cf6 100%);
     color: white;
+    border: none;
+    padding: 20px 50px;
+    border-radius: 30px;
+    font-size: 1.3rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: 0.5px;
 }
 
-.submitButton:hover {
-    background-color: var(--primary-color-dark);
+.submitButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 25px 50px rgba(102, 126, 234, 0.5);
+}
+
+.submitButton:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.submitButton:disabled {
+    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+    cursor: not-allowed;
+    box-shadow: 0 8px 25px rgba(203, 213, 224, 0.3);
+    transform: none;
+}
+
+.submitEmoji {
+    font-size: 1.2rem;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+}
+
+.submitHint {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .title {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .quizCard {
+        padding: 25px 20px;
+    }
+    
+    .question {
+        font-size: 1.1rem;
+    }
+    
+    .buttonGroup {
+        gap: 15px;
+    }
+    
+    .answerButton {
+        max-width: 120px;
+        padding: 18px 15px;
+    }
+    
+    .buttonEmoji {
+        font-size: 1.3rem;
+    }
+    
+    .buttonText {
+        font-size: 0.9rem;
+    }
+    
+    .submitButton {
+        padding: 18px 40px;
+        font-size: 1.1rem;
+    }
 }

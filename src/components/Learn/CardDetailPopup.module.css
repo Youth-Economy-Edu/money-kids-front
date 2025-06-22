@@ -34,20 +34,44 @@
     line-height: 1.7;
     white-space: pre-line;
     word-break: keep-all;
+    margin-bottom: 30px;
 }
 
-.close-button {
+.popup-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
     margin-top: 30px;
+}
+
+.complete-button {
     padding: 12px 30px;
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, #10B981, #059669);
     color: white;
     border: none;
     border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+.complete-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.close-button {
+    padding: 12px 30px;
+    background-color: #6B7280;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .close-button:hover {
-    background-color: var(--primary-color-dark);
+    background-color: #4B5563;
+    transform: translateY(-2px);
 }
