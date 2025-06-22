@@ -99,3 +99,13 @@ body {
     color: #374151;
     border: 1px solid #d1d5db;
 }
+
+.login-form a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: border-bottom 0.2s ease;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
+}

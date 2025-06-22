@@ -7,6 +7,7 @@ const Header = ({ title, levelText }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [balanceData, setBalanceData] = useState(null);
     const [point, setPoint] = useState(null);
+    const [tendency, setTendency] = useState(null);
 
     const userId = localStorage.getItem("userId");
 
@@ -29,9 +30,25 @@ const Header = ({ title, levelText }) => {
             }
         };
 
+        const fetchTendency = async () => {
+            try {
+                const response = await axios.get(`/api/analysis/history?user_id=${userId}`);
+                const data = response.data?.data;
+
+                if (Array.isArray(data) && data.length > 0) {
+                    const scores = data[0].analysisResult.scores;
+                    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+                    setTendency(sorted[0][0]); // 가장 높은 항목
+                }
+            } catch (error) {
+                console.error("성향 정보 조회 실패:", error);
+            }
+        };
+
         if (userId) {
             fetchBalance();
             fetchPoint();
+            fetchTendency();
         }
     }, [userId]);
 
@@ -98,15 +115,20 @@ const Header = ({ title, levelText }) => {
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-title">학습 연속일</div>
+                        <div className="stat-title">성향</div>
                         <div className="stat-value">
-                            7일{' '}
-                            <i
-                                className="fas fa-fire"
-                                style={{ color: 'var(--danger-color)' }}
-                            ></i>
+                            {tendency ? (
+                                <>
+                                    {tendency}
+                                    <i
+                                        className="fas fa-fire"
+                                        style={{ color: 'var(--danger-color)', marginLeft: '6px' }}
+                                    ></i>
+                                </>
+                            ) : (
+                                '로딩 중...'
+                            )}
                         </div>
-                        <div className="stat-change neutral">목표: 30일</div>
                     </div>
                 </div>
             </div>
