@@ -4,7 +4,7 @@ import { apiRequest, setAuthToken, removeAuthToken } from './api.js';
 const initKakao = () => {
   if (window.Kakao && !window.Kakao.isInitialized()) {
     // 실제 카카오 앱 키를 환경변수에서 가져오기
-    const kakaoAppKey = import.meta.env.VITE_KAKAO_APP_KEY || 'YOUR_KAKAO_APP_KEY';
+    const kakaoAppKey = import.meta.env.VITE_KAKAO_APP_KEY || 'f0000836b2b14b179ea566e5e66ef579';
     window.Kakao.init(kakaoAppKey);
   }
 };
