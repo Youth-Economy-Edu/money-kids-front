@@ -1,8 +1,8 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../App.jsx";
-import "./Login.css";
+import "./login.css";
 import axios from "axios";
 
 const KAKAO_AUTH_URL =
@@ -14,6 +14,7 @@ const GOOGLE_AUTH_URL =
 const Login = ({ onLogin }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,16 +25,26 @@ const Login = ({ onLogin }) => {
 
         // 로그인 처리 함수
         try {
-            const response = await axios.post("/api/auth/login", {
-                id: username,
-                password,
+            const formData = new URLSearchParams();
+            formData.append('id', username);
+            formData.append('password', password);
+
+            const response = await axios.post("/api/auth/login", formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             });
 
-            alert("로그인 성공!");
-            onLogin(response.data.id); // 사용자 ID 전달
+            if (response.data && response.data.success && response.data.user) {
+                alert("로그인 성공!");
+                onLogin(response.data.user); // 전체 사용자 정보 전달
+                navigate(ROUTES.HOME); // 홈으로 이동
+            } else {
+                alert("로그인 응답 형식이 올바르지 않습니다.");
+            }
         } catch (error) {
             const errorMsg =
-                error.response?.data?.message || "서버 오류로 로그인에 실패했습니다.";
+                error.response?.data?.error || "서버 오류로 로그인에 실패했습니다.";
             alert(errorMsg);
         }
     };

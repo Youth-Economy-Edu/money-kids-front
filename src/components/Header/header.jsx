@@ -1,46 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './header.css';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
 const Header = ({ title, levelText }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [balanceData, setBalanceData] = useState(null);
-    const [point, setPoint] = useState(null);
+    const [userPoints, setUserPoints] = useState(null);
+    const { user, logout, getCurrentUserId } = useAuth();
+    const intervalRef = useRef(null);
 
-    const userId = localStorage.getItem("userId");
+    const userId = getCurrentUserId();
+
+    const fetchBalance = async () => {
+        try {
+            const response = await axios.get(`/api/stocks/trade/balance?userId=${userId}`);
+            setBalanceData(response.data);
+        } catch (error) {
+            console.error('잔고 정보 조회 실패:', error);
+        }
+    };
+
+    const fetchUserPoints = async () => {
+        try {
+            const response = await axios.get(`/api/users/${userId}/points`);
+            if (response.data && response.data.code === 200) {
+                setUserPoints(response.data.data.points);
+            }
+        } catch (error) {
+            console.error('포인트 정보 조회 실패:', error);
+            // 사용자 정보에서 포인트 가져오기 (fallback)
+            if (user && user.points !== undefined) {
+                setUserPoints(user.points);
+            }
+        }
+    };
+
+    const refreshData = async () => {
+        if (userId) {
+            await fetchBalance();
+            await fetchUserPoints();
+        }
+    };
 
     useEffect(() => {
-        const fetchBalance = async () => {
-            try {
-                const response = await axios.get('/api/stocks/trade/balance');
-                setBalanceData(response.data);
-            } catch (error) {
-                console.error('잔고 정보 조회 실패:', error);
-            }
-        };
+        // 초기 데이터 로드
+        refreshData();
 
-        const fetchPoint = async () => {
-            try {
-                const response = await axios.get(`/api/users/${userId}/points`);
-                setPoint(response.data.point);
-            } catch (error) {
-                console.error('포인트 정보 조회 실패:', error);
-            }
-        };
-
-        if (userId) {
-            fetchBalance();
-            fetchPoint();
+        // 5초마다 데이터 새로고침 (모의투자 페이지에서만)
+        if (title === '모의투자') {
+            intervalRef.current = setInterval(refreshData, 5000);
         }
+
+        // 컴포넌트 언마운트 시 인터벌 정리
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, [userId, user, title]);
+
+    // 거래 완료 시 데이터 새로고침을 위한 이벤트 리스너
+    useEffect(() => {
+        const handleTradeComplete = () => {
+            console.log('거래 완료 이벤트 감지 - 헤더 데이터 새로고침');
+            setTimeout(refreshData, 1000); // 1초 후 새로고침
+        };
+
+        // 커스텀 이벤트 리스너 추가
+        window.addEventListener('tradeComplete', handleTradeComplete);
+
+        return () => {
+            window.removeEventListener('tradeComplete', handleTradeComplete);
+        };
     }, [userId]);
 
     const handleLogout = async () => {
         try {
-            await axios.post('/api/users/logout');
+            await logout();
+            window.location.href = "/login";
         } catch (error) {
             console.error('로그아웃 실패:', error);
-        } finally {
+            // 로그아웃 실패해도 로컬 스토리지 정리하고 로그인 페이지로
             localStorage.removeItem("userId");
             localStorage.removeItem("userName");
             window.location.href = "/login";
@@ -93,7 +135,7 @@ const Header = ({ title, levelText }) => {
                     <div className="stat-card">
                         <div className="stat-title">현재 포인트</div>
                         <div className="stat-value">
-                            {point !== null ? `${point} 포인트` : '로딩 중...'}
+                            {userPoints !== null ? `${userPoints.toLocaleString()} 포인트` : '로딩 중...'}
                         </div>
                     </div>
 

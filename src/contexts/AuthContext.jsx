@@ -28,27 +28,13 @@ export const AuthProvider = ({ children }) => {
                         isAuthenticated: true
                     });
                 } else {
-                    // 개발/테스트용으로 master 사용자 자동 설정
-                    const defaultUser = {
-                        id: 'master',
-                        name: 'Master User',
-                        isAuthenticated: true
-                    };
-                    setUser(defaultUser);
-                    localStorage.setItem('userId', defaultUser.id);
-                    localStorage.setItem('userName', defaultUser.name);
+                    // 로그인하지 않은 상태로 설정
+                    setUser(null);
                 }
             } catch (error) {
                 console.error('인증 초기화 오류:', error);
-                // 오류 발생 시 기본 사용자 설정
-                const defaultUser = {
-                    id: 'master',
-                    name: 'Master User',
-                    isAuthenticated: true
-                };
-                setUser(defaultUser);
-                localStorage.setItem('userId', defaultUser.id);
-                localStorage.setItem('userName', defaultUser.name);
+                // 오류 발생 시 로그인하지 않은 상태로 설정
+                setUser(null);
             } finally {
                 setLoading(false);
             }
@@ -115,12 +101,20 @@ export const AuthProvider = ({ children }) => {
 
     // 현재 사용자 ID 가져오기 (하위 호환성)
     const getCurrentUserId = () => {
-        return user?.id || 'master';
+        if (!user?.id) {
+            console.warn('사용자가 로그인되지 않았습니다.');
+            return null;
+        }
+        return user.id;
     };
 
     // 현재 사용자 이름 가져오기
     const getCurrentUserName = () => {
-        return user?.name || 'Master User';
+        if (!user?.name) {
+            console.warn('사용자가 로그인되지 않았습니다.');
+            return null;
+        }
+        return user.name;
     };
 
     // 인증 상태 확인

@@ -794,6 +794,11 @@ const InvestmentPage = () => {
   const handleTradeComplete = async (tradeInfo) => {
     console.log('거래 완료 - 전체 데이터 새로고침 중...');
     
+    // 헤더 데이터 새로고침을 위한 커스텀 이벤트 발생
+    window.dispatchEvent(new CustomEvent('tradeComplete', {
+      detail: tradeInfo
+    }));
+    
     // 성공 모달 정보 설정
     if (tradeInfo) {
       setTradeSuccessInfo(tradeInfo);

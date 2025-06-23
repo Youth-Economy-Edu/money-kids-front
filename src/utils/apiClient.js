@@ -18,57 +18,40 @@ const createAuthHeaders = (additionalHeaders = {}) => {
     };
 };
 
-// 거래 API 호출 (인증 제거됨)
-export const authenticatedFetch = async (url, options = {}) => {
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        },
-        ...options
+// 인증이 필요한 API 호출을 위한 헬퍼 함수
+const authenticatedFetch = async (url, options = {}) => {
+    // 현재 로그인한 사용자 ID 가져오기
+    const userId = localStorage.getItem('userId');
+    
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+        'X-User-Id': userId || 'master' // 헤더에 사용자 ID 추가
     };
 
-    try {
-        console.log('API 요청:', url, defaultOptions);
-        const response = await fetch(url, defaultOptions);
-        
-        if (!response.ok) {
-            // 상세한 오류 정보 수집
-            let errorMessage = `API 오류: ${response.status} ${response.statusText}`;
-            
-            try {
-                const errorData = await response.json();
-                if (errorData.message) {
-                    errorMessage += ` - ${errorData.message}`;
-                }
-                console.error('백엔드 오류 상세:', errorData);
-            } catch (e) {
-                // JSON 파싱 실패 시 텍스트로 시도
-                try {
-                    const errorText = await response.text();
-                    if (errorText) {
-                        errorMessage += ` - ${errorText}`;
-                    }
-                } catch (e2) {
-                    // 무시
-                }
-            }
-            
-            throw new Error(errorMessage);
+    const config = {
+        ...options,
+        headers: {
+            ...defaultHeaders,
+            ...options.headers
         }
-        
-        return response;
-    } catch (error) {
-        console.error('API 호출 오류:', error);
-        throw error;
+    };
+
+    const response = await fetch(url, config);
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API 오류 (${response.status}): ${errorText}`);
     }
+    
+    return response;
 };
 
 // 주식 거래 API
 export const tradeAPI = {
     // 매수
     buyStock: async (stockId, quantity) => {
-        const response = await authenticatedFetch('http://localhost:8080/api/stocks/trade/buy', {
+        const userId = localStorage.getItem('userId') || 'master';
+        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/buy?userId=${userId}`, {
             method: 'POST',
             body: JSON.stringify({
                 stockId: stockId.toString(),
@@ -80,7 +63,8 @@ export const tradeAPI = {
 
     // 매도
     sellStock: async (stockId, quantity) => {
-        const response = await authenticatedFetch('http://localhost:8080/api/stocks/trade/sell', {
+        const userId = localStorage.getItem('userId') || 'master';
+        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/sell?userId=${userId}`, {
             method: 'POST',
             body: JSON.stringify({
                 stockId: stockId.toString(),
@@ -92,19 +76,22 @@ export const tradeAPI = {
 
     // 잔고 조회
     getBalance: async () => {
-        const response = await authenticatedFetch('http://localhost:8080/api/stocks/trade/balance');
+        const userId = localStorage.getItem('userId') || 'master';
+        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/balance?userId=${userId}`);
         return response.json();
     },
 
     // 거래 내역 조회
     getTradeHistory: async () => {
-        const response = await authenticatedFetch('http://localhost:8080/api/stocks/trade/history');
+        const userId = localStorage.getItem('userId') || 'master';
+        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/history?userId=${userId}`);
         return response.json();
     },
 
     // 특정 주식 주문 상세 조회
     getOrderDetail: async (stockId) => {
-        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/order/${stockId}`);
+        const userId = localStorage.getItem('userId') || 'master';
+        const response = await authenticatedFetch(`http://localhost:8080/api/stocks/trade/order/${stockId}?userId=${userId}`);
         return response.json();
     }
 };

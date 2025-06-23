@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { getUserQuizProgress } from '../../services/quizService';
 import styles from './QuizPage.module.css';
 
 function QuizPage() {
     const navigate = useNavigate();
+    const { getCurrentUserId } = useAuth();
     const [quizProgress, setQuizProgress] = useState({});
 
     // 퀴즈 진행 현황 로드
     useEffect(() => {
-        loadQuizProgress();
-    }, []);
+        const userId = getCurrentUserId();
+        if (userId) {
+            loadQuizProgress(userId);
+        }
+    }, [getCurrentUserId]);
 
-    const loadQuizProgress = async () => {
+    const loadQuizProgress = async (userId) => {
         try {
-            const response = await fetch('/api/quizzes/user/master/progress');
-            if (response.ok) {
-                const result = await response.json();
-                setQuizProgress(result.data || {});
-            }
+            const progress = await getUserQuizProgress(userId);
+            setQuizProgress(progress || {});
         } catch (error) {
             console.error('퀴즈 진행 현황 로드 실패:', error);
         }

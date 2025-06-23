@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import './TradeHistoryModal.css';
 
 const TradeHistoryModal = ({ isOpen, onClose }) => {
+  const { getCurrentUserId } = useAuth();
   const [tradeHistory, setTradeHistory] = useState([]);
   const [filterType, setFilterType] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -13,8 +15,10 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
       setLoading(true);
       setError(null);
       
-      // 1. 거래내역 가져오기
-      const data = await fetch('http://localhost:8080/api/stocks/trade/history').then(res => res.json());
+      const userId = getCurrentUserId();
+      
+      // 1. 거래내역 가져오기 (사용자별)
+      const data = await fetch(`http://localhost:8080/api/stocks/trade/history?userId=${userId}`).then(res => res.json());
       
       // 로컬 거래내역 추가
       const localTrades = JSON.parse(localStorage.getItem('localTrades') || '[]');
@@ -47,17 +51,16 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
       });
       
       // 최신순으로 정렬 (날짜 기준 내림차순)
-      const sortedData = enrichedData.sort((a, b) => {
-        const dateA = new Date(a.date || a.tradeDate);
-        const dateB = new Date(b.date || b.tradeDate);
-        return dateB - dateA; // 최신 날짜가 먼저 오도록
+      enrichedData.sort((a, b) => {
+        const dateA = new Date(a.date || a.tradeDate || Date.now());
+        const dateB = new Date(b.date || b.tradeDate || Date.now());
+        return dateB - dateA;
       });
       
-      setTradeHistory(sortedData);
+      setTradeHistory(enrichedData);
     } catch (err) {
       console.error('거래내역 로드 오류:', err);
       setError('거래내역을 불러오는데 실패했습니다.');
-      setTradeHistory([]);
     } finally {
       setLoading(false);
     }

@@ -155,6 +155,11 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
       
       // 성공 모달이 표시된 후에 부모 컴포넌트에 새로고침 요청
       setTimeout(() => {
+        // 헤더 데이터 새로고침을 위한 커스텀 이벤트 발생
+        window.dispatchEvent(new CustomEvent('tradeComplete', {
+          detail: { tradeType, stockName: stock.name, quantity }
+        }));
+        
         if (onTradeComplete) {
           onTradeComplete(tradeInfo); // 거래 정보 전달
         }

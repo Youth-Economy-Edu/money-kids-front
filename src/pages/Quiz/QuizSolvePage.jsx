@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { completeQuizSession } from '../../services/quizService';
 import styles from './QuizSolvePage.module.css';
 
 function useQuery() {
@@ -12,6 +14,7 @@ function QuizSolvePage() {
     const [quizzes, setQuizzes] = useState([]);
     const [userAnswers, setUserAnswers] = useState({});
     const navigate = useNavigate();
+    const { getCurrentUserId } = useAuth();
 
     useEffect(() => {
         const fetchQuizzes = async () => {
@@ -39,8 +42,14 @@ function QuizSolvePage() {
         });
         
         // 퀴즈 완료 시 포인트 지급
-        const userId = 'master'; // 현재 사용자 ID
+        const userId = getCurrentUserId(); // 현재 로그인한 사용자 ID
         const quizLevel = parseInt(level);
+        
+        if (!userId) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
         
         try {
             const result = await completeQuizSession(userId, quizLevel, quizzes.length, correctCount);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import LearnCard from '../../components/Learn/LearnCard';
 import CardDetailPopup from '../../components/Learn/CardDetailPopup';
 import styles from './ConceptListPage.module.css';
@@ -54,10 +55,10 @@ const fetchConceptDetail = async (id) => {
     }
 };
 
-// 포인트 지급 함수
-const awardPoints = async (userId, worksheetId, pointsToAdd = 100) => {
+// 포인트 지급 함수 (난이도별 자동 계산)
+const awardPoints = async (userId, worksheetId) => {
     try {
-        console.log('포인트 지급 API 호출:', { userId, worksheetId, pointsToAdd });
+        console.log('포인트 지급 API 호출:', { userId, worksheetId });
         
         const response = await fetch('/api/user/worksheet/complete', {
             method: 'POST',
@@ -67,7 +68,7 @@ const awardPoints = async (userId, worksheetId, pointsToAdd = 100) => {
             body: JSON.stringify({
                 userId: userId,
                 worksheetId: worksheetId,
-                pointsEarned: pointsToAdd
+                pointsEarned: 0  // 백엔드에서 난이도별로 자동 계산
             })
         });
         
@@ -89,23 +90,27 @@ const awardPoints = async (userId, worksheetId, pointsToAdd = 100) => {
 };
 
 function ConceptListPage() {
+    const navigate = useNavigate();
+    const { getCurrentUserId } = useAuth();
+    
     const [concepts, setConcepts] = useState([]);
-    const [selectedDifficulty, setSelectedDifficulty] = useState(null);
     const [selectedConcept, setSelectedConcept] = useState(null);
+    const [selectedDifficulty, setSelectedDifficulty] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [userProgress, setUserProgress] = useState({});
     const [quizProgress, setQuizProgress] = useState({});
-    const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null);
-    const navigate = useNavigate();
     
-    // 임시 사용자 ID (실제로는 로그인 시스템에서)
-    const currentUserId = 'master';
+    // 현재 로그인한 사용자 ID 가져오기
+    const currentUserId = getCurrentUserId();
 
     useEffect(() => {
-        loadConcepts();
-        loadUserProgress();
-        loadQuizProgress();
-    }, [selectedDifficulty]);
+        if (currentUserId) {
+            loadConcepts();
+            loadUserProgress();
+            loadQuizProgress();
+        }
+    }, [selectedDifficulty, currentUserId]);
 
     const loadConcepts = async () => {
         setLoading(true);
@@ -157,19 +162,35 @@ function ConceptListPage() {
     const handleLearnComplete = async (worksheetId) => {
         console.log('학습 완료 시작:', { userId: currentUserId, worksheetId });
         
-        // 학습 완료 시 포인트 지급
-        const result = await awardPoints(currentUserId, worksheetId, 100);
+        // 학습 완료 시 포인트 지급 (난이도별 자동 계산)
+        const result = await awardPoints(currentUserId, worksheetId);
         
         console.log('포인트 지급 결과:', result);
         
         if (result) {
             if (result.pointsAwarded) {
                 console.log('포인트 지급 성공:', result.pointsEarned, '포인트');
-                setNotification({
-                    type: 'success',
-                    message: `🎉 학습 완료! ${result.pointsEarned}포인트를 획득했습니다!`,
-                    show: true
-                });
+                
+                // 첫 학습과 재학습 구분
+                if (result.isFirstTime) {
+                    setNotification({
+                        type: 'success',
+                        message: `🎉 첫 학습 완료! ${result.pointsEarned}포인트를 획득했습니다!`,
+                        show: true
+                    });
+                } else if (result.isRelearning) {
+                    setNotification({
+                        type: 'success',
+                        message: `🔄 재학습 완료! ${result.pointsEarned}포인트를 획득했습니다!`,
+                        show: true
+                    });
+                } else {
+                    setNotification({
+                        type: 'success',
+                        message: `🎉 학습 완료! ${result.pointsEarned}포인트를 획득했습니다!`,
+                        show: true
+                    });
+                }
             } else {
                 console.log('오늘 이미 완료한 학습지');
                 setNotification({
@@ -297,8 +318,6 @@ function ConceptListPage() {
                     </div>
                 </div>
             </div>
-
-
 
             {/* 난이도 필터 */}
             <div className={styles.difficultySection}>
