@@ -7,30 +7,122 @@ import {
     FaArrowRight,
     FaSearchDollar,
 } from 'react-icons/fa';
-import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Home = ({ onNavigate }) => {
-    const [rate, setRate] = useState(null); // 수익률
+    const [portfolioData, setPortfolioData] = useState({
+        rate: null,
+        totalAsset: 0,
+        profitLoss: 0,
+        loading: true
+    });
+    const { getCurrentUserId } = useAuth();
+    const userId = getCurrentUserId();
 
     useEffect(() => {
-        const fetchBalance = async () => {
+        const fetchPortfolioData = async () => {
+            if (!userId) {
+                setPortfolioData(prev => ({ ...prev, loading: false }));
+                return;
+            }
+
             try {
-                const response = await axios.get('/api/stocks/trade/balance');
-                setRate(response.data?.rate);
+                // 사용자 포트폴리오 정보 가져오기
+                const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`);
+                if (!portfolioResponse.ok) {
+                    throw new Error('포트폴리오 조회 실패');
+                }
+                const portfolioData = await portfolioResponse.json();
+                
+                // 주식 현재가 정보 가져오기
+                const stocksResponse = await fetch('http://localhost:8080/api/stocks');
+                if (!stocksResponse.ok) {
+                    throw new Error('주식 정보 조회 실패');
+                }
+                const stocksData = await stocksResponse.json();
+                
+                // 실제 수익률 계산
+                let totalProfitLoss = 0;
+                let totalInvestment = 0;
+                let currentStockValue = 0;
+                
+                if (portfolioData.stocks && portfolioData.stocks.length > 0) {
+                    const activeStocks = portfolioData.stocks.filter(stock => stock.quantity > 0);
+                    
+                    for (const portfolioStock of activeStocks) {
+                        const currentStock = stocksData.find(s => s.name === portfolioStock.stockName);
+                        if (currentStock) {
+                            const currentValue = currentStock.price * portfolioStock.quantity;
+                            currentStockValue += currentValue;
+                            
+                            const investmentAmount = portfolioStock.totalValue;
+                            totalInvestment += investmentAmount;
+                            
+                            const stockProfitLoss = currentValue - investmentAmount;
+                            totalProfitLoss += stockProfitLoss;
+                        }
+                    }
+                }
+                
+                const profitRate = totalInvestment > 0 
+                    ? ((totalProfitLoss / totalInvestment) * 100) 
+                    : 0;
+                
+                setPortfolioData({
+                    rate: profitRate,
+                    totalAsset: currentStockValue,
+                    profitLoss: totalProfitLoss,
+                    loading: false
+                });
+                
+                console.log('홈화면 포트폴리오 데이터 업데이트:', {
+                    totalInvestment,
+                    currentStockValue,
+                    totalProfitLoss,
+                    profitRate: profitRate.toFixed(2) + '%'
+                });
+                
             } catch (error) {
-                console.error('잔고/수익률 조회 실패:', error);
+                console.error('포트폴리오 데이터 조회 실패:', error);
+                // 에러 시 기본값 설정
+                setPortfolioData({
+                    rate: 0,
+                    totalAsset: 0,
+                    profitLoss: 0,
+                    loading: false
+                });
             }
         };
 
-        fetchBalance();
-    }, []);
+        fetchPortfolioData();
+        
+        // 30초마다 데이터 새로고침
+        const interval = setInterval(fetchPortfolioData, 30000);
+        
+        return () => clearInterval(interval);
+    }, [userId]);
 
     const renderInvestmentMessage = () => {
-        if (typeof rate !== 'number') return '수익률 정보를 불러오는 중입니다...';
-
-        return rate >= 0
-            ? `현재 수익률 ${rate.toFixed(2)}%로 좋은 성과를 보이고 있습니다. 투자 종목을 분석하고 리밸런싱 전략을 세워보세요.`
-            : `현재 수익률 ${rate.toFixed(2)}%로 좋지 않은 상황입니다. 투자 종목을 분석하고 리밸런싱 전략을 세워보세요.`;
+        if (portfolioData.loading) {
+            return '포트폴리오 정보를 불러오는 중입니다...';
+        }
+        
+        if (!userId) {
+            return '로그인이 필요합니다.';
+        }
+        
+        if (portfolioData.totalAsset === 0) {
+            return '아직 투자를 시작하지 않았습니다. 모의 투자로 경험을 쌓아보세요!';
+        }
+        
+        const rate = portfolioData.rate;
+        const profitLoss = portfolioData.profitLoss;
+        
+        if (rate >= 0) {
+            return `현재 수익률 +${rate.toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${profitLoss.toLocaleString()}`;
+        } else {
+            return `현재 수익률 ${rate.toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${profitLoss.toLocaleString()}`;
+        }
     };
 
     return (

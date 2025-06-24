@@ -15,13 +15,6 @@ const TendencyAnalysis = () => {
             color: '#3b82f6'
         },
         {
-            id: 'learning-progress',
-            title: '📈 학습 성과 추적',
-            description: '퀴즈 정답률 및 트렌드 분석',
-            path: '/analysis/learning',
-            color: '#10b981'
-        },
-        {
             id: 'investment-portfolio',
             title: '💰 투자 포트폴리오',
             description: '보유 주식 및 분산도 분석',

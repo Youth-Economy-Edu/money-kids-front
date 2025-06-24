@@ -63,55 +63,62 @@ const StockChart = ({ stock, onClose }) => {
   // 실제 주가 변동 패턴을 반영한 시뮬레이션 데이터 생성
   const generateRealisticSimulation = (stock, range) => {
     const now = new Date();
-    let dataPoints, intervalMs, timeFormat;
+    let dataPoints, intervalMs, timeFormat, volatility;
     
-    // 시간 범위별 설정
+    // 시간 범위별 설정 - 더 세밀하게 조정
     switch (range) {
       case '1M':
-        dataPoints = 5; // 5개 1분봉
+        dataPoints = 20; // 20개 1분봉 (20분간)
         intervalMs = 1 * 60 * 1000; // 1분 간격
-        timeFormat = 'time';
+        timeFormat = 'minute';
+        volatility = 0.008; // 높은 변동성 (0.8%)
         break;
       case '5M':
-        dataPoints = 6; // 6개 5분봉
+        dataPoints = 24; // 24개 5분봉 (2시간)
         intervalMs = 5 * 60 * 1000; // 5분 간격
-        timeFormat = 'time';
+        timeFormat = 'minute';
+        volatility = 0.006; // 높은 변동성 (0.6%)
         break;
       case '10M':
-        dataPoints = 6; // 6개 10분봉
+        dataPoints = 18; // 18개 10분봉 (3시간)
         intervalMs = 10 * 60 * 1000; // 10분 간격
-        timeFormat = 'time';
+        timeFormat = 'minute';
+        volatility = 0.005; // 중간 변동성 (0.5%)
         break;
       case '1H':
-        dataPoints = 6; // 6개 1시간봉
+        dataPoints = 24; // 24개 1시간봉 (하루)
         intervalMs = 60 * 60 * 1000; // 1시간 간격
-        timeFormat = 'time';
+        timeFormat = 'hour';
+        volatility = 0.003; // 낮은 변동성 (0.3%)
         break;
       case '1D':
-        dataPoints = 7; // 7개 1일봉
+        dataPoints = 30; // 30개 1일봉 (한 달)
         intervalMs = 24 * 60 * 60 * 1000; // 1일 간격
         timeFormat = 'date';
+        volatility = 0.002; // 매우 낮은 변동성 (0.2%)
         break;
       case '1W':
-        dataPoints = 8; // 8개 1주봉
+        dataPoints = 12; // 12개 1주봉 (3개월)
         intervalMs = 7 * 24 * 60 * 60 * 1000; // 1주 간격
-        timeFormat = 'date';
+        timeFormat = 'week';
+        volatility = 0.0015; // 매우 낮은 변동성 (0.15%)
         break;
       case '1Mon':
-        dataPoints = 6; // 6개 1월봉
+        dataPoints = 12; // 12개 1월봉 (1년)
         intervalMs = 30 * 24 * 60 * 60 * 1000; // 1달 간격
-        timeFormat = 'date';
+        timeFormat = 'month';
+        volatility = 0.001; // 극히 낮은 변동성 (0.1%)
         break;
       default:
-        dataPoints = 6;
+        dataPoints = 24;
         intervalMs = 60 * 60 * 1000;
-        timeFormat = 'time';
+        timeFormat = 'hour';
+        volatility = 0.003;
     }
     
     const basePrice = stock.beforePrice || stock.price;
     const currentPrice = stock.price;
     const totalChange = currentPrice - basePrice;
-    const volatility = Math.abs(totalChange / basePrice) * 0.5; // 변동성 계산
     
     const labels = [];
     const prices = [];
@@ -126,35 +133,85 @@ const StockChart = ({ stock, onClose }) => {
       return randomSeed / 233280;
     };
     
+    // 트렌드 방향 결정 (상승/하락/횡보)
+    const trendDirection = totalChange > 0 ? 1 : totalChange < 0 ? -1 : 0;
+    
     for (let i = dataPoints - 1; i >= 0; i--) {
       const date = new Date(now.getTime() - (i * intervalMs));
       
-      // 시간 포맷
-      if (timeFormat === 'time') {
-        labels.push(date.toLocaleTimeString('ko-KR', { 
-          hour: '2-digit', 
-          minute: '2-digit'
-        }));
-      } else {
-        labels.push(date.toLocaleDateString('ko-KR', { 
-          month: 'short', 
-          day: 'numeric' 
-        }));
+      // 시간 포맷 개선 - 각 범위별로 적절한 표시
+      let formattedTime;
+      switch (timeFormat) {
+        case 'minute':
+          formattedTime = date.toLocaleTimeString('ko-KR', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false
+          });
+          break;
+        case 'hour':
+          formattedTime = date.toLocaleString('ko-KR', { 
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            hour12: false
+          }).replace(/\. /g, '/').replace(/\.$/, '');
+          break;
+        case 'date':
+          formattedTime = date.toLocaleDateString('ko-KR', { 
+            month: 'numeric', 
+            day: 'numeric' 
+          }).replace(/\. /g, '/').replace(/\.$/, '');
+          break;
+        case 'week':
+          const weekEnd = new Date(date.getTime() + (6 * 24 * 60 * 60 * 1000));
+          formattedTime = `${date.getMonth()+1}/${date.getDate()}~${weekEnd.getMonth()+1}/${weekEnd.getDate()}`;
+          break;
+        case 'month':
+          formattedTime = date.toLocaleDateString('ko-KR', { 
+            year: '2-digit',
+            month: 'numeric'
+          }).replace(/\. /g, '/').replace(/\.$/, '');
+          break;
+        default:
+          formattedTime = date.toLocaleTimeString('ko-KR', { 
+            hour: '2-digit', 
+            minute: '2-digit'
+          });
       }
+      
+      labels.push(formattedTime);
       
       // 실제적인 가격 변동 시뮬레이션
       const progress = (dataPoints - 1 - i) / (dataPoints - 1);
       
       // 트렌드 팩터 (전체 변화를 점진적으로 반영)
-      const trendFactor = (totalChange / basePrice) * progress;
+      let trendFactor = (totalChange / basePrice) * progress;
       
-      // 랜덤 변동 (시드 기반으로 일관성 유지)
-      const randomVariation = (seededRandom() - 0.5) * volatility * 0.3;
+      // 랜덤 변동 (시간 범위별 차별화된 변동성)
+      const randomVariation = (seededRandom() - 0.5) * volatility;
       
       // 이전 가격의 모멘텀 효과 (연속성)
-      const momentum = i < dataPoints - 1 ? (seededRandom() - 0.5) * 0.01 : 0;
+      const momentum = i < dataPoints - 1 ? (seededRandom() - 0.5) * 0.001 : 0;
       
-      const price = basePrice * (1 + trendFactor + randomVariation + momentum);
+      // 추세 반전 확률 (장기간일수록 높음)
+      if (['1D', '1W', '1Mon'].includes(range)) {
+        const reversalChance = seededRandom();
+        if (reversalChance < 0.08) { // 8% 확률로 추세 반전
+          trendFactor *= -0.3;
+        }
+      }
+      
+      // 분봉에서는 더 큰 스파이크 허용
+      let spikeFactor = 0;
+      if (['1M', '5M', '10M'].includes(range)) {
+        const spikeChance = seededRandom();
+        if (spikeChance < 0.05) { // 5% 확률로 급등/급락
+          spikeFactor = (seededRandom() - 0.5) * 0.02; // ±2% 스파이크
+        }
+      }
+      
+      const price = basePrice * (1 + trendFactor + randomVariation + momentum + spikeFactor);
       prices.push(Math.max(1, Math.round(price))); // 최소 1원 보장
     }
     
@@ -277,7 +334,7 @@ const StockChart = ({ stock, onClose }) => {
       
       loadChartData();
     }
-  }, [stock, timeRange]);
+  }, [stock, timeRange, isMinuteView]);
 
   if (!stock) return null;
 

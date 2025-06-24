@@ -2,17 +2,27 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./register.css"; // 회원가입 전용 CSS
+import Toast from "../../components/Toast";
 
 const Register = () => {
     const [id, setId] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
+    const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
+
+    const showToast = (type, message) => {
+        setToast({ show: true, type, message });
+    };
+
+    const hideToast = () => {
+        setToast({ show: false, type: 'info', message: '' });
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
         if (!id || !name || !password) {
-            alert("모든 항목을 입력해주세요.");
+            showToast('warning', '모든 항목을 입력해주세요.');
             return;
         }
 
@@ -27,19 +37,32 @@ const Register = () => {
                 }
             );
 
-            alert("회원가입 성공! 로그인 페이지로 이동합니다.");
-            window.location.href = "/login";
+            showToast('success', '회원가입 성공! 로그인 페이지로 이동합니다.');
+            
+            // 성공 토스트 표시 후 페이지 이동
+            setTimeout(() => {
+                window.location.href = "/login";
+            }, 2000);
         } catch (error) {
             const msg =
                 error.response?.data?.message ||
                 error.response?.data?.error ||
                 "회원가입 실패";
-            alert(msg);
+            showToast('error', msg);
         }
     };
 
     return (
         <div className="register-container">
+            <Toast
+                type={toast.type}
+                message={toast.message}
+                show={toast.show}
+                onClose={hideToast}
+                position="top-center"
+                duration={4000}
+            />
+            
             <form className="register-form" onSubmit={handleRegister}>
                 <h2>회원가입</h2>
                 <input
@@ -61,6 +84,9 @@ const Register = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button type="submit">회원가입</button>
+                <p style={{ marginTop: "12px" }}>
+                    이미 회원이신가요? <a href="/login">로그인</a>
+                </p>
             </form>
         </div>
     );

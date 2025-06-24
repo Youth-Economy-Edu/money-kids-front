@@ -85,6 +85,7 @@
     cursor: pointer;
     transition: all 0.25s ease;
     color: var(--text-secondary);
+    min-height: 50px;
 }
 
 .nav-item:hover {
@@ -102,14 +103,21 @@
     font-size: 18px;
     margin-right: 16px;
     color: inherit;
-    width: 20px;
+    width: 24px;
+    height: 24px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .nav-text {
     font-size: 15px;
     font-weight: 500;
     color: inherit;
+    flex: 1;
+    line-height: 1.2;
 }
 
 .notification-badge {

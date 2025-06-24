@@ -14,26 +14,53 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 초기화 시 localStorage에서 사용자 정보 로드
+    // 초기화 시 사용자 정보 로드 및 상세 정보 패치
     useEffect(() => {
-        const initializeAuth = () => {
+        const initializeAuth = async () => {
             try {
                 const storedUserId = localStorage.getItem('userId');
-                const storedUserName = localStorage.getItem('userName');
                 
                 if (storedUserId) {
-                    setUser({
-                        id: storedUserId,
-                        name: storedUserName || storedUserId,
-                        isAuthenticated: true
-                    });
+                    // 서버에서 최신 사용자 정보 가져오기
+                    const response = await fetch(`http://localhost:8080/api/users/${storedUserId}`);
+                    if (response.ok) {
+                        const userData = await response.json();
+                        
+                        // 성향 정보 가져오기 시도
+                        let tendencyInfo = null;
+                        try {
+                            const tendencyResponse = await fetch(`http://localhost:8080/api/parent/child/${storedUserId}/tendency-graph`);
+                            if (tendencyResponse.ok) {
+                                const tendencyData = await tendencyResponse.json();
+                                if (tendencyData.code === 200 && tendencyData.data) {
+                                    tendencyInfo = tendencyData.data.finalType || '분석 중...';
+                                }
+                            }
+                        } catch (tendencyError) {
+                            console.warn('성향 정보 조회 실패:', tendencyError);
+                        }
+                        
+                        // API 응답이 User 객체이므로 바로 사용
+                        setUser({ 
+                            ...userData, 
+                            isAuthenticated: true,
+                            tendency: tendencyInfo || '분석 중...'
+                        });
+                    } else {
+                        // API 실패 시 로컬 스토리지 정보로 대체
+                        const storedUserName = localStorage.getItem('userName');
+                        setUser({
+                            id: storedUserId,
+                            name: storedUserName || storedUserId,
+                            isAuthenticated: true,
+                            tendency: '분석 중...'
+                        });
+                    }
                 } else {
-                    // 로그인하지 않은 상태로 설정
                     setUser(null);
                 }
             } catch (error) {
                 console.error('인증 초기화 오류:', error);
-                // 오류 발생 시 로그인하지 않은 상태로 설정
                 setUser(null);
             } finally {
                 setLoading(false);

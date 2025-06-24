@@ -16,7 +16,6 @@ import InvestmentPage from './pages/InvestmentPage';
 import UserDebugPage from './pages/UserDebugPage';
 import TendencyAnalysis from './pages/TendencyAnalysis/TendencyAnalysis';
 import TendencyDetail from './pages/TendencyAnalysis/TendencyDetail';
-import LearningProgress from './pages/TendencyAnalysis/LearningProgress';
 import InvestmentPortfolio from './pages/TendencyAnalysis/InvestmentPortfolio';
 import ActivityMonitoring from './pages/TendencyAnalysis/ActivityMonitoring';
 import Recommendations from './pages/TendencyAnalysis/Recommendations';
@@ -209,7 +208,6 @@ const App = () => {
                     <Routes>
                         <Route index element={<TendencyAnalysis />} />
                         <Route path="detail" element={<TendencyDetail />} />
-                        <Route path="learning" element={<LearningProgress />} />
                         <Route path="investment" element={<InvestmentPortfolio />} />
                         <Route path="activity" element={<ActivityMonitoring />} />
                         <Route path="recommendations" element={<Recommendations />} />

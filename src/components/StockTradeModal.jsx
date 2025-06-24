@@ -204,6 +204,23 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
               {stock.change > 0 ? '+' : ''}{stock.change.toLocaleString()} ({stock.changeRate}%)
             </div>
           </div>
+          <div className="company-info">
+            <div className="company-size">
+              <span className="company-size-label">회사 규모:</span>
+              <span className={`company-size-value ${stock.size?.toLowerCase()}`}>
+                {stock.size === 'Large' ? '대기업' : 
+                 stock.size === 'Medium' ? '중견기업' : 
+                 stock.size === 'Small' ? '중소기업' : 
+                 stock.size || '정보 없음'}
+              </span>
+            </div>
+            {stock.category && (
+              <div className="company-category">
+                <span className="company-category-label">업종:</span>
+                <span className="company-category-value">{stock.category}</span>
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="tabs">

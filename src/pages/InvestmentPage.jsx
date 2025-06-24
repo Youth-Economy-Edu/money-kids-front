@@ -194,16 +194,25 @@ const InvestmentPage = () => {
   useEffect(() => {
     fetchStocks();
     
-    // 10초마다 현재 화면의 주가만 실시간 업데이트
+    // 🌟 브라우저 알림 권한 요청
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('📢 실시간 주가 변동 알림이 활성화되었습니다.');
+        }
+      });
+    }
+    
+    // 5초마다 현재 화면의 주가 실시간 업데이트 (더 자주 업데이트)
     const interval = setInterval(() => {
-      console.log('현재 화면 주가 실시간 업데이트 중...');
+      console.log('🔄 현재 화면 주가 실시간 업데이트 중...');
       updateCurrentViewPrices();
-    }, 10000); // 10초 (실제 서비스에서는 더 긴 간격 권장)
+    }, 5000); // 5초 (기존 10초에서 단축)
     
     return () => clearInterval(interval);
   }, []);
 
-  // 현재 화면의 주가만 실시간 업데이트하는 함수
+  // 현재 화면의 주가만 실시간 업데이트하는 함수 (개선)
   const updateCurrentViewPrices = async () => {
     try {
       // 최신 주가 데이터 가져오기
@@ -215,6 +224,9 @@ const InvestmentPage = () => {
       // 현재 화면에 표시된 주식들의 가격만 업데이트
       if (filteredStocks.length === 0) return;
       
+      let hasSignificantChange = false;
+      const significantChanges = [];
+      
       const updatedStocks = filteredStocks.map(displayedStock => {
         const latestStock = latestStocks.find(s => s.id === displayedStock.id);
         if (latestStock) {
@@ -223,6 +235,36 @@ const InvestmentPage = () => {
             ? ((change / latestStock.beforePrice) * 100).toFixed(2) 
             : 0;
           const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+          
+          // 🌟 주가 변동 감지 및 알림
+          if (displayedStock.price !== latestStock.price) {
+            const priceChange = latestStock.price - displayedStock.price;
+            const direction = priceChange > 0 ? '상승' : '하락';
+            const icon = priceChange > 0 ? '📈' : '📉';
+            
+            console.log(`${icon} [${latestStock.name}] 실시간 주가 ${direction}: ₩${displayedStock.price.toLocaleString()} → ₩${latestStock.price.toLocaleString()} (${priceChange > 0 ? '+' : ''}${priceChange.toLocaleString()}원)`);
+            
+            // 🚨 ±5% 이상 변동 시 특별 알림
+            const dailyChangeRate = Math.abs(parseFloat(changeRate));
+            if (dailyChangeRate >= 5.0) {
+              hasSignificantChange = true;
+              significantChanges.push({
+                name: latestStock.name,
+                changeRate: changeRate,
+                direction: direction,
+                icon: icon
+              });
+            }
+            
+            // 브라우저 알림 (권한이 있는 경우)
+            if (Notification.permission === 'granted') {
+              new Notification(`주가 변동 알림`, {
+                body: `${latestStock.name}: ₩${latestStock.price.toLocaleString()} (${priceChange > 0 ? '+' : ''}${priceChange.toLocaleString()}원, ${changeRate}%)`,
+                icon: '/favicon.ico',
+                tag: `stock-${latestStock.id}` // 같은 주식의 중복 알림 방지
+              });
+            }
+          }
           
           return {
             ...displayedStock,
@@ -236,16 +278,26 @@ const InvestmentPage = () => {
         return displayedStock;
       });
       
+      // 🚨 큰 변동 발생 시 특별 알림
+      if (hasSignificantChange && Notification.permission === 'granted') {
+        const changeList = significantChanges.map(s => `${s.icon} ${s.name}: ${s.changeRate}%`).join('\n');
+        new Notification('⚠️ 주요 주가 변동 알림', {
+          body: `5% 이상 변동 종목:\n${changeList}`,
+          icon: '/favicon.ico',
+          tag: 'significant-change'
+        });
+      }
+      
       setFilteredStocks(updatedStocks);
-      console.log(`현재 화면 ${updatedStocks.length}개 주식 가격 업데이트 완료`);
+      console.log(`🔄 현재 화면 ${updatedStocks.length}개 주식 가격 업데이트 완료 - ${new Date().toLocaleTimeString()}`);
       
       // 포트폴리오 요약도 함께 업데이트
       setTimeout(() => {
-        console.log('포트폴리오 요약 실시간 업데이트');
+        console.log('📊 포트폴리오 요약 실시간 업데이트');
         fetchUserData();
       }, 1000);
     } catch (error) {
-      console.error('현재 화면 주가 업데이트 실패:', error);
+      console.error('❌ 현재 화면 주가 업데이트 실패:', error);
     }
   };
 
@@ -821,6 +873,11 @@ const InvestmentPage = () => {
     } else {
       fetchStocks();
     }
+    
+    // 모든 데이터 처리 이후 페이지 자동 새로고침
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   // 모달 닫기 핸들러
@@ -844,8 +901,14 @@ const InvestmentPage = () => {
     <div className="investment-page">
       <div className="investment-header">
         <div>
-          <h1 className="page-title">모의 투자</h1>
-          <p className="page-subtitle">실제와 같은 환경에서 안전하게 투자를 경험하고 전략을 연마하세요.</p>
+          <h1 className="page-title">
+            모의 투자
+            <span className="realtime-indicator">
+              <span className="realtime-dot"></span>
+              실시간 업데이트
+            </span>
+          </h1>
+          <p className="page-subtitle">실제와 같은 환경에서 안전하게 투자를 경험하고 전략을 연마하세요. 주가는 10초마다 자동 업데이트됩니다.</p>
         </div>
                         <button 
                   className="btn btn-primarly" 

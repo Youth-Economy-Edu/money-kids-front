@@ -49,58 +49,105 @@ const InvestmentPortfolio = () => {
             if (result.success) {
                 setInvestmentData(result.data);
             } else {
-                console.warn('API 호출 실패, 목업 데이터 사용:', result.error);
-                // API 실패 시 목업 데이터 사용
-                setInvestmentData({
-                    hasInvestments: true,
-                    totalStocks: 4,
-                    stockComposition: {
-                        "삼성전자": 2,
-                        "스타벅스": 1,
-                        "맥도날드": 3,
-                        "넥슨게임즈": 1
-                    },
-                    categoryDistribution: {
-                        "IT": 2,
-                        "음식료": 2
-                    },
-                    totalInvestmentValue: 450000,
-                    diversificationScore: 2,
-                    stockPerformance: {
-                        "삼성전자": { shares: 2, currentPrice: 75000, profit: 5000 },
-                        "스타벅스": { shares: 1, currentPrice: 120000, profit: -8000 },
-                        "맥도날드": { shares: 3, currentPrice: 85000, profit: 15000 },
-                        "넥슨게임즈": { shares: 1, currentPrice: 95000, profit: -2000 }
-                    }
-                });
+                console.warn('API 호출 실패, 실제 포트폴리오 데이터 기반 목업 사용:', result.error);
+                // 실제 포트폴리오 정보 가져오기 시도
+                await generateMockDataFromPortfolio();
             }
         } catch (error) {
             console.error('예상치 못한 오류:', error);
-            // 목업 데이터 사용
-            setInvestmentData({
-                hasInvestments: true,
-                totalStocks: 4,
-                stockComposition: {
-                    "삼성전자": 2,
-                    "스타벅스": 1,
-                    "맥도날드": 3,
-                    "넥슨게임즈": 1
-                },
-                categoryDistribution: {
-                    "IT": 2,
-                    "음식료": 2
-                },
-                totalInvestmentValue: 450000,
-                diversificationScore: 2,
-                stockPerformance: {
-                    "삼성전자": { shares: 2, currentPrice: 75000, profit: 5000 },
-                    "스타벅스": { shares: 1, currentPrice: 120000, profit: -8000 },
-                    "맥도날드": { shares: 3, currentPrice: 85000, profit: 15000 },
-                    "넥슨게임즈": { shares: 1, currentPrice: 95000, profit: -2000 }
-                }
-            });
+            // 실제 포트폴리오 정보 가져오기 시도
+            await generateMockDataFromPortfolio();
         } finally {
             setLoading(false);
+        }
+    };
+
+    // 실제 포트폴리오 데이터 기반으로 목업 데이터 생성
+    const generateMockDataFromPortfolio = async () => {
+        try {
+            const portfolioResponse = await fetch(`http://localhost:8080/api/users/${childId}/portfolio`);
+            if (portfolioResponse.ok) {
+                const portfolioData = await portfolioResponse.json();
+                const stocks = portfolioData.stocks || [];
+                
+                if (stocks.length > 0) {
+                    // 실제 데이터 기반으로 구성
+                    const stockComposition = {};
+                    const categoryDistribution = {};
+                    let totalInvestmentValue = 0;
+                    const stockPerformance = {};
+                    
+                    stocks.forEach(stock => {
+                        if (stock.quantity > 0) {
+                            stockComposition[stock.stockName] = stock.quantity;
+                            totalInvestmentValue += stock.totalValue;
+                            
+                            // 카테고리 임시 설정 (실제로는 주식 정보에서 가져와야 함)
+                            const category = getStockCategory(stock.stockName);
+                            categoryDistribution[category] = (categoryDistribution[category] || 0) + 1;
+                            
+                            // 현재 주가 정보 필요
+                            stockPerformance[stock.stockName] = {
+                                shares: stock.quantity,
+                                currentPrice: Math.round(stock.totalValue / stock.quantity), // 평균 매수가로 추정
+                                profit: Math.round((Math.random() - 0.5) * 20000) // 임시 수익/손실
+                            };
+                        }
+                    });
+                    
+                    setInvestmentData({
+                        hasInvestments: true,
+                        totalStocks: Object.keys(stockComposition).length,
+                        stockComposition,
+                        categoryDistribution,
+                        totalInvestmentValue,
+                        diversificationScore: Math.min(5, Object.keys(categoryDistribution).length),
+                        stockPerformance
+                    });
+                    return;
+                }
+            }
+        } catch (portfolioError) {
+            console.warn('포트폴리오 데이터 조회 실패:', portfolioError);
+        }
+        
+        // 기본 목업 데이터
+        setInvestmentData({
+            hasInvestments: true,
+            totalStocks: 4,
+            stockComposition: {
+                "삼성전자": 2,
+                "스타벅스": 1,
+                "맥도날드": 3,
+                "넥슨게임즈": 1
+            },
+            categoryDistribution: {
+                "IT": 2,
+                "음식료": 2
+            },
+            totalInvestmentValue: 450000,
+            diversificationScore: 2,
+            stockPerformance: {
+                "삼성전자": { shares: 2, currentPrice: 75000, profit: 5000 },
+                "스타벅스": { shares: 1, currentPrice: 120000, profit: -8000 },
+                "맥도날드": { shares: 3, currentPrice: 85000, profit: 15000 },
+                "넥슨게임즈": { shares: 1, currentPrice: 95000, profit: -2000 }
+            }
+        });
+    };
+
+    // 주식 이름으로 카테고리 추정
+    const getStockCategory = (stockName) => {
+        if (stockName.includes('삼성') || stockName.includes('LG') || stockName.includes('네이버') || stockName.includes('카카오') || stockName.includes('넥슨')) {
+            return 'IT';
+        } else if (stockName.includes('스타벅스') || stockName.includes('맥도날드') || stockName.includes('CJ') || stockName.includes('농심')) {
+            return '음식료';
+        } else if (stockName.includes('현대') || stockName.includes('기아')) {
+            return '자동차';
+        } else if (stockName.includes('신한') || stockName.includes('KB') || stockName.includes('하나')) {
+            return '금융';
+        } else {
+            return '기타';
         }
     };
 
@@ -250,35 +297,111 @@ const InvestmentPortfolio = () => {
                 </div>
             </div>
 
-            {/* 업종별 분산 */}
-            <div className="category-section">
-                <div className="section-card">
-                    <h2>🏢 업종별 분산</h2>
-                    <div className="chart-container">
-                        <Bar data={getCategoryData()} options={chartOptions} />
-                    </div>
-                </div>
-            </div>
-
             {/* 개별 주식 성과 */}
             <div className="performance-section">
                 <div className="section-card">
                     <h2>📊 개별 주식 성과</h2>
-                    <div className="stock-list">
-                        {investmentData?.stockPerformance && Object.entries(investmentData.stockPerformance).map(([stock, data]) => (
-                            <div key={stock} className="stock-item">
-                                <div className="stock-info">
-                                    <span className="stock-name">{stock}</span>
-                                    <span className="stock-shares">{data.shares}주</span>
+                    <div className="stock-performance-list">
+                        {investmentData?.stockPerformance && Object.entries(investmentData.stockPerformance).map(([stock, data]) => {
+                            const profitRate = ((data.profit || 0) / ((data.currentPrice || 0) * (data.shares || 1))) * 100;
+                            const totalValue = (data.currentPrice || 0) * (data.shares || 0);
+                            
+                            return (
+                                <div key={stock} className="detailed-stock-item">
+                                    <div className="stock-header">
+                                        <div className="stock-name-section">
+                                            <h3 className="stock-name">{stock}</h3>
+                                            <span className="stock-category">{getStockCategory(stock)}</span>
+                                        </div>
+                                        <div className={`profit-indicator ${data.profit >= 0 ? 'profit' : 'loss'}`}>
+                                            {data.profit >= 0 ? '📈' : '📉'}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="stock-details">
+                                        <div className="detail-row">
+                                            <span className="detail-label">보유 수량</span>
+                                            <span className="detail-value">{data.shares}주</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">현재 가격</span>
+                                            <span className="detail-value">₩{data.currentPrice?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">보유 가치</span>
+                                            <span className="detail-value">₩{totalValue.toLocaleString()}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">수익/손실</span>
+                                            <span className={`detail-value ${data.profit >= 0 ? 'profit-text' : 'loss-text'}`}>
+                                                {data.profit >= 0 ? '+' : ''}₩{data.profit?.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">수익률</span>
+                                            <span className={`detail-value ${profitRate >= 0 ? 'profit-text' : 'loss-text'}`}>
+                                                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="performance-bar">
+                                        <div className="bar-container">
+                                            <div 
+                                                className={`performance-fill ${profitRate >= 0 ? 'profit-bar' : 'loss-bar'}`}
+                                                style={{ 
+                                                    width: `${Math.min(Math.abs(profitRate) * 2, 100)}%` 
+                                                }}
+                                            ></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="stock-price">
-                                    <span className="current-price">{data.currentPrice?.toLocaleString()}원</span>
-                                    <span className={`profit ${data.profit >= 0 ? 'positive' : 'negative'}`}>
-                                        {data.profit >= 0 ? '+' : ''}{data.profit?.toLocaleString()}원
+                            );
+                        })}
+                    </div>
+                    
+                    {/* 전체 포트폴리오 요약 */}
+                    <div className="portfolio-summary">
+                        <h3>📋 포트폴리오 요약</h3>
+                        <div className="summary-grid">
+                            <div className="summary-card">
+                                <span className="summary-icon">💰</span>
+                                <div className="summary-info">
+                                    <span className="summary-title">총 투자가치</span>
+                                    <span className="summary-amount">
+                                        ₩{Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + ((data.currentPrice || 0) * (data.shares || 0)), 0)
+                                            .toLocaleString()}
                                     </span>
                                 </div>
                             </div>
-                        ))}
+                            <div className="summary-card">
+                                <span className="summary-icon">📊</span>
+                                <div className="summary-info">
+                                    <span className="summary-title">총 수익/손실</span>
+                                    <span className={`summary-amount ${Object.entries(investmentData?.stockPerformance || {})
+                                        .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
+                                        {Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? '+' : ''}
+                                        ₩{Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + (data.profit || 0), 0)
+                                            .toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="summary-card">
+                                <span className="summary-icon">🎯</span>
+                                <div className="summary-info">
+                                    <span className="summary-title">총 수익률</span>
+                                    <span className={`summary-amount ${Object.entries(investmentData?.stockPerformance || {})
+                                        .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
+                                        {((Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + (data.profit || 0), 0) / 
+                                            Math.max(investmentData?.totalInvestmentValue || 1, 1)) * 100).toFixed(2)}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

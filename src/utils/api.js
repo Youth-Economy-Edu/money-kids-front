@@ -159,7 +159,22 @@ export const tendencyAPI = {
     
     // 자녀 프로필
     getProfile: (childId) => 
-        apiCall(`/api/parent/child/${childId}/profile`, { useCache: true })
+        apiCall(`/api/parent/child/${childId}/profile`, { useCache: true }),
+    
+    // 성향 분석 수행 (OpenAI 분석)
+    performAnalysis: (userId, activityLogs) => 
+        apiCall('/api/analysis/perform', { 
+            method: 'POST', 
+            data: { 
+                user_id: userId,
+                activity_logs: activityLogs
+            },
+            useCache: false 
+        }),
+    
+    // 활동 로그 조회 (분석용)
+    getActivityLogs: (childId) =>
+        apiCall(`/api/parent/child/${childId}/activity-logs`, { useCache: false })
 };
 
 // 캐시 관리 함수들

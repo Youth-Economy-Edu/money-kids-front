@@ -58,8 +58,8 @@ const LearningProgress = () => {
             }
         } catch (error) {
             console.error('학습 진도 조회 실패:', error);
-            setError(error.message || '학습 데이터를 불러오는 중 오류가 발생했습니다.');
-            // 목업 데이터 사용
+            // API 실패 시 목업 데이터로 대체하고 에러는 표시하지 않음
+            console.warn('백엔드 API 연결 실패, 목업 데이터 사용');
             setLearningData({
                 totalQuizzes: 45,
                 correctAnswers: 36,
@@ -102,7 +102,25 @@ const LearningProgress = () => {
 
     // 학습 진도 라인 차트 데이터
     const getProgressChartData = () => {
-        if (!learningData) return null;
+        if (!learningData || !learningData.recentTrend || learningData.recentTrend.length === 0) {
+            // 데이터가 없을 때 기본 데이터
+            return {
+                labels: ['데이터 없음'],
+                datasets: [{
+                    label: '정답률 (%)',
+                    data: [0],
+                    borderColor: 'rgba(200, 200, 200, 1)',
+                    backgroundColor: 'rgba(200, 200, 200, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(200, 200, 200, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            };
+        }
         
         return {
             labels: learningData.recentTrend.map(trend => `${trend.batch}회차`),
@@ -247,12 +265,25 @@ const LearningProgress = () => {
             <div className="progress-chart-section">
                 <div className="section-card">
                     <h2>📊 학습 진도 추이</h2>
-                    <div className="chart-container">
-                        <Line data={getProgressChartData()} options={chartOptions} />
-                    </div>
-                    <div className="chart-description">
-                        <p>최근 7회차 퀴즈의 정답률 변화를 보여줍니다.</p>
-                    </div>
+                    {learningData?.recentTrend && learningData.recentTrend.length > 0 ? (
+                        <>
+                            <div className="chart-container">
+                                <Line data={getProgressChartData()} options={chartOptions} />
+                            </div>
+                            <div className="chart-description">
+                                <p>최근 7회차 퀴즈의 정답률 변화를 보여줍니다.</p>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="no-data-message" style={{
+                            padding: '3rem',
+                            textAlign: 'center',
+                            color: 'var(--text-secondary)'
+                        }}>
+                            <p>아직 학습 데이터가 충분하지 않습니다.</p>
+                            <p>퀴즈를 더 풀어보세요!</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -261,18 +292,37 @@ const LearningProgress = () => {
                 <div className="section-card">
                     <h2>💡 학습 인사이트</h2>
                     <div className="insights-list">
-                        <div className="insight-item">
-                            <span className="insight-icon">🎯</span>
-                            <span>현재 정답률이 {learningData?.accuracyRate}%로 우수합니다!</span>
-                        </div>
-                        <div className="insight-item">
-                            <span className="insight-icon">📈</span>
-                            <span>총 {learningData?.totalQuizzes}개의 퀴즈를 완료했습니다.</span>
-                        </div>
-                        <div className="insight-item">
-                            <span className="insight-icon">🏆</span>
-                            <span>현재 레벨 {learningData?.currentLevel}에 도달했습니다!</span>
-                        </div>
+                        {learningData?.totalQuizzes > 0 ? (
+                            <>
+                                <div className="insight-item">
+                                    <span className="insight-icon">🎯</span>
+                                    <span>현재 정답률이 {learningData?.accuracyRate}%로 {learningData?.accuracyRate >= 70 ? '우수합니다!' : '더 노력이 필요합니다!'}</span>
+                                </div>
+                                <div className="insight-item">
+                                    <span className="insight-icon">📈</span>
+                                    <span>총 {learningData?.totalQuizzes}개의 퀴즈를 완료했습니다.</span>
+                                </div>
+                                <div className="insight-item">
+                                    <span className="insight-icon">🏆</span>
+                                    <span>현재 레벨 {learningData?.currentLevel}에 도달했습니다!</span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="insight-item">
+                                    <span className="insight-icon">🚀</span>
+                                    <span>첫 퀴즈를 시작해보세요!</span>
+                                </div>
+                                <div className="insight-item">
+                                    <span className="insight-icon">📚</span>
+                                    <span>다양한 경제 지식을 학습할 수 있습니다.</span>
+                                </div>
+                                <div className="insight-item">
+                                    <span className="insight-icon">🏆</span>
+                                    <span>포인트를 모아 레벨을 올려보세요!</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

@@ -168,10 +168,19 @@ function ConceptListPage() {
         console.log('포인트 지급 결과:', result);
         
         if (result) {
-            if (result.pointsAwarded) {
-                console.log('포인트 지급 성공:', result.pointsEarned, '포인트');
+            // API 응답 구조 확인
+            console.log('API 응답 상세:', {
+                pointsAwarded: result.pointsAwarded,
+                pointsEarned: result.pointsEarned,
+                isFirstTime: result.isFirstTime,
+                isRelearning: result.isRelearning,
+                alreadyCompletedToday: result.alreadyCompletedToday
+            });
+            
+            if (result.pointsAwarded && result.pointsEarned > 0) {
+                console.log('✅ 포인트 지급 성공:', result.pointsEarned, '포인트');
                 
-                // 첫 학습과 재학습 구분
+                // 첫 학습인지 재학습인지 구분
                 if (result.isFirstTime) {
                     setNotification({
                         type: 'success',
@@ -191,11 +200,28 @@ function ConceptListPage() {
                         show: true
                     });
                 }
-            } else {
-                console.log('오늘 이미 완료한 학습지');
+            } else if (result.alreadyCompletedToday) {
+                // 오늘 이미 완료한 학습지인 경우
+                console.log('ℹ️ 오늘 이미 완료한 학습지');
                 setNotification({
                     type: 'info',
                     message: '📚 학습을 완료했습니다! (오늘은 이미 포인트를 받으셨어요)',
+                    show: true
+                });
+            } else if (!result.pointsAwarded) {
+                // 포인트가 지급되지 않았지만 아직 오늘 첫 완료가 아닌 경우
+                console.log('ℹ️ 포인트 지급 조건 미충족');
+                setNotification({
+                    type: 'info',
+                    message: '📚 학습을 완료했습니다!',
+                    show: true
+                });
+            } else {
+                // 기타 경우 - 학습 완료는 되었지만 포인트 없음
+                console.log('ℹ️ 학습 완료 (포인트 없음)');
+                setNotification({
+                    type: 'success',
+                    message: '📚 학습을 완료했습니다!',
                     show: true
                 });
             }
@@ -203,7 +229,12 @@ function ConceptListPage() {
             // 진도 새로고침
             loadUserProgress();
         } else {
-            console.log('포인트 지급 실패');
+            console.log('❌ 포인트 지급 API 호출 실패');
+            setNotification({
+                type: 'info',
+                message: '📚 학습을 완료했습니다!',
+                show: true
+            });
         }
         
         // 3초 후 알림 숨기기

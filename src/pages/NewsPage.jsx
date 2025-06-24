@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { articleService } from '../services/articleService';
+import { useAuth } from '../contexts/AuthContext';
 import './NewsPage.css';
 
 const NewsPage = () => {
@@ -11,16 +12,126 @@ const NewsPage = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [stockMap, setStockMap] = useState({}); // 주식 ID -> 이름 매핑
+  const [lastUpdateTime, setLastUpdateTime] = useState(null);
 
-  // 임시 사용자 ID (실제로는 로그인된 사용자 정보에서 가져올 것)
-  const currentUserId = 'root';
-
-
+  const { getCurrentUserId } = useAuth();
+  const currentUserId = getCurrentUserId();
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
-    loadAllData();
-  }, []);
+    if (currentUserId) {
+      loadAllData();
+    }
+  }, [currentUserId]);
+
+  // 15초마다 새로운 기사 확인 (더 자주 확인)
+  useEffect(() => {
+    if (currentUserId) {
+      const interval = setInterval(() => {
+        console.log('🔄 새로운 기사 확인 중...');
+        checkForNewArticles();
+      }, 15000); // 15초마다 확인 (기존 30초에서 단축)
+
+      return () => clearInterval(interval);
+    }
+  }, [currentUserId, lastUpdateTime]);
+
+  // 새로운 기사만 확인하는 함수 (개선)
+  const checkForNewArticles = async () => {
+    try {
+      const allArticlesData = await articleService.getAllArticles();
+      
+      if (allArticlesData && allArticlesData.length > 0) {
+        // 최신 기사의 시간을 확인
+        const sortedArticles = allArticlesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const latestArticleTime = new Date(sortedArticles[0].date);
+        
+        // 마지막 업데이트 시간보다 새로운 기사가 있으면 전체 새로고침
+        if (!lastUpdateTime || latestArticleTime > lastUpdateTime) {
+          console.log('🆕 새로운 기사 발견! 데이터 새로고침');
+          
+          // 새로 추가된 기사들 찾기
+          const newArticles = lastUpdateTime ? 
+            sortedArticles.filter(article => new Date(article.date) > lastUpdateTime) : 
+            [sortedArticles[0]];
+          
+          setLastUpdateTime(latestArticleTime);
+          loadAllData();
+          
+          // 알림 표시 (첫 로드가 아닌 경우에만)
+          if (lastUpdateTime) {
+            const articleTitles = newArticles.map(a => a.title).join(', ');
+            showNotification(`새로운 경제 뉴스 ${newArticles.length}건 업데이트! 📰\n${articleTitles}`);
+            
+            // 🌟 포트폴리오 관련 기사가 있는지 확인
+            checkPortfolioRelatedNews(newArticles);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('새 기사 확인 실패:', error);
+    }
+  };
+
+  // 포트폴리오 관련 새 기사 확인 및 특별 알림
+  const checkPortfolioRelatedNews = async (newArticles) => {
+    try {
+      const portfolio = await articleService.getUserPortfolio(currentUserId);
+      const myStocks = portfolio.stocks || [];
+      const ownedStocks = myStocks.filter(stock => stock.quantity > 0);
+      
+      if (ownedStocks.length === 0) return;
+      
+      const myStockNames = ownedStocks.map(stock => stock.stockName);
+      
+      // 포트폴리오 관련 새 기사 찾기
+      const portfolioNews = newArticles.filter(article => 
+        myStockNames.some(stockName => 
+          article.title.includes(stockName) || 
+          article.content.includes(stockName)
+        )
+      );
+      
+      // 포트폴리오 관련 기사가 있으면 특별 알림
+      if (portfolioNews.length > 0 && Notification.permission === 'granted') {
+        const relatedStocks = portfolioNews.map(article => {
+          const relatedStock = myStockNames.find(stockName => 
+            article.title.includes(stockName) || article.content.includes(stockName)
+          );
+          return `📊 ${relatedStock}: ${article.title}`;
+        }).join('\n');
+        
+        new Notification('🎯 보유 주식 관련 뉴스!', {
+          body: `포트폴리오 관련 새 기사 ${portfolioNews.length}건:\n${relatedStocks}`,
+          icon: '/favicon.ico',
+          tag: 'portfolio-news'
+        });
+      }
+    } catch (error) {
+      console.error('포트폴리오 관련 기사 확인 실패:', error);
+    }
+  };
+
+  // 브라우저 알림 표시 (개선)
+  const showNotification = (message) => {
+    if (Notification.permission === 'granted') {
+      new Notification('Money Kids News', {
+        body: message,
+        icon: '/favicon.ico',
+        tag: 'news-update'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification('Money Kids News', {
+            body: message,
+            icon: '/favicon.ico',
+            tag: 'news-update'
+          });
+        }
+      });
+    }
+  };
 
   // 전체 데이터 로드
   const loadAllData = async () => {
@@ -72,29 +183,117 @@ const NewsPage = () => {
       
       setArticles(uniqueArticles);
       
+      // 최신 기사 시간 업데이트
+      if (uniqueArticles.length > 0) {
+        const sortedArticles = uniqueArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setLastUpdateTime(new Date(sortedArticles[0].date));
+      }
+      
       // 사용자 포트폴리오를 통해 보유 주식 기사 필터링
       try {
         const portfolio = await articleService.getUserPortfolio(currentUserId);
         
         const myStocks = portfolio.stocks || [];
+        console.log('📊 포트폴리오 주식 정보:', myStocks);
         
-        // 포트폴리오의 stocks 배열에서 stockName을 stockId로 변환
-        const myStockIds = myStocks.map(stock => {
-          // stockName을 사용해서 stockId 찾기
-          if (stock.stockName) {
-            return getStockIdByName(stock.stockName);
+        // 보유 중인 주식만 필터링 (수량 > 0)
+        const ownedStocks = myStocks.filter(stock => stock.quantity > 0);
+        console.log('✅ 실제 보유 중인 주식:', ownedStocks);
+        
+        if (ownedStocks.length === 0) {
+          console.log('⚠️ 보유 중인 주식이 없습니다.');
+          setMyStockArticles([]);
+          return;
+        }
+        
+        // 전체 주식 목록을 가져와서 이름으로 ID 매핑
+        const allStocksResponse = await fetch('http://localhost:8080/api/stocks');
+        const allStocks = await allStocksResponse.json();
+        console.log('📋 전체 주식 목록:', allStocks);
+        
+        // 주식 이름을 기반으로 ID 매핑 생성
+        const stockNameToIdMap = {};
+        allStocks.forEach(stock => {
+          stockNameToIdMap[stock.name] = stock.id;
+        });
+        console.log('🗺️ 주식 이름-ID 매핑:', stockNameToIdMap);
+        
+        // 포트폴리오의 주식 이름을 ID로 변환
+        const myStockIds = [];
+        const myStockNames = [];
+        const debugInfo = [];
+        
+        ownedStocks.forEach(stock => {
+          const stockName = stock.stockName;
+          myStockNames.push(stockName);
+          
+          // 정확한 이름 매칭으로 ID 찾기
+          const stockId = stockNameToIdMap[stockName];
+          
+          if (stockId) {
+            myStockIds.push(stockId);
+            debugInfo.push({
+              name: stockName,
+              id: stockId,
+              quantity: stock.quantity,
+              matched: true
+            });
+          } else {
+            // 부분 매칭 시도 (공백, 특수문자 제거 후)
+            const cleanName = stockName.replace(/\s+/g, '').toLowerCase();
+            const foundStock = allStocks.find(s => 
+              s.name.replace(/\s+/g, '').toLowerCase().includes(cleanName) ||
+              cleanName.includes(s.name.replace(/\s+/g, '').toLowerCase())
+            );
+            
+            if (foundStock) {
+              myStockIds.push(foundStock.id);
+              debugInfo.push({
+                name: stockName,
+                id: foundStock.id,
+                originalName: foundStock.name,
+                quantity: stock.quantity,
+                matched: true,
+                partialMatch: true
+              });
+            } else {
+              debugInfo.push({
+                name: stockName,
+                quantity: stock.quantity,
+                matched: false,
+                error: 'ID를 찾을 수 없음'
+              });
+            }
           }
-          // 기존 방식으로도 시도
-          return stock.stockId || stock.id || stock.stock_id;
-        }).filter(id => id); // undefined/null 값 제거
+        });
         
-        // 내 주식에 해당하는 기사들만 필터링 (중복 제거된 기사에서)
-        const myArticles = uniqueArticles.filter(article => 
-          myStockIds.includes(article.stockId)
-        );
-        setMyStockArticles(myArticles);
-      } catch (portfolioError) {
-        console.warn('포트폴리오 조회 실패:', portfolioError);
+        console.log('🔍 주식 매칭 결과:', debugInfo);
+        console.log('📌 매칭된 주식 ID들:', myStockIds);
+        console.log('📌 매칭된 주식 이름들:', myStockNames);
+        
+        if (myStockIds.length === 0) {
+          console.log('❌ 매칭된 주식 ID가 없습니다.');
+          setMyStockArticles([]);
+          return;
+        }
+        
+        // 보유 주식 관련 기사 필터링
+        const portfolioArticles = uniqueArticles.filter(article => {
+          const matchById = myStockIds.includes(article.stockId);
+          const matchByName = myStockNames.some(name => 
+            article.title.includes(name) || 
+            article.content.includes(name) ||
+            (article.stockName && article.stockName.includes(name))
+          );
+          
+          return matchById || matchByName;
+        });
+        
+        console.log('📰 매칭된 포트폴리오 기사:', portfolioArticles);
+        setMyStockArticles(portfolioArticles);
+        
+      } catch (error) {
+        console.error('❌ 포트폴리오 기사 필터링 오류:', error);
         setMyStockArticles([]);
       }
     } catch (err) {
@@ -136,28 +335,6 @@ const NewsPage = () => {
       }
     }
     return null;
-  };
-
-  // 기사 제목 정리 함수
-  const cleanTitle = (title) => {
-    if (!title || title.trim() === '') {
-      return '제목 없음';
-    }
-    
-    // "중립:", "긍정:", "부정:" 등의 접두사 제거
-    const prefixPattern = /^(중립|긍정|부정|중성|호재|악재|보통):\s*/;
-    const cleanedTitle = title.replace(prefixPattern, '').trim();
-    
-    // 정리 후에도 빈 문자열이면 기본 제목 반환
-    return cleanedTitle || '제목 없음';
-  };
-
-  // 기사 내용 정리 함수
-  const cleanContent = (content) => {
-    if (!content || content.trim() === '') {
-      return '내용을 불러올 수 없습니다.';
-    }
-    return content.trim();
   };
 
   // 감정 분석 결과 추출 함수
@@ -204,6 +381,17 @@ const NewsPage = () => {
   const currentArticles = (viewMode === 'all' ? articles : myStockArticles)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // 뉴스 제목과 내용을 그대로 표시 (백엔드에서 이미 자연스럽게 생성됨)
+  const formatArticleTitle = (title) => {
+    if (!title) return '새로운 소식';
+    return title.trim() || '새로운 소식';
+  };
+
+  const formatArticleContent = (content) => {
+    if (!content) return '자세한 내용은 추후 공개됩니다.';
+    return content.trim() || '자세한 내용은 추후 공개됩니다.';
+  };
+
   if (loading) {
     return (
       <div className="news-page">
@@ -221,8 +409,11 @@ const NewsPage = () => {
         <div className="header-content">
           <h1 className="page-title">
             MONEY KIDS JOURNAL
+            <span className="live-indicator">
+              🔴 실시간
+            </span>
           </h1>
-          <p className="page-subtitle">청소년을 위한 프리미엄 경제 뉴스</p>
+          <p className="page-subtitle">청소년을 위한 프리미엄 경제 뉴스 (30초마다 자동 업데이트)</p>
           <div className="publish-info">
             최신 시장 동향과 투자 인사이트를 제공합니다
           </div>
@@ -285,10 +476,10 @@ const NewsPage = () => {
                 </div>
                 
                 <div className="news-content" onClick={() => handleReadMore(article)}>
-                  <h2 className="news-headline">{cleanTitle(article.title)}</h2>
+                  <h2 className="news-headline">{formatArticleTitle(article.title)}</h2>
                   <p className="news-excerpt">
                     {(() => {
-                      const content = cleanContent(article.content);
+                      const content = formatArticleContent(article.content);
                       return content.length > 180 
                         ? `${content.substring(0, 180)}...` 
                         : content;
@@ -315,7 +506,7 @@ const NewsPage = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">{cleanTitle(selectedArticle.title)}</h2>
+              <h2 className="modal-title">{formatArticleTitle(selectedArticle.title)}</h2>
               <button className="modal-close" onClick={closeModal}>×</button>
             </div>
             <div className="modal-body">
@@ -330,7 +521,7 @@ const NewsPage = () => {
                  )}
               </div>
               <div className="modal-content-text">
-                {cleanContent(selectedArticle.content)}
+                {formatArticleContent(selectedArticle.content)}
               </div>
             </div>
           </div>

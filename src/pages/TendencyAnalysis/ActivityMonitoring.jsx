@@ -118,11 +118,23 @@ const ActivityMonitoring = () => {
 
     // 활동 유형별 도넛 차트
     const getActivityTypeData = () => {
-        if (!activityData) return null;
+        if (!activityData || !activityData.activityByType || Object.keys(activityData.activityByType).length === 0) {
+            // 데이터가 없을 때 기본 데이터 제공
+            return {
+                labels: ['데이터 없음'],
+                datasets: [{
+                    data: [1],
+                    backgroundColor: ['rgba(200, 200, 200, 0.8)'],
+                    borderColor: ['rgba(200, 200, 200, 1)'],
+                    borderWidth: 2
+                }]
+            };
+        }
         
         const typeLabels = {
             "QUIZ": "퀴즈",
             "TRADE": "거래",
+            "CONTENT_COMPLETION": "학습",
             "LOGIN": "로그인",
             "ARTICLE_READ": "기사 읽기"
         };
@@ -307,25 +319,36 @@ const ActivityMonitoring = () => {
                 <div className="section-card">
                     <h2>✅ 활동 상태</h2>
                     <div className="status-grid">
-                        {activityData?.activityByStatus && Object.entries(activityData.activityByStatus).map(([status, count]) => {
-                            const statusInfo = {
-                                SUCCESS: { label: '성공', icon: '✅', color: 'var(--success-color)' },
-                                FAIL: { label: '실패', icon: '❌', color: 'var(--error-color)' },
-                                PENDING: { label: '진행중', icon: '⏳', color: 'var(--warning-color)' }
-                            };
-                            
-                            return (
-                                <div key={status} className="status-item">
-                                    <div className="status-icon" style={{ color: statusInfo[status]?.color }}>
-                                        {statusInfo[status]?.icon}
+                        {activityData?.activityByStatus && Object.keys(activityData.activityByStatus).length > 0 ? (
+                            Object.entries(activityData.activityByStatus).map(([status, count]) => {
+                                const statusInfo = {
+                                    SUCCESS: { label: '성공', icon: '✅', color: 'var(--success-color)' },
+                                    FAIL: { label: '실패', icon: '❌', color: 'var(--error-color)' },
+                                    PENDING: { label: '진행중', icon: '⏳', color: 'var(--warning-color)' }
+                                };
+                                
+                                return (
+                                    <div key={status} className="status-item">
+                                        <div className="status-icon" style={{ color: statusInfo[status]?.color }}>
+                                            {statusInfo[status]?.icon}
+                                        </div>
+                                        <div className="status-content">
+                                            <span className="status-label">{statusInfo[status]?.label}</span>
+                                            <span className="status-value">{count}회</span>
+                                        </div>
                                     </div>
-                                    <div className="status-content">
-                                        <span className="status-label">{statusInfo[status]?.label}</span>
-                                        <span className="status-value">{count}회</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })
+                        ) : (
+                            <div className="no-data-message" style={{ 
+                                gridColumn: '1 / -1', 
+                                textAlign: 'center', 
+                                padding: '2rem',
+                                color: 'var(--text-secondary)'
+                            }}>
+                                <p>아직 활동 데이터가 없습니다.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

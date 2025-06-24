@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../App.jsx";
 import "./login.css";
 import axios from "axios";
+import Toast from "../../components/Toast";
 
 const KAKAO_AUTH_URL =
     "https://kauth.kakao.com/oauth/authorize?client_id=424665278188dbb0a014e5d7e830e5af&redirect_uri=http://localhost:8080/api/users/login/kakao/callback&response_type=code";
@@ -14,12 +15,21 @@ const GOOGLE_AUTH_URL =
 const Login = ({ onLogin }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
     const navigate = useNavigate();
+
+    const showToast = (type, message) => {
+        setToast({ show: true, type, message });
+    };
+
+    const hideToast = () => {
+        setToast({ show: false, type: 'info', message: '' });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!username || !password) {
-            alert("아이디와 비밀번호를 모두 입력해주세요.");
+            showToast('warning', '아이디와 비밀번호를 모두 입력해주세요.');
             return;
         }
 
@@ -36,21 +46,34 @@ const Login = ({ onLogin }) => {
             });
 
             if (response.data && response.data.success && response.data.user) {
-                alert("로그인 성공!");
-                onLogin(response.data.user); // 전체 사용자 정보 전달
-                navigate(ROUTES.HOME); // 홈으로 이동
+                showToast('success', '로그인 성공! 메인 페이지로 이동합니다.');
+                
+                // 성공 토스트 표시 후 페이지 이동
+                setTimeout(() => {
+                    onLogin(response.data.user); // 전체 사용자 정보 전달
+                    navigate(ROUTES.HOME); // 홈으로 이동
+                }, 1500);
             } else {
-                alert("로그인 응답 형식이 올바르지 않습니다.");
+                showToast('error', '로그인 응답 형식이 올바르지 않습니다.');
             }
         } catch (error) {
             const errorMsg =
                 error.response?.data?.error || "서버 오류로 로그인에 실패했습니다.";
-            alert(errorMsg);
+            showToast('error', errorMsg);
         }
     };
 
     return (
         <div className="login-container">
+            <Toast
+                type={toast.type}
+                message={toast.message}
+                show={toast.show}
+                onClose={hideToast}
+                position="top-center"
+                duration={4000}
+            />
+            
             <form className="login-form" onSubmit={handleSubmit}>
                 <h2>로그인</h2>
                 <input

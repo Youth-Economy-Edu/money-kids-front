@@ -8,10 +8,11 @@ const Header = ({ title, levelText }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [balanceData, setBalanceData] = useState(null);
     const [userPoints, setUserPoints] = useState(null);
-    const { user, logout, getCurrentUserId } = useAuth();
+    const { user, logout, getCurrentUserId, getCurrentUserName } = useAuth();
     const intervalRef = useRef(null);
 
     const userId = getCurrentUserId();
+    const userName = getCurrentUserName();
 
     const fetchBalance = async () => {
         try {
@@ -68,11 +69,18 @@ const Header = ({ title, levelText }) => {
             setTimeout(refreshData, 1000); // 1초 후 새로고침
         };
 
+        const handleBalanceUpdate = () => {
+            console.log('잔고 업데이트 이벤트 감지 - 헤더 데이터 새로고침');
+            refreshData();
+        };
+
         // 커스텀 이벤트 리스너 추가
         window.addEventListener('tradeComplete', handleTradeComplete);
+        window.addEventListener('balanceUpdate', handleBalanceUpdate);
 
         return () => {
             window.removeEventListener('tradeComplete', handleTradeComplete);
+            window.removeEventListener('balanceUpdate', handleBalanceUpdate);
         };
     }, [userId]);
 
@@ -95,8 +103,8 @@ const Header = ({ title, levelText }) => {
         <header className={`header ${isExpanded ? 'expanded' : 'collapsed'}`}>
             <div className="header-top">
                 <div className="user-info">
-                    <h2 id="page-title-main">{title}</h2>
-                    <p>오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
+                    <h2 id="page-title-main">안녕하세요! 👋</h2>
+                    <p>{userName ? `${userName}님, ` : ''}오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
                 </div>
                 <div className="user-actions">
                     <button className="btn btn-secondary" onClick={handleLogout}>
@@ -108,7 +116,7 @@ const Header = ({ title, levelText }) => {
             <div className={`stats-container ${isExpanded ? 'open' : 'closed'}`}>
                 <div className="stats-grid">
                     <div className="stat-card">
-                        <div className="stat-title">모의 투자 자산</div>
+                        <div className="stat-title">현재 자산</div>
                         {balanceData &&
                         typeof balanceData.totalAsset === 'number' &&
                         typeof balanceData.profit === 'number' &&
@@ -133,22 +141,22 @@ const Header = ({ title, levelText }) => {
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-title">현재 포인트</div>
+                        <div className="stat-title">사용 가능 금액</div>
                         <div className="stat-value">
-                            {userPoints !== null ? `${userPoints.toLocaleString()} 포인트` : '로딩 중...'}
+                            {userPoints !== null ? `₩${userPoints.toLocaleString()}` : '로딩 중...'}
                         </div>
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-title">학습 연속일</div>
+                        <div className="stat-title">현재 성향</div>
                         <div className="stat-value">
-                            7일{' '}
-                            <i
-                                className="fas fa-fire"
-                                style={{ color: 'var(--danger-color)' }}
-                            ></i>
+                            {user?.tendency || '분석 중...'}
                         </div>
-                        <div className="stat-change neutral">목표: 30일</div>
+                        <div className="stat-change neutral">
+                            <a href="/tendency" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                자세히 보기
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
