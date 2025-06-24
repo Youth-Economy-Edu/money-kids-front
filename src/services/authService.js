@@ -47,7 +47,7 @@ export const authService = {
       if (response.success && response.user) {
         // 사용자 ID를 로컬스토리지에 저장
         localStorage.setItem('currentUserId', response.user.id);
-        
+
         return {
           success: true,
           user: {
@@ -69,16 +69,16 @@ export const authService = {
           message: response.message
         };
       }
-      
+
       throw new Error(response.error || '회원가입에 실패했습니다.');
     } catch (error) {
       console.error('백엔드 회원가입 API 오류:', error);
-      
+
       // 에러 메시지가 있으면 그대로 전달
       if (error.message) {
         throw error;
       }
-      
+
       // 백엔드 연결 실패 시 로컬에서 처리 (개발/데모용)
       return {
         success: true,
@@ -122,7 +122,7 @@ export const authService = {
       if (response.success && response.user) {
         // 사용자 ID를 로컬스토리지에 저장
         localStorage.setItem('currentUserId', response.user.id);
-        
+
         return {
           success: true,
           user: {
@@ -141,11 +141,11 @@ export const authService = {
           message: response.message
         };
       }
-      
+
       throw new Error(response.error || '로그인에 실패했습니다.');
     } catch (error) {
       console.error('백엔드 로그인 API 오류:', error);
-      
+
       // 백엔드 연결 실패 시 데모 로그인 처리
       if (credentials.email === 'demo@student.com' || credentials.email === 'student') {
         return {
@@ -167,7 +167,7 @@ export const authService = {
           }
         };
       }
-      
+
       // 기본 로그인 실패
       throw new Error(error.message || '로그인 정보가 올바르지 않습니다.');
     }
@@ -177,7 +177,7 @@ export const authService = {
   kakaoLogin: async () => {
     try {
       initKakao();
-      
+
       return new Promise((resolve, reject) => {
         if (window.Kakao && window.Kakao.isInitialized()) {
           window.Kakao.Auth.login({
@@ -209,7 +209,7 @@ export const authService = {
                       });
                     } catch (apiError) {
                       console.warn('백엔드 카카오 로그인 API 실패, 로컬 처리:', apiError);
-                      
+
                       // 백엔드 실패시 로컬 처리
                       const userData = {
                         id: `kakao_${userInfo.id}`,
@@ -224,7 +224,7 @@ export const authService = {
                         completedQuizzes: 0,
                         studyDays: 1
                       };
-                      
+
                       resolve({
                         success: true,
                         user: userData
@@ -276,42 +276,43 @@ export const authService = {
   googleLogin: async () => {
     try {
       await initGoogle();
-      
+
       return new Promise((resolve, reject) => {
         if (window.google && window.google.accounts) {
-          const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
-          
-          window.google.accounts.id.initialize({
+          const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '171600218391-r73m2hd5uhdu5s6c2qm67kspru29ckfi.apps.googleusercontent.com';
+
+          // OAuth2 클라이언트 초기화
+          const client = window.google.accounts.oauth2.initCodeClient({
             client_id: googleClientId,
+            scope: 'email profile',
+            ux_mode: 'popup',
             callback: async (response) => {
-              try {
-                // 백엔드에 구글 로그인 정보 전송
-                const apiResponse = await apiRequest('/auth/google', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    credential: response.credential
-                  })
-                });
-
-                if (apiResponse.token) {
-                  setAuthToken(apiResponse.token);
-                }
-
-                resolve({
-                  success: true,
-                  user: apiResponse.user || apiResponse.data
-                });
-              } catch (apiError) {
-                console.warn('백엔드 구글 로그인 API 실패, 로컬 처리:', apiError);
-                
-                // 백엔드 실패시 로컬 처리
+              if (response.code) {
                 try {
-                  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                  
+                  // 백엔드에 인증 코드 전송
+                  const apiResponse = await apiRequest('/auth/google', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      code: response.code
+                    })
+                  });
+
+                  if (apiResponse.token) {
+                    setAuthToken(apiResponse.token);
+                  }
+
+                  resolve({
+                    success: true,
+                    user: apiResponse.user || apiResponse.data
+                  });
+                } catch (apiError) {
+                  console.warn('백엔드 구글 로그인 API 실패, 로컬 처리:', apiError);
+
+                  // 백엔드 연결 실패 시 데모 처리
                   const userData = {
-                    id: `google_${payload.sub}`,
-                    name: payload.name || '구글 사용자',
-                    email: payload.email || 'google@example.com',
+                    id: `google_demo_${Date.now()}`,
+                    name: '구글 데모',
+                    email: 'google@demo.com',
                     type: 'student',
                     level: 1,
                     points: 0,
@@ -321,28 +322,20 @@ export const authService = {
                     completedQuizzes: 0,
                     studyDays: 1
                   };
-                  
+
                   resolve({
                     success: true,
                     user: userData
                   });
-                } catch (tokenError) {
-                  console.error('구글 토큰 처리 오류:', tokenError);
-                  reject(new Error('구글 로그인 처리 중 오류가 발생했습니다.'));
                 }
+              } else {
+                reject(new Error('구글 로그인 취소'));
               }
             }
           });
-          
-          window.google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              // 팝업이 표시되지 않은 경우 버튼 클릭 방식 사용
-              window.google.accounts.id.renderButton(
-                document.getElementById('g_id_signin'),
-                { theme: 'outline', size: 'large' }
-              );
-            }
-          });
+
+          // 로그인 창 바로 실행
+          client.requestCode();
         } else {
           // 구글 SDK가 없는 경우 데모 처리
           console.warn('구글 SDK가 로드되지 않음, 데모 로그인 처리');
