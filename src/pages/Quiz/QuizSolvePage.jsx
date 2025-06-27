@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { completeQuizSession } from '../../services/quizService';
+import { learnAPI } from '../../utils/apiClient';
 import styles from './QuizSolvePage.module.css';
 
 function useQuery() {

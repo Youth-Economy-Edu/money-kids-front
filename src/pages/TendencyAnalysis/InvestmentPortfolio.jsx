@@ -225,7 +225,12 @@ const InvestmentPortfolio = () => {
                     <div className="no-investment-icon">📈</div>
                     <h2>아직 투자를 시작하지 않았습니다</h2>
                     <p>모의 투자를 통해 경험을 쌓아보세요!</p>
-                    <button className="btn btn-primary">모의 투자 시작하기</button>
+                    <button 
+                        className="btn btn-primary"
+                        onClick={() => navigate('/invest')}
+                    >
+                        모의 투자 시작하기
+                    </button>
                 </div>
             </div>
         );

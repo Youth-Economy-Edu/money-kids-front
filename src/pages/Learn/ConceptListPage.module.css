@@ -13,12 +13,13 @@
     top: 20px;
     right: 20px;
     padding: 16px 24px;
-    border-radius: 12px;
-    font-weight: 500;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
     z-index: 1000;
-    transform: translateX(400px);
-    transition: transform 0.3s ease;
     max-width: 400px;
 }
 
@@ -28,12 +29,18 @@
 
 .notification.success {
     background: linear-gradient(135deg, #10B981, #059669);
-    color: white;
 }
 
 .notification.info {
-    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-    color: white;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+}
+
+.notification.warning {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.notification.error {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
 }
 
 /* 헤더 섹션 */
@@ -622,6 +629,32 @@
     .cardGrid {
         grid-template-columns: 1fr;
     }
+    
+    .todayProgressCard {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        font-size: 0.9rem;
+        padding: 12px 16px;
+    }
+    
+    .cardWrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .todayCompletedBadge {
+        top: -6px;
+        right: -6px;
+        font-size: 0.6rem;
+        padding: 3px 6px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -702,4 +735,51 @@
     border-radius: 12px;
     border: 1px solid rgba(251, 191, 36, 0.3);
     margin-left: 8px;
+}
+
+/* 오늘 학습 현황 카드 */
+.todayProgressCard {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.todayProgressCard h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.todayProgressCard p {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+}
+
+.todayProgressCard small {
+    opacity: 0.9;
+    font-size: 0.85rem;
+}
+
+/* 오늘 완료 배지 */
+.todayCompletedBadge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    z-index: 10;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); }
+    to { box-shadow: 0 4px 16px rgba(255, 215, 0, 0.6); }
 }

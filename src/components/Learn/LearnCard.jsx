@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './LearnCard.module.css';
 
-function LearnCard({ id, title, onClick, isCompleted, difficulty }) {
+function LearnCard({ id, title, onClick, isCompleted, difficulty, isTodayCompleted }) {
     const getDifficultyInfo = (level) => {
         const difficultyMap = {
             1: { name: '기초', color: '#10B981', emoji: '🌱' },
@@ -17,7 +17,7 @@ function LearnCard({ id, title, onClick, isCompleted, difficulty }) {
 
     return (
         <div 
-            className={`${styles.learnCard} ${isCompleted ? styles.completed : ''}`} 
+            className={`${styles.learnCard} ${isCompleted ? styles.completed : ''} ${isTodayCompleted ? styles.todayCompleted : ''}`} 
             onClick={onClick}
             style={{ '--difficulty-color': diffInfo.color }}
         >
@@ -31,17 +31,28 @@ function LearnCard({ id, title, onClick, isCompleted, difficulty }) {
                         ✅
                     </div>
                 )}
+                {isTodayCompleted && (
+                    <div className={styles.todayCompletedIcon}>
+                        🌟
+                    </div>
+                )}
             </div>
             
             <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>{title}</h3>
                 <div className={styles.cardFooter}>
                     <span className={styles.learnButton}>
-                        {isCompleted ? '다시 보기' : '학습하기'}
+                        {isTodayCompleted ? '내일 다시' : isCompleted ? '다시 보기' : '학습하기'}
                         <i className={styles.arrowIcon}>→</i>
                     </span>
                 </div>
             </div>
+            
+            {isTodayCompleted && (
+                <div className={styles.todayCompletedOverlay}>
+                    <div className={styles.todayMessage}>오늘 완료</div>
+                </div>
+            )}
             
             <div className={styles.cardGlow}></div>
         </div>

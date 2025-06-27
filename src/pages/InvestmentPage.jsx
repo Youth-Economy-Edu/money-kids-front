@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './InvestmentPage.css';
 import StockTradeModal from '../components/StockTradeModal';
@@ -6,17 +6,22 @@ import StockChart from '../components/StockChart';
 import TradeHistoryModal from '../components/TradeHistoryModal';
 import TradeSuccessModal from '../components/TradeSuccessModal';
 import { recordMultipleStockPrices } from '../utils/stockHistory';
+import { useNotification } from '../contexts/NotificationContext';
+import { stockAPI, userAPI, tradeAPI } from '../utils/apiClient';
 
 const InvestmentPage = () => {
-  const { getCurrentUserId, getCurrentUserName, user } = useAuth();
+  const { getCurrentUserId, getCurrentUserName, user, loading: authLoading } = useAuth();
+  const userId = getCurrentUserId(); // AuthContext에서 사용자 ID 가져오기
+  const { showNotification } = useNotification();
+
   const [stocks, setStocks] = useState([]);
+  const [filteredStocks, setFilteredStocks] = useState([]);
+  const [selectedStock, setSelectedStock] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredStocks, setFilteredStocks] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-  const userId = getCurrentUserId(); // AuthContext에서 사용자 ID 가져오기
   const [portfolioSummary, setPortfolioSummary] = useState({
     totalAsset: 0,
     profitLoss: 0,
@@ -25,7 +30,6 @@ const InvestmentPage = () => {
   });
   const [sortClickCount, setSortClickCount] = useState({});
   const [topStocks, setTopStocks] = useState([]);
-  const [selectedStock, setSelectedStock] = useState(null);
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
   const [showTradeHistory, setShowTradeHistory] = useState(false);
@@ -142,54 +146,20 @@ const InvestmentPage = () => {
     fetchUserData();
   }, [userId]);
 
-  // 주식 데이터 가져오기
-  const fetchStocks = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('http://localhost:8080/api/stocks');
-      if (!response.ok) {
-        throw new Error(`API 오류: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      const processedStocks = data.map(stock => {
-        // 전일 대비 변화량 계산
-        const change = stock.price - (stock.beforePrice || stock.price);
-
-        const changeRate = stock.beforePrice
-          ? ((change / stock.beforePrice) * 100).toFixed(2)
-          : 0;
-
-        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        return {
-          id: stock.id,
-          name: stock.name,
-          code: stock.code || '-',
-          price: stock.price,
-          beforePrice: stock.beforePrice || stock.price,
-          change: change,
-          changeRate: parseFloat(changeRate),
-          volume: stock.volume || 0,
-          changeType: changeType,
-          category: stock.category || ''
-        };
-      });
-
-      setStocks(processedStocks);
-      setFilteredStocks(processedStocks);
-      setError(null);
-      
-      // 주가 히스토리 기록
-      recordMultipleStockPrices(processedStocks);
-      console.log('주가 히스토리 기록 완료');
-    } catch (err) {
-      console.error('주식 데이터 로드 오류:', err);
-      setError('주식 데이터를 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
+  // 모든 주식 데이터 가져오기
+  const fetchStocks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const result = await stockAPI.getAll();
+    if (result.success) {
+      setStocks(result.data);
+      setFilteredStocks(result.data);
+    } else {
+      setError(result.error || '주식 데이터를 불러오는데 실패했습니다.');
+      console.error('주식 데이터 로드 오류:', result.error);
     }
-  };
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchStocks();
@@ -203,16 +173,16 @@ const InvestmentPage = () => {
       });
     }
     
-    // 5초마다 현재 화면의 주가 실시간 업데이트 (더 자주 업데이트)
+    // 5초마다 현재 화면의 주가 실시간 업데이트
     const interval = setInterval(() => {
       console.log('🔄 현재 화면 주가 실시간 업데이트 중...');
       updateCurrentViewPrices();
-    }, 5000); // 5초 (기존 10초에서 단축)
+    }, 5000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // 현재 화면의 주가만 실시간 업데이트하는 함수 (개선)
+  // 현재 화면의 주가만 실시간 업데이트하는 함수
   const updateCurrentViewPrices = async () => {
     try {
       // 최신 주가 데이터 가져오기
@@ -244,9 +214,9 @@ const InvestmentPage = () => {
             
             console.log(`${icon} [${latestStock.name}] 실시간 주가 ${direction}: ₩${displayedStock.price.toLocaleString()} → ₩${latestStock.price.toLocaleString()} (${priceChange > 0 ? '+' : ''}${priceChange.toLocaleString()}원)`);
             
-            // 🚨 ±5% 이상 변동 시 특별 알림
+            // 🚨 ±3% 이상 변동 시 특별 알림 (기존 5%에서 축소)
             const dailyChangeRate = Math.abs(parseFloat(changeRate));
-            if (dailyChangeRate >= 5.0) {
+            if (dailyChangeRate >= 3.0) {
               hasSignificantChange = true;
               significantChanges.push({
                 name: latestStock.name,
@@ -256,14 +226,11 @@ const InvestmentPage = () => {
               });
             }
             
-            // 브라우저 알림 (권한이 있는 경우)
-            if (Notification.permission === 'granted') {
-              new Notification(`주가 변동 알림`, {
-                body: `${latestStock.name}: ₩${latestStock.price.toLocaleString()} (${priceChange > 0 ? '+' : ''}${priceChange.toLocaleString()}원, ${changeRate}%)`,
-                icon: '/favicon.ico',
-                tag: `stock-${latestStock.id}` // 같은 주식의 중복 알림 방지
-              });
-            }
+            // 브라우저 알림
+            showNotification('주가 변동 알림', {
+              body: `${latestStock.name}: ₩${latestStock.price.toLocaleString()} (${priceChange > 0 ? '+' : ''}${priceChange.toLocaleString()}원, ${changeRate}%)`,
+              tag: `stock-${latestStock.id}`
+            });
           }
           
           return {
@@ -282,7 +249,7 @@ const InvestmentPage = () => {
       if (hasSignificantChange && Notification.permission === 'granted') {
         const changeList = significantChanges.map(s => `${s.icon} ${s.name}: ${s.changeRate}%`).join('\n');
         new Notification('⚠️ 주요 주가 변동 알림', {
-          body: `5% 이상 변동 종목:\n${changeList}`,
+          body: `3% 이상 변동 종목:\n${changeList}`,
           icon: '/favicon.ico',
           tag: 'significant-change'
         });
@@ -297,275 +264,52 @@ const InvestmentPage = () => {
         fetchUserData();
       }, 1000);
     } catch (error) {
-      console.error('❌ 현재 화면 주가 업데이트 실패:', error);
+      console.error('주가 업데이트 실패:', error);
     }
   };
 
-  // 관심 종목 가져오기 함수 추가
-  const fetchFavoriteStocks = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:8080/api/stocks/favorite?userId=${userId}`);
-
-      if (response.status === 204) {
-        // 관심 종목이 없는 경우
-        setFilteredStocks([]);
-        setError(null);
-        return;
-      }
-      
-      if (!response.ok) {
-        throw new Error(`API 오류: ${response.status}`);
-      }
-      
-      const favoriteStocks = await response.json();
-
-      const processedFavorites = favoriteStocks.map(stock => {
-        // 전일 대비 변화량 계산
-        const change = stock.price - (stock.beforePrice || stock.price);
-        
-        // 등락률 계산 (전일 가격이 0이면 0% 처리)
-        const changeRate = stock.beforePrice 
-          ? ((change / stock.beforePrice) * 100).toFixed(2) 
-          : 0;
-        
-        // 변화 타입 결정 (상승, 하락, 유지)
-        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        
-        return {
-          id: stock.id,
-          name: stock.name,
-          code: stock.code || '-',
-          price: stock.price,
-          beforePrice: stock.beforePrice || stock.price,
-          change: change,
-          changeRate: parseFloat(changeRate),
-          volume: stock.volume || 0,
-          changeType: changeType,
-          category: stock.category || ''
-        };
-      });
-      
-      setFilteredStocks(processedFavorites);
-      setError(null);
-    } catch (err) {
-      console.error('관심 종목 로드 오류:', err);
-      setError(null);
-    } finally {
-      setLoading(false);
+  // 관심 종목 가져오기
+  const fetchFavoriteStocks = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    const result = await stockAPI.getFavorites(userId);
+    if (result.success) {
+      setFilteredStocks(result.data || []);
+    } else {
+      setError(result.error);
     }
-  };
+    setLoading(false);
+  }, [userId]);
 
-  // 보유 주식 가져오기 함수 (기존 사용자 포트폴리오 API 사용)
-  const fetchOwnedStocks = async () => {
-    try {
-      setLoading(true);
-      
-      // 1. 사용자 포트폴리오 정보 가져오기
-      const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`, {
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
-      
-      if (!portfolioResponse.ok) {
-        throw new Error(`포트폴리오 API 오류: ${portfolioResponse.status}`);
-      }
-      
-      const portfolioData = await portfolioResponse.json();
-      console.log('포트폴리오 데이터:', portfolioData);
-      
-      // 보유 주식 정보에서 수량이 0보다 큰 것만 필터링
-      const portfolioStocks = portfolioData.stocks || [];
-      const ownedStockNames = [];
-      
-      portfolioStocks.forEach(stock => {
-        if (stock.quantity > 0) {
-          ownedStockNames.push(stock.stockName);
-        }
-      });
-      
-      if (ownedStockNames.length === 0) {
-        console.log('보유 주식 없음');
-        setFilteredStocks([]);
-        setError('보유 중인 주식이 없습니다. 주식을 매수해보세요.');
-        return;
-      }
-      
-      console.log('보유 주식 이름:', ownedStockNames);
-      
-      // 2. 주식 현재가 정보 가져오기
-      const stocksResponse = await fetch('http://localhost:8080/api/stocks');
-      
-      if (!stocksResponse.ok) {
-        throw new Error(`주식 정보 API 오류: ${stocksResponse.status}`);
-      }
-      
-      const stocksData = await stocksResponse.json();
-      
-      // 3. 보유 주식만 필터링하여 표시 (이름 기준)
-      const ownedStocks = stocksData.filter(stock => ownedStockNames.includes(stock.name));
-      
-      // 4. 데이터 가공
-      const processedOwnedStocks = ownedStocks.map(stock => {
-        // 포트폴리오에서 실제 보유 수량과 총 투자 금액 가져오기
-        const portfolioStock = portfolioStocks.find(s => s.stockName === stock.name);
-        const quantity = portfolioStock ? portfolioStock.quantity : 0;
-        const totalValue = portfolioStock ? portfolioStock.totalValue : 0;
-        
-        // 평균 매수가 계산 (총 투자 금액 ÷ 보유 수량)
-        const avgBuyPrice = quantity > 0 ? Math.round(totalValue / quantity) : stock.price;
-        
-        // 매수가 대비 변화량과 수익률 계산
-        const change = stock.price - avgBuyPrice;
-        const changeRate = avgBuyPrice > 0 
-          ? ((change / avgBuyPrice) * 100).toFixed(2) 
-          : 0;
-        
-        // 변화 타입 결정 (수익, 손실, 동일)
-        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        
-        console.log(`${stock.name} 수익률 계산:`);
-        console.log(`  보유수량: ${quantity}주`);
-        console.log(`  총 투자금액: ₩${totalValue.toLocaleString()}`);
-        console.log(`  평균 매수가: ₩${avgBuyPrice.toLocaleString()}`);
-        console.log(`  현재가: ₩${stock.price.toLocaleString()}`);
-        console.log(`  수익/손실: ₩${change.toLocaleString()} (${changeRate}%)`);
-        
-        return {
-          id: stock.id,
-          name: stock.name,
-          code: stock.code || '-',
-          price: stock.price,
-          beforePrice: avgBuyPrice, // 전일가 대신 평균 매수가 표시
-          change: change,
-          changeRate: parseFloat(changeRate),
-          volume: stock.volume || 0,
-          changeType: changeType,
-          category: stock.category || '',
-          quantity: quantity,
-          avgBuyPrice: avgBuyPrice // 평균 매수가 추가
-        };
-      });
-      
-      setFilteredStocks(processedOwnedStocks);
-      setError(null);
-    } catch (err) {
-      console.error('보유 주식 로드 오류:', err);
-      setError('보유 주식을 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
+  // 보유 주식 가져오기
+  const fetchOwnedStocks = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    const portfolioResult = await userAPI.getPortfolio(userId);
+    
+    if (portfolioResult.success) {
+      const owned = portfolioResult.data.stocks.filter(s => s.quantity > 0);
+      setFilteredStocks(owned); // API 응답에 맞춰 데이터 가공 필요
+    } else {
+      setError(portfolioResult.error);
     }
-  };
+    setLoading(false);
+  }, [userId]);
 
-  // 거래내역 기반으로 보유 주식 계산 (폴백)
-  const fetchOwnedStocksFromHistory = async () => {
-    try {
-      const historyResponse = await fetch('http://localhost:8080/api/stocks/trade/history', {
-        cache: 'no-cache'
-      });
-      
-      if (!historyResponse.ok) {
-        throw new Error(`거래내역 API 오류: ${historyResponse.status}`);
-      }
-      
-      const historyData = await historyResponse.json();
-      console.log('거래내역 데이터:', historyData);
-      
-      // 로컬 거래내역 가져오기
-      const localTrades = JSON.parse(localStorage.getItem('localTrades') || '[]');
-      console.log('로컬 거래내역:', localTrades);
-      
-      // 모든 거래내역 합치기
-      const allTrades = [...historyData, ...localTrades];
-      
-      // 주식별 보유 수량 계산
-      const stockQuantities = {};
-      const stockTotalCosts = {}; // 총 매수 금액 추가
-      
-      allTrades.forEach(trade => {
-        if (!stockQuantities[trade.stockId]) {
-          stockQuantities[trade.stockId] = 0;
-          stockTotalCosts[trade.stockId] = 0;
-        }
-        stockQuantities[trade.stockId] += trade.quantity;
-        stockTotalCosts[trade.stockId] += trade.quantity * trade.price; // 매수 금액 누적
-      });
-      
-      console.log('주식별 보유 수량:', stockQuantities);
-      console.log('주식별 총 매수 금액:', stockTotalCosts);
-      
-      // 수량이 0보다 큰 주식만 필터링
-      const ownedStockIds = Object.keys(stockQuantities).filter(stockId => stockQuantities[stockId] > 0);
-      
-      if (ownedStockIds.length === 0) {
-        console.log('보유 주식 없음');
-        setFilteredStocks([]);
-        setError('보유 중인 주식이 없습니다. 주식을 매수해보세요.');
-        return;
-      }
-      
-      // 주식 현재가 정보 가져오기
-      const stocksResponse = await fetch('http://localhost:8080/api/stocks');
-      
-      if (!stocksResponse.ok) {
-        throw new Error(`주식 정보 API 오류: ${stocksResponse.status}`);
-      }
-      
-      const stocksData = await stocksResponse.json();
-      
-      // 보유 주식만 필터링하여 표시
-      const ownedStocks = stocksData.filter(stock => ownedStockIds.includes(stock.id));
-      
-      // 데이터 가공
-      const processedOwnedStocks = ownedStocks.map(stock => {
-        const quantity = stockQuantities[stock.id] || 0;
-        const totalCost = stockTotalCosts[stock.id] || 0;
-        
-        // 평균 매수가 계산
-        const avgBuyPrice = quantity > 0 ? Math.round(totalCost / quantity) : stock.price;
-        
-        // 매수가 대비 변화량과 수익률 계산
-        const change = stock.price - avgBuyPrice;
-        const changeRate = avgBuyPrice > 0 
-          ? ((change / avgBuyPrice) * 100).toFixed(2) 
-          : 0;
-        const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-        
-        console.log(`${stock.name} 수익률 계산 (거래내역 기준):`);
-        console.log(`  보유수량: ${quantity}주`);
-        console.log(`  총 매수금액: ₩${totalCost.toLocaleString()}`);
-        console.log(`  평균 매수가: ₩${avgBuyPrice.toLocaleString()}`);
-        console.log(`  현재가: ₩${stock.price.toLocaleString()}`);
-        console.log(`  수익/손실: ₩${change.toLocaleString()} (${changeRate}%)`);
-        
-        return {
-          id: stock.id,
-          name: stock.name,
-          code: stock.code || '-',
-          price: stock.price,
-          beforePrice: avgBuyPrice, // 전일가 대신 평균 매수가 표시
-          change: change,
-          changeRate: parseFloat(changeRate),
-          volume: stock.volume || 0,
-          changeType: changeType,
-          category: stock.category || '',
-          quantity: quantity,
-          avgBuyPrice: avgBuyPrice
-        };
-      });
-      
-      setFilteredStocks(processedOwnedStocks);
-      setError(null);
-    } catch (err) {
-      console.error('보유 주식 로드 오류:', err);
-      setError('보유 주식을 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
+  // 필터 변경 핸들러
+  const handleFilterChange = useCallback(async (filter) => {
+    setActiveFilter(filter);
+    if (filter === '전체') await fetchStocks();
+    else if (filter === '관심') await fetchFavoriteStocks();
+    else if (filter === '보유') await fetchOwnedStocks();
+    // '인기' 필터는 클라이언트 사이드에서 처리하거나 별도 API 필요
+  }, [fetchStocks, fetchFavoriteStocks, fetchOwnedStocks]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      handleFilterChange(activeFilter);
     }
-  };
+  }, [authLoading, activeFilter, handleFilterChange]);
 
   // 검색 및 필터 적용 함수 수정 (useCallback 사용)
   const filterStocks = useCallback(() => {
@@ -797,27 +541,6 @@ const InvestmentPage = () => {
     }
   };
 
-  // 필터 변경 핸들러 수정
-  const handleFilterChange = async (filter) => {
-    setActiveFilter(filter);
-    console.log(`필터 변경: ${filter}`);
-
-    // 각 필터에 맞는 최신 데이터를 가져옴
-    if (filter === '관심') {
-      await fetchFavoriteStocks();
-    }
-    else if (filter === '보유') {
-      await fetchOwnedStocks();
-    }
-    else if (filter === '인기') {
-      await fetchPopularStocks();
-    }
-    else {
-      // 전체 필터 - 최신 전체 주식 데이터 가져오기
-      await fetchStocks();
-    }
-  };
-
   // 검색어 변경 핸들러
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -896,6 +619,14 @@ const InvestmentPage = () => {
       alert('거래 가능한 주식이 없습니다.');
     }
   };
+
+  if (loading || authLoading) {
+    return <div>로딩중...</div>;
+  }
+
+  if (error) {
+    return <div>에러: {error}</div>;
+  }
 
   return (
     <div className="investment-page">

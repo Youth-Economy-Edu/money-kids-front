@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getUserQuizProgress } from '../../services/quizService';
+import { learnAPI } from '../../utils/apiClient';
 import styles from './QuizPage.module.css';
 
 function QuizPage() {
@@ -19,7 +19,7 @@ function QuizPage() {
 
     const loadQuizProgress = async (userId) => {
         try {
-            const progress = await getUserQuizProgress(userId);
+            const progress = await learnAPI.getUserQuizProgress(userId);
             setQuizProgress(progress || {});
         } catch (error) {
             console.error('퀴즈 진행 현황 로드 실패:', error);

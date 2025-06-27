@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './header.css';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
+import { userAPI } from '../../utils/apiClient';
 
-const Header = ({ title, levelText }) => {
+const Header = ({ title, onToggleSidebar }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const [balanceData, setBalanceData] = useState(null);
     const [userPoints, setUserPoints] = useState(null);
-    const { user, logout, getCurrentUserId, getCurrentUserName } = useAuth();
+    const { user, logout, getCurrentUserId, loading: authLoading } = useAuth();
     const intervalRef = useRef(null);
+    const [points, setPoints] = useState(0);
 
     const userId = getCurrentUserId();
-    const userName = getCurrentUserName();
+    const userName = user?.name || '사용자';
 
     const fetchBalance = async () => {
         try {
@@ -38,29 +40,31 @@ const Header = ({ title, levelText }) => {
         }
     };
 
-    const refreshData = async () => {
+    const refreshData = useCallback(async () => {
         if (userId) {
             await fetchBalance();
             await fetchUserPoints();
         }
-    };
+        if (user?.id) {
+            const result = await userAPI.getPoints(user.id);
+            if (result.success) {
+                setPoints(result.data.points);
+            }
+        }
+    }, [userId, user]);
 
     useEffect(() => {
-        // 초기 데이터 로드
-        refreshData();
-
-        // 5초마다 데이터 새로고침 (모의투자 페이지에서만)
-        if (title === '모의투자') {
-            intervalRef.current = setInterval(refreshData, 5000);
+        if (!authLoading) {
+            refreshData();
         }
+    }, [authLoading, refreshData]);
 
-        // 컴포넌트 언마운트 시 인터벌 정리
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        };
-    }, [userId, user, title]);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshData();
+        }, 30000); // 30초마다 포인트 새로고침
+        return () => clearInterval(interval);
+    }, [refreshData]);
 
     // 거래 완료 시 데이터 새로고침을 위한 이벤트 리스너
     useEffect(() => {
@@ -86,16 +90,20 @@ const Header = ({ title, levelText }) => {
 
     const handleLogout = async () => {
         try {
-            await logout();
-            window.location.href = "/login";
+            logout();
+            window.location.href = "/";
         } catch (error) {
             console.error('로그아웃 실패:', error);
-            // 로그아웃 실패해도 로컬 스토리지 정리하고 로그인 페이지로
+            // 로그아웃 실패해도 로컬 스토리지 정리하고 랜딩페이지로
             localStorage.removeItem("userId");
             localStorage.removeItem("userName");
-            window.location.href = "/login";
+            window.location.href = "/";
         }
     };
+
+    if (authLoading) {
+        return <header className="header-container"></header>;
+    }
 
     if (!title) return null;
 

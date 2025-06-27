@@ -18,9 +18,9 @@ const LoginSuccessPage = () => {
                 name: decodeURIComponent(userName)
             });
             
-            // 메인 페이지로 리다이렉트
+            // 홈 페이지로 리다이렉트
             setTimeout(() => {
-                navigate('/');
+                navigate('/home');
             }, 1000);
         } else {
             // 에러가 있으면 로그인 페이지로

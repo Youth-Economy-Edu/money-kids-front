@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import Sidebar from './components/Sidebar/sidebar';
 import Header from './components/Header/header';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login/login';
 import Register from './pages/Register/register';
 import LoginSuccessPage from './pages/LoginSuccessPage';
@@ -24,10 +26,11 @@ import './App.css';
 
 // 라우트 경로 상수
 export const ROUTES = {
+    LANDING: '/',
     LOGIN: '/login',
     REGISTER: '/register',
     LOGIN_SUCCESS: '/login-success',
-    HOME: '/',
+    HOME: '/home',
     LEARN: '/learn',
     QUIZ: '/quiz',
     INVEST: '/invest',
@@ -57,16 +60,17 @@ const getHeaderTitle = (page) => {
 
 // 인증이 필요한 레이아웃 컴포넌트
 const ProtectedLayout = ({ children, currentPageName }) => {
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading, user } = useAuth();
     const [currentPage, setCurrentPage] = useState(currentPageName || '홈');
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!loading && !isAuthenticated()) {
-            navigate(ROUTES.LOGIN);
+        if (!loading && (!isAuthenticated() || !user)) {
+            console.log('인증되지 않은 접근 차단, 로그인 페이지로 리다이렉트');
+            navigate(ROUTES.LOGIN, { replace: true });
         }
-    }, [loading, isAuthenticated, navigate]);
+    }, [loading, isAuthenticated, user, navigate]);
 
     useEffect(() => {
         if (currentPageName) {
@@ -78,7 +82,6 @@ const ProtectedLayout = ({ children, currentPageName }) => {
         setCurrentPage(page);
         setSidebarOpen(false);
         
-        // 페이지 이름을 라우트 경로로 매핑
         const pageRoutes = {
             '홈': ROUTES.HOME,
             '경제배우기': ROUTES.LEARN,
@@ -88,7 +91,8 @@ const ProtectedLayout = ({ children, currentPageName }) => {
             '경제뉴스': ROUTES.NEWS,
             'learn': ROUTES.LEARN,
             'invest': ROUTES.INVEST,
-            'news': ROUTES.NEWS
+            'news': ROUTES.NEWS,
+            'home': ROUTES.HOME
         };
         
         const route = pageRoutes[page];
@@ -105,11 +109,10 @@ const ProtectedLayout = ({ children, currentPageName }) => {
         return <div className="loading">로딩 중...</div>;
     }
 
-    if (!isAuthenticated()) {
+    if (!isAuthenticated() || !user) {
         return null;
     }
 
-    // children에 props 전달
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, { onNavigate: handleNavigation });
@@ -138,14 +141,11 @@ const ProtectedLayout = ({ children, currentPageName }) => {
     );
 };
 
-// 메인 App 컴포넌트
-const App = () => {
+const AppContent = () => {
     const { login } = useAuth();
 
     const handleLogin = (userData) => {
-        // userData가 객체인지 문자열인지 확인
         if (typeof userData === 'string') {
-            // 이전 방식 호환성
             const userInfo = {
                 id: userData,
                 name: userData,
@@ -153,7 +153,6 @@ const App = () => {
             };
             login(userInfo);
         } else {
-            // 새로운 방식: 전체 사용자 정보
             const userInfo = {
                 id: userData.id,
                 name: userData.name || userData.id,
@@ -168,7 +167,8 @@ const App = () => {
 
     return (
         <Routes>
-            {/* 인증이 필요없는 라우트 */}
+            {/* 퍼블릭 라우트 */}
+            <Route path={ROUTES.LANDING} element={<LandingPage />} />
             <Route path={ROUTES.LOGIN} element={<Login onLogin={handleLogin} />} />
             <Route path={ROUTES.REGISTER} element={<Register />} />
             <Route path={ROUTES.LOGIN_SUCCESS} element={<LoginSuccessPage />} />
@@ -198,52 +198,54 @@ const App = () => {
                     <InvestmentPage />
                 </ProtectedLayout>
             } />
-            <Route path={ROUTES.PARENT} element={
-                <ProtectedLayout currentPageName="학부모페이지">
-                    <PlaceholderPage title="학부모 페이지" />
-                </ProtectedLayout>
-            } />
-            <Route path={`${ROUTES.ANALYSIS}/*`} element={
-                <ProtectedLayout currentPageName="성향분석">
-                    <Routes>
-                        <Route index element={<TendencyAnalysis />} />
-                        <Route path="detail" element={<TendencyDetail />} />
-                        <Route path="investment" element={<InvestmentPortfolio />} />
-                        <Route path="activity" element={<ActivityMonitoring />} />
-                        <Route path="recommendations" element={<Recommendations />} />
-                    </Routes>
-                </ProtectedLayout>
-            } />
             <Route path={ROUTES.NEWS} element={
                 <ProtectedLayout currentPageName="경제뉴스">
                     <NewsPage />
                 </ProtectedLayout>
             } />
-            <Route path="/user-debug" element={
-                <ProtectedLayout currentPageName="디버그">
-                    <UserDebugPage />
+            <Route path={ROUTES.ANALYSIS} element={
+                <ProtectedLayout currentPageName="성향분석">
+                    <TendencyAnalysis />
                 </ProtectedLayout>
             } />
+            <Route path={`${ROUTES.ANALYSIS}/detail`} element={
+                <ProtectedLayout currentPageName="성향분석">
+                    <TendencyDetail />
+                </ProtectedLayout>
+            } />
+            <Route path={`${ROUTES.ANALYSIS}/portfolio`} element={
+                <ProtectedLayout currentPageName="성향분석">
+                    <InvestmentPortfolio />
+                </ProtectedLayout>
+            } />
+            <Route path={`${ROUTES.ANALYSIS}/activity`} element={
+                <ProtectedLayout currentPageName="성향분석">
+                    <ActivityMonitoring />
+                </ProtectedLayout>
+            } />
+            <Route path={`${ROUTES.ANALYSIS}/recommendations`} element={
+                <ProtectedLayout currentPageName="성향분석">
+                    <Recommendations />
+                </ProtectedLayout>
+            } />
+            <Route path="/debug" element={<UserDebugPage />} />
             
-            {/* 기본 경로 리다이렉트 */}
-            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+            {/* 기본 리다이렉트 */}
+            <Route path="*" element={<Navigate to={ROUTES.LANDING} replace />} />
         </Routes>
     );
 };
 
-// App을 Router로 감싸는 래퍼 컴포넌트
-const AppWrapper = () => {
+const App = () => {
     return (
-        <AuthProvider>
-            <Router>
-                <App />
-            </Router>
-        </AuthProvider>
+        <Router>
+            <AuthProvider>
+                <NotificationProvider>
+                    <AppContent />
+                </NotificationProvider>
+            </AuthProvider>
+        </Router>
     );
 };
 
-const PlaceholderPage = ({ title }) => (
-    <div className="placeholder">{title} 페이지는 준비 중입니다.</div>
-);
-
-export default AppWrapper;
+export default App;

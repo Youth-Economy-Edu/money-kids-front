@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import LearnCard from '../../components/Learn/LearnCard';
 import CardDetailPopup from '../../components/Learn/CardDetailPopup';
 import styles from './ConceptListPage.module.css';
+import { learnAPI } from '../../utils/apiClient';
 
 const fetchConcepts = async (difficulty) => {
     try {
@@ -89,6 +90,21 @@ const awardPoints = async (userId, worksheetId) => {
     }
 };
 
+// 일일 학습 완료 상태 체크 함수
+const checkTodayCompletion = async (userId, worksheetId) => {
+    try {
+        const response = await fetch(`/api/user/${userId}/worksheet/${worksheetId}/today-status`);
+        if (response.ok) {
+            const result = await response.json();
+            return result.data?.completedToday || false;
+        }
+        return false;
+    } catch (error) {
+        console.error('오늘 완료 상태 확인 오류:', error);
+        return false;
+    }
+};
+
 function ConceptListPage() {
     const navigate = useNavigate();
     const { getCurrentUserId } = useAuth();
@@ -99,6 +115,7 @@ function ConceptListPage() {
     const [loading, setLoading] = useState(false);
     const [userProgress, setUserProgress] = useState({});
     const [quizProgress, setQuizProgress] = useState({});
+    const [todayCompletedWorksheets, setTodayCompletedWorksheets] = useState(new Set()); // 오늘 완료한 워크시트들
     const [notification, setNotification] = useState(null);
     
     // 현재 로그인한 사용자 ID 가져오기
@@ -109,18 +126,25 @@ function ConceptListPage() {
             loadConcepts();
             loadUserProgress();
             loadQuizProgress();
+            loadTodayCompletions(); // 오늘 완료 상태 로드
         }
     }, [selectedDifficulty, currentUserId]);
 
-    const loadConcepts = async () => {
+    const loadConcepts = useCallback(async () => {
         setLoading(true);
         console.log('loadConcepts 시작, selectedDifficulty:', selectedDifficulty);
-        const conceptsData = await fetchConcepts(selectedDifficulty);
-        console.log('받은 conceptsData:', conceptsData);
-        setConcepts(conceptsData);
-        setLoading(false);
-        console.log('로딩 완료');
-    };
+        const result = await learnAPI.getConcepts();
+        if (result.success) {
+            console.log('받은 conceptsData:', result.data);
+            setConcepts(result.data);
+            setLoading(false);
+            console.log('로딩 완료');
+        } else {
+            console.error('학습 데이터 로드 실패:', result.error);
+            setConcepts([]);
+            setLoading(false);
+        }
+    }, [selectedDifficulty]);
 
     const loadUserProgress = async () => {
         try {
@@ -154,13 +178,64 @@ function ConceptListPage() {
         }
     };
 
+    // 오늘 완료한 워크시트 목록 로드
+    const loadTodayCompletions = async () => {
+        try {
+            console.log('🔄 오늘 완료 워크시트 로딩 시작, userId:', currentUserId);
+            const response = await fetch(`/api/user/${currentUserId}/worksheet/today-completed`);
+            if (response.ok) {
+                const result = await response.json();
+                const todayCompleted = result.data?.completedWorksheetIds || [];
+                setTodayCompletedWorksheets(new Set(todayCompleted));
+                console.log('✅ 오늘 완료 워크시트:', todayCompleted);
+            } else {
+                console.error('오늘 완료 워크시트 로딩 실패, 상태코드:', response.status);
+                setTodayCompletedWorksheets(new Set());
+            }
+        } catch (error) {
+            console.error('오늘 완료 워크시트 로드 실패:', error);
+            setTodayCompletedWorksheets(new Set());
+        }
+    };
+
     const handleCardClick = async (id) => {
+        // 오늘 이미 완료한 워크시트인지 확인
+        if (todayCompletedWorksheets.has(id)) {
+            setNotification({
+                type: 'info',
+                message: '📚 오늘 이미 이 학습을 완료하셨습니다! 내일 다시 도전해주세요.',
+                show: true
+            });
+            
+            // 3초 후 알림 숨기기
+            setTimeout(() => {
+                setNotification(null);
+            }, 3000);
+            
+            return; // 더 이상 진행하지 않음
+        }
+        
         const detail = await fetchConceptDetail(id);
         setSelectedConcept(detail);
     };
 
     const handleLearnComplete = async (worksheetId) => {
         console.log('학습 완료 시작:', { userId: currentUserId, worksheetId });
+        
+        // 오늘 이미 완료했는지 다시 한번 확인
+        if (todayCompletedWorksheets.has(worksheetId)) {
+            setNotification({
+                type: 'info',
+                message: '📚 오늘 이미 이 학습을 완료하셨습니다!',
+                show: true
+            });
+            
+            setTimeout(() => {
+                setNotification(null);
+            }, 3000);
+            
+            return;
+        }
         
         // 학습 완료 시 포인트 지급 (난이도별 자동 계산)
         const result = await awardPoints(currentUserId, worksheetId);
@@ -200,6 +275,10 @@ function ConceptListPage() {
                         show: true
                     });
                 }
+                
+                // 오늘 완료 목록에 추가
+                setTodayCompletedWorksheets(prev => new Set([...prev, worksheetId]));
+                
             } else if (result.alreadyCompletedToday) {
                 // 오늘 이미 완료한 학습지인 경우
                 console.log('ℹ️ 오늘 이미 완료한 학습지');
@@ -208,6 +287,10 @@ function ConceptListPage() {
                     message: '📚 학습을 완료했습니다! (오늘은 이미 포인트를 받으셨어요)',
                     show: true
                 });
+                
+                // 오늘 완료 목록에 추가
+                setTodayCompletedWorksheets(prev => new Set([...prev, worksheetId]));
+                
             } else if (!result.pointsAwarded) {
                 // 포인트가 지급되지 않았지만 아직 오늘 첫 완료가 아닌 경우
                 console.log('ℹ️ 포인트 지급 조건 미충족');
@@ -287,6 +370,15 @@ function ConceptListPage() {
                         📚 경제 배우기
                         <span className={styles.subtitle}>재미있는 경제 학습으로 똑똑한 경제 박사가 되어보세요!</span>
                     </h1>
+                    
+                    {/* 오늘 완료한 학습 현황 표시 */}
+                    {todayCompletedWorksheets.size > 0 && (
+                        <div className={styles.todayProgressCard}>
+                            <h3>✅ 오늘의 학습 현황</h3>
+                            <p>{todayCompletedWorksheets.size}개의 학습을 완료했습니다! 🎉</p>
+                            <small>내일 다시 새로운 학습에 도전하실 수 있습니다.</small>
+                        </div>
+                    )}
                     
                     {/* 진도 현황 및 퀴즈 섹션 */}
                     <div className={styles.progressSection}>
@@ -396,22 +488,31 @@ function ConceptListPage() {
                             <p>선택한 난이도의 학습 내용이 준비되지 않았습니다.</p>
                         </div>
                     ) : (
-                        concepts.map(concept => (
-                            <div key={concept.id} className={styles.cardWrapper}>
-                                <LearnCard
-                                    id={concept.id}
-                                    title={concept.title}
-                                    onClick={() => handleCardClick(concept.id)}
-                                    isCompleted={userProgress[concept.id]}
-                                    difficulty={concept.difficulty}
-                                />
-                                {userProgress[concept.id] && (
-                                    <div className={styles.completedBadge}>
-                                        ✅ 완료
-                                    </div>
-                                )}
-                            </div>
-                        ))
+                        concepts.map(concept => {
+                            const isTodayCompleted = todayCompletedWorksheets.has(concept.id);
+                            return (
+                                <div key={concept.id} className={styles.cardWrapper}>
+                                    <LearnCard
+                                        id={concept.id}
+                                        title={concept.title}
+                                        onClick={() => handleCardClick(concept.id)}
+                                        isCompleted={userProgress[concept.id]}
+                                        difficulty={concept.difficulty}
+                                        isTodayCompleted={isTodayCompleted} // 오늘 완료 상태 전달
+                                    />
+                                    {userProgress[concept.id] && (
+                                        <div className={styles.completedBadge}>
+                                            ✅ 완료
+                                        </div>
+                                    )}
+                                    {isTodayCompleted && (
+                                        <div className={styles.todayCompletedBadge}>
+                                            🌟 오늘 완료
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </div>

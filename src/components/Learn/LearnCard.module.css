@@ -212,3 +212,63 @@
         font-size: 0.7rem;
     }
 }
+
+/* 오늘 완료된 카드 스타일 */
+.todayCompleted {
+    opacity: 0.7;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.todayCompleted:hover {
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todayCompletedIcon {
+    color: #FFD700;
+    font-size: 1.2rem;
+    animation: sparkle 2s infinite;
+}
+
+.todayCompletedOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.todayMessage {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* 반응형 디자인 개선 */
+@media (max-width: 768px) {
+    .learnCard {
+        margin: 8px 0;
+        min-height: 120px;
+    }
+    
+    .todayMessage {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}

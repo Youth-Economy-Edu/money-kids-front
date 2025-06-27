@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header = ({ currentPage, onToggleSidebar }) => {
-  const { getCurrentUserName, getCurrentUserId, user } = useAuth();
+  const { getCurrentUserName, user } = useAuth();
   
   const getPageTitle = () => {
     const userName = getCurrentUserName();

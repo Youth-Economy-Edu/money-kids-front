@@ -6,11 +6,16 @@ import "./login.css";
 import axios from "axios";
 import Toast from "../../components/Toast";
 
-const KAKAO_AUTH_URL =
-    "https://kauth.kakao.com/oauth/authorize?client_id=424665278188dbb0a014e5d7e830e5af&redirect_uri=http://localhost:8080/api/users/login/kakao/callback&response_type=code";
+const getRedirectUri = (provider) => {
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  const port = hostname === 'localhost' || hostname === '127.0.0.1' ? ':8080' : ':8080';
+  return `${protocol}//${hostname}${port}/api/users/login/${provider}/callback`;
+};
 
-const GOOGLE_AUTH_URL =
-    "https://accounts.google.com/o/oauth2/v2/auth?client_id=171600218391-r73m2hd5uhdu5s6c2qm67kspru29ckfi.apps.googleusercontent.com&redirect_uri=http://localhost:8080/api/users/login/google/callback&response_type=code&scope=email%20profile";
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=424665278188dbb0a014e5d7e830e5af&redirect_uri=${getRedirectUri('kakao')}&response_type=code`;
+
+const GOOGLE_AUTH_URL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=171600218391-r73m2hd5uhdu5s6c2qm67kspru29ckfi.apps.googleusercontent.com&redirect_uri=${getRedirectUri('google')}&response_type=code&scope=email%20profile`;
 
 const Login = ({ onLogin }) => {
     const [username, setUsername] = useState("");
@@ -39,26 +44,33 @@ const Login = ({ onLogin }) => {
             formData.append('id', username);
             formData.append('password', password);
 
-            const response = await axios.post("/api/auth/login", formData, {
+            const response = await fetch(`/api/login`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                },
+                body: formData
             });
 
-            if (response.data && response.data.success && response.data.user) {
-                showToast('success', '로그인 성공! 메인 페이지로 이동합니다.');
-                
-                // 성공 토스트 표시 후 페이지 이동
-                setTimeout(() => {
-                    onLogin(response.data.user); // 전체 사용자 정보 전달
-                    navigate(ROUTES.HOME); // 홈으로 이동
-                }, 1500);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.user) {
+                    showToast('success', '로그인 성공! 메인 페이지로 이동합니다.');
+                    
+                    // 성공 토스트 표시 후 페이지 이동
+                    setTimeout(() => {
+                        onLogin(data.user); // 전체 사용자 정보 전달
+                        navigate(ROUTES.HOME); // 홈으로 이동
+                    }, 1500);
+                } else {
+                    showToast('error', '로그인 응답 형식이 올바르지 않습니다.');
+                }
             } else {
-                showToast('error', '로그인 응답 형식이 올바르지 않습니다.');
+                const errorMsg = await response.text();
+                showToast('error', errorMsg || '서버 오류로 로그인에 실패했습니다.');
             }
         } catch (error) {
-            const errorMsg =
-                error.response?.data?.error || "서버 오류로 로그인에 실패했습니다.";
+            const errorMsg = error.message || "서버 오류로 로그인에 실패했습니다.";
             showToast('error', errorMsg);
         }
     };

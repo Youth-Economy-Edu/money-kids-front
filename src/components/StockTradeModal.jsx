@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { tradeAPI, publicAPI } from '../utils/apiClient';
+import { tradeAPI, stockAPI } from '../utils/apiClient';
 import './StockTradeModal.css';
 
 const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
@@ -67,7 +67,7 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
   // 관심 종목 토글 함수 추가
   const toggleFavorite = async () => {
     try {
-      await publicAPI.toggleFavoriteStock(userId, stock.id);
+      await stockAPI.toggleFavorite(userId, stock.id);
       setIsFavorite(!isFavorite);
       console.log(`관심종목 ${!isFavorite ? '추가' : '제거'} 성공:`, stock.name);
     } catch (error) {

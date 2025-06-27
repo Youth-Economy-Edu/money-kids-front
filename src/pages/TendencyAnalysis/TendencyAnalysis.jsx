@@ -18,7 +18,7 @@ const TendencyAnalysis = () => {
             id: 'investment-portfolio',
             title: '💰 투자 포트폴리오',
             description: '보유 주식 및 분산도 분석',
-            path: '/analysis/investment',
+            path: '/analysis/portfolio',
             color: '#f59e0b'
         },
         {

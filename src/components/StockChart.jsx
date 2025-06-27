@@ -65,55 +65,55 @@ const StockChart = ({ stock, onClose }) => {
     const now = new Date();
     let dataPoints, intervalMs, timeFormat, volatility;
     
-    // 시간 범위별 설정 - 더 세밀하게 조정
+    // 시간 범위별 설정 - 변동성을 현실적인 수준으로 대폭 축소
     switch (range) {
       case '1M':
         dataPoints = 20; // 20개 1분봉 (20분간)
         intervalMs = 1 * 60 * 1000; // 1분 간격
         timeFormat = 'minute';
-        volatility = 0.008; // 높은 변동성 (0.8%)
+        volatility = 0.001; // 0.1% (기존 0.8%에서 대폭 축소)
         break;
       case '5M':
         dataPoints = 24; // 24개 5분봉 (2시간)
         intervalMs = 5 * 60 * 1000; // 5분 간격
         timeFormat = 'minute';
-        volatility = 0.006; // 높은 변동성 (0.6%)
+        volatility = 0.0008; // 0.08% (기존 0.6%에서 대폭 축소)
         break;
       case '10M':
         dataPoints = 18; // 18개 10분봉 (3시간)
         intervalMs = 10 * 60 * 1000; // 10분 간격
         timeFormat = 'minute';
-        volatility = 0.005; // 중간 변동성 (0.5%)
+        volatility = 0.0006; // 0.06% (기존 0.5%에서 대폭 축소)
         break;
       case '1H':
         dataPoints = 24; // 24개 1시간봉 (하루)
         intervalMs = 60 * 60 * 1000; // 1시간 간격
         timeFormat = 'hour';
-        volatility = 0.003; // 낮은 변동성 (0.3%)
+        volatility = 0.0004; // 0.04% (기존 0.3%에서 축소)
         break;
       case '1D':
         dataPoints = 30; // 30개 1일봉 (한 달)
         intervalMs = 24 * 60 * 60 * 1000; // 1일 간격
         timeFormat = 'date';
-        volatility = 0.002; // 매우 낮은 변동성 (0.2%)
+        volatility = 0.0003; // 0.03% (기존 0.2%에서 축소)
         break;
       case '1W':
         dataPoints = 12; // 12개 1주봉 (3개월)
         intervalMs = 7 * 24 * 60 * 60 * 1000; // 1주 간격
         timeFormat = 'week';
-        volatility = 0.0015; // 매우 낮은 변동성 (0.15%)
+        volatility = 0.0002; // 0.02% (기존 0.15%에서 축소)
         break;
       case '1Mon':
         dataPoints = 12; // 12개 1월봉 (1년)
         intervalMs = 30 * 24 * 60 * 60 * 1000; // 1달 간격
         timeFormat = 'month';
-        volatility = 0.001; // 극히 낮은 변동성 (0.1%)
+        volatility = 0.0001; // 0.01% (기존 0.1%에서 축소)
         break;
       default:
         dataPoints = 24;
         intervalMs = 60 * 60 * 1000;
         timeFormat = 'hour';
-        volatility = 0.003;
+        volatility = 0.0004;
     }
     
     const basePrice = stock.beforePrice || stock.price;
@@ -182,32 +182,32 @@ const StockChart = ({ stock, onClose }) => {
       
       labels.push(formattedTime);
       
-      // 실제적인 가격 변동 시뮬레이션
+      // 실제적인 가격 변동 시뮬레이션 - 변동성 대폭 축소
       const progress = (dataPoints - 1 - i) / (dataPoints - 1);
       
-      // 트렌드 팩터 (전체 변화를 점진적으로 반영)
-      let trendFactor = (totalChange / basePrice) * progress;
+      // 트렌드 팩터 (전체 변화를 점진적으로 반영) - 최대 5%로 제한
+      let trendFactor = Math.min(0.05, Math.max(-0.05, (totalChange / basePrice) * progress));
       
-      // 랜덤 변동 (시간 범위별 차별화된 변동성)
+      // 랜덤 변동 (시간 범위별 차별화된 변동성) - 대폭 축소
       const randomVariation = (seededRandom() - 0.5) * volatility;
       
-      // 이전 가격의 모멘텀 효과 (연속성)
-      const momentum = i < dataPoints - 1 ? (seededRandom() - 0.5) * 0.001 : 0;
+      // 이전 가격의 모멘텀 효과 (연속성) - 축소
+      const momentum = i < dataPoints - 1 ? (seededRandom() - 0.5) * 0.0002 : 0;
       
-      // 추세 반전 확률 (장기간일수록 높음)
+      // 추세 반전 확률 (장기간일수록 높음) - 축소
       if (['1D', '1W', '1Mon'].includes(range)) {
         const reversalChance = seededRandom();
-        if (reversalChance < 0.08) { // 8% 확률로 추세 반전
-          trendFactor *= -0.3;
+        if (reversalChance < 0.03) { // 3% 확률로 추세 반전 (기존 8%에서 축소)
+          trendFactor *= -0.1; // 반전 강도도 축소 (기존 -0.3에서)
         }
       }
       
-      // 분봉에서는 더 큰 스파이크 허용
+      // 분봉에서도 스파이크 대폭 축소
       let spikeFactor = 0;
       if (['1M', '5M', '10M'].includes(range)) {
         const spikeChance = seededRandom();
-        if (spikeChance < 0.05) { // 5% 확률로 급등/급락
-          spikeFactor = (seededRandom() - 0.5) * 0.02; // ±2% 스파이크
+        if (spikeChance < 0.01) { // 1% 확률로 급등/급락 (기존 5%에서 축소)
+          spikeFactor = (seededRandom() - 0.5) * 0.003; // ±0.3% 스파이크 (기존 ±2%에서 대폭 축소)
         }
       }
       
