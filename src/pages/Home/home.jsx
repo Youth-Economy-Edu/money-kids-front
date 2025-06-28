@@ -74,19 +74,19 @@ const Home = ({ onNavigate }) => {
             return '아직 투자를 시작하지 않았습니다. 모의 투자로 경험을 쌓아보세요!';
         }
         
-        const rate = portfolioData.rate;
-        const profitLoss = portfolioData.profitLoss;
+        const rate = portfolioData.rate ?? parseFloat(portfolioData.profitRate);
+        const profitLoss = portfolioData.profitLoss ?? 0;
         
         if (rate >= 0) {
-            return `현재 수익률 +${rate.toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${profitLoss.toLocaleString()}`;
+            return `현재 수익률 +${(rate || 0).toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${(profitLoss || 0).toLocaleString()}`;
         } else {
-            return `현재 수익률 ${rate.toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${profitLoss.toLocaleString()}`;
+            return `현재 수익률 ${(rate || 0).toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${(profitLoss || 0).toLocaleString()}`;
         }
     };
 
     // 포트폴리오 상태에 따른 메시지 생성
     const getPortfolioMessage = (profitLoss, rate) => {
-        if (!profitLoss || !rate) return '포트폴리오 데이터를 불러오는 중입니다...';
+        if (profitLoss === null || rate === null || rate === undefined) return '포트폴리오 데이터를 불러오는 중입니다...';
         
         const numericRate = parseFloat(rate);
         if (isNaN(numericRate)) return '포트폴리오 분석 중입니다...';
