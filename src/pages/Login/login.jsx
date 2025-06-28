@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../App.jsx";
 import "./login.css";
-import axios from "axios";
+import { authAPI } from "../../utils/apiClient.js";
 import Toast from "../../components/Toast";
 
 const getRedirectUri = (provider) => {
@@ -40,34 +40,22 @@ const Login = ({ onLogin }) => {
 
         // 로그인 처리 함수
         try {
-            const formData = new URLSearchParams();
-            formData.append('id', username);
-            formData.append('password', password);
+            const result = await authAPI.login(username, password);
 
-            const response = await fetch(`/api/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.user) {
+            if (result.success && result.data) {
+                if (result.data.success && result.data.user) {
                     showToast('success', '로그인 성공! 메인 페이지로 이동합니다.');
                     
                     // 성공 토스트 표시 후 페이지 이동
                     setTimeout(() => {
-                        onLogin(data.user); // 전체 사용자 정보 전달
+                        onLogin(result.data.user); // 전체 사용자 정보 전달
                         navigate(ROUTES.HOME); // 홈으로 이동
                     }, 1500);
                 } else {
                     showToast('error', '로그인 응답 형식이 올바르지 않습니다.');
                 }
             } else {
-                const errorMsg = await response.text();
-                showToast('error', errorMsg || '서버 오류로 로그인에 실패했습니다.');
+                showToast('error', result.error || '서버 오류로 로그인에 실패했습니다.');
             }
         } catch (error) {
             const errorMsg = error.message || "서버 오류로 로그인에 실패했습니다.";

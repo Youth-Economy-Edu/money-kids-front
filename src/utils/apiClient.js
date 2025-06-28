@@ -35,12 +35,6 @@ const apiFetch = async (url, options = {}) => {
                 errorData = { message: await response.text() };
             }
             
-            console.error('API Error:', { 
-                status: response.status, 
-                url: `${API_BASE_URL}${url}`, 
-                error: errorData 
-            });
-
             throw new Error(errorData.message || `API Error: ${response.status}`);
         }
 
@@ -54,9 +48,29 @@ const apiFetch = async (url, options = {}) => {
         return { success: true, data: await response.text() };
 
     } catch (error) {
-        console.error('Network or other error:', error);
         return { success: false, error: error.message };
     }
+};
+
+// --- 인증 관련 API ---
+export const authAPI = {
+    login: (id, password) => {
+        const formData = new URLSearchParams();
+        formData.append('id', id);
+        formData.append('password', password);
+        
+        return apiFetch('/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        });
+    },
+    register: (userData) => apiFetch('/users/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    }),
 };
 
 // --- 주식 관련 API ---
@@ -116,6 +130,7 @@ export const articleAPI = {
 };
 
 export default {
+    authAPI,
     stockAPI,
     tradeAPI,
     userAPI,

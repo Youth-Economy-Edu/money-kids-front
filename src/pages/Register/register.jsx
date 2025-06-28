@@ -1,6 +1,6 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import { authAPI } from "../../utils/apiClient.js";
 import "./register.css"; // 회원가입 전용 CSS
 import Toast from "../../components/Toast";
 
@@ -27,28 +27,20 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post(
-                "/api/auth/register",
-                new URLSearchParams({ id, name, password }),
-                {
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                }
-            );
+            const result = await authAPI.register({ id, name, password });
 
-            showToast('success', '회원가입 성공! 로그인 페이지로 이동합니다.');
-            
-            // 성공 토스트 표시 후 페이지 이동
-            setTimeout(() => {
-                window.location.href = "/login";
-            }, 2000);
+            if (result.success) {
+                showToast('success', '회원가입 성공! 로그인 페이지로 이동합니다.');
+                
+                // 성공 토스트 표시 후 페이지 이동
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 2000);
+            } else {
+                showToast('error', result.error || '회원가입에 실패했습니다.');
+            }
         } catch (error) {
-            const msg =
-                error.response?.data?.message ||
-                error.response?.data?.error ||
-                "회원가입 실패";
-            showToast('error', msg);
+            showToast('error', error.message || '회원가입에 실패했습니다.');
         }
     };
 

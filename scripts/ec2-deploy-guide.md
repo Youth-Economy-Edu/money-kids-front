@@ -17,9 +17,9 @@ EC2에서 직접 Git pull 후 빌드
 ### 1. 환경변수 설정
 ```bash
 # ~/.bashrc 또는 ~/.zshrc에 추가
-export EC2_HOST="your-ec2-public-ip"           # EC2 퍼블릭 IP
-export EC2_USER="ubuntu"                       # EC2 사용자명 (ubuntu 또는 ec2-user)
-export EC2_KEY_PATH="~/.ssh/your-key.pem"     # SSH 키 경로
+export EC2_HOST="172.31.4.50"
+export EC2_USER="ubuntu"
+export EC2_KEY_PATH="~/.ssh/symoon.pem.pem"
 export EC2_PROJECT_PATH="/home/ubuntu/money-kids-front"  # 프로젝트 경로 (선택사항)
 ```
 
