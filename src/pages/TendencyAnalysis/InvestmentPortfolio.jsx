@@ -13,6 +13,7 @@ import {
     Legend
 } from 'chart.js';
 import { tendencyAPI } from '../../utils/api';
+import { safeToLocaleString, safeCurrencyFormat } from '../../utils/formatUtils';
 import './InvestmentPortfolio.css';
 
 // Chart.js 등록
@@ -277,7 +278,7 @@ const InvestmentPortfolio = () => {
                             <div className="summary-icon">💵</div>
                             <div className="summary-content">
                                 <span className="summary-label">총 투자금액</span>
-                                <span className="summary-value">{investmentData?.totalInvestmentValue?.toLocaleString()}원</span>
+                                <span className="summary-value">{safeCurrencyFormat(investmentData?.totalInvestmentValue)}</span>
                             </div>
                         </div>
                         
@@ -330,16 +331,16 @@ const InvestmentPortfolio = () => {
                                         </div>
                                         <div className="detail-row">
                                             <span className="detail-label">현재 가격</span>
-                                            <span className="detail-value">₩{data.currentPrice?.toLocaleString()}</span>
+                                            <span className="detail-value">{safeCurrencyFormat(data.currentPrice)}</span>
                                         </div>
                                         <div className="detail-row">
                                             <span className="detail-label">보유 가치</span>
-                                            <span className="detail-value">₩{totalValue.toLocaleString()}</span>
+                                            <span className="detail-value">{safeCurrencyFormat(totalValue)}</span>
                                         </div>
                                         <div className="detail-row">
                                             <span className="detail-label">수익/손실</span>
                                             <span className={`detail-value ${data.profit >= 0 ? 'profit-text' : 'loss-text'}`}>
-                                                {data.profit >= 0 ? '+' : ''}₩{data.profit?.toLocaleString()}
+                                                {data.profit >= 0 ? '+' : ''}₩{safeCurrencyFormat(data.profit)}
                                             </span>
                                         </div>
                                         <div className="detail-row">
@@ -374,9 +375,8 @@ const InvestmentPortfolio = () => {
                                 <div className="summary-info">
                                     <span className="summary-title">총 투자가치</span>
                                     <span className="summary-amount">
-                                        ₩{Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + ((data.currentPrice ?? 0) * (data.shares ?? 0)), 0)
-                                            .toLocaleString()}
+                                        {safeCurrencyFormat(Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + ((data.currentPrice ?? 0) * (data.shares ?? 0)), 0))}
                                     </span>
                                 </div>
                             </div>
@@ -388,9 +388,8 @@ const InvestmentPortfolio = () => {
                                         .reduce((total, [, data]) => total + (data.profit ?? 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
                                         {Object.entries(investmentData?.stockPerformance || {})
                                             .reduce((total, [, data]) => total + (data.profit ?? 0), 0) >= 0 ? '+' : ''}
-                                        ₩{Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + (data.profit ?? 0), 0)
-                                            .toLocaleString()}
+                                        {safeCurrencyFormat(Object.entries(investmentData?.stockPerformance || {})
+                                            .reduce((total, [, data]) => total + (data.profit ?? 0), 0))}
                                     </span>
                                 </div>
                             </div>
