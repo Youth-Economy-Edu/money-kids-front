@@ -7,10 +7,7 @@ import { authAPI } from "../../utils/apiClient.js";
 import Toast from "../../components/Toast";
 
 const getRedirectUri = (provider) => {
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
-  const port = hostname === 'localhost' || hostname === '127.0.0.1' ? ':8080' : ':8080';
-  return `${protocol}//${hostname}${port}/api/users/login/${provider}/callback`;
+  return `http://3.25.213.98:8080/api/users/login/${provider}/callback`;
 };
 
 const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=424665278188dbb0a014e5d7e830e5af&redirect_uri=${getRedirectUri('kakao')}&response_type=code`;
@@ -41,18 +38,22 @@ const Login = ({ onLogin }) => {
         // 로그인 처리 함수
         try {
             const result = await authAPI.login(username, password);
+            console.log('로그인 API 응답:', result);
 
             if (result.success && result.data) {
-                if (result.data.success && result.data.user) {
+                // 응답 구조 확인: result.data 자체가 사용자 정보일 수 있음
+                const userData = result.data.user || result.data;
+                
+                if (userData && userData.id) {
                     showToast('success', '로그인 성공! 메인 페이지로 이동합니다.');
                     
                     // 성공 토스트 표시 후 페이지 이동
                     setTimeout(() => {
-                        onLogin(result.data.user); // 전체 사용자 정보 전달
+                        onLogin(userData); // 사용자 정보 전달
                         navigate(ROUTES.HOME); // 홈으로 이동
                     }, 1500);
                 } else {
-                    showToast('error', '로그인 응답 형식이 올바르지 않습니다.');
+                    showToast('error', '로그인 응답에서 사용자 정보를 찾을 수 없습니다.');
                 }
             } else {
                 showToast('error', result.error || '서버 오류로 로그인에 실패했습니다.');
@@ -81,12 +82,14 @@ const Login = ({ onLogin }) => {
                     placeholder="아이디"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="username"
                 />
                 <input
                     type="password"
                     placeholder="비밀번호"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                 />
                 <button type="submit">로그인</button>
 
