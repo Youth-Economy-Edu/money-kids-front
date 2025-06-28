@@ -6,12 +6,18 @@ import axios from 'axios';
 import { userAPI } from '../../utils/apiClient';
 
 const Header = ({ currentPage }) => {
-    const { getCurrentUserName } = useAuth();
+    const { getCurrentUserName, getCurrentUserId, logout, user } = useAuth();
     const [balanceData, setBalanceData] = useState(null);
     const [userPoints, setUserPoints] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    // 현재 사용자 ID 가져오기
+    const userId = getCurrentUserId();
+    const userName = getCurrentUserName();
 
     const fetchBalance = async () => {
+        if (!userId) return;
         try {
             const response = await axios.get(`/api/stocks/trade/balance?userId=${userId}`);
             setBalanceData(response.data);
@@ -21,6 +27,7 @@ const Header = ({ currentPage }) => {
     };
 
     const fetchUserPoints = async () => {
+        if (!userId) return;
         try {
             const response = await axios.get(`/api/users/${userId}/points`);
             if (response.data && response.data.code === 200) {
@@ -43,16 +50,16 @@ const Header = ({ currentPage }) => {
         if (user?.id) {
             const result = await userAPI.getPoints(user.id);
             if (result.success) {
-                setPoints(result.data.points);
+                setUserPoints(result.data.points);
             }
         }
     }, [userId, user]);
 
     useEffect(() => {
-        if (!authLoading) {
+        if (userId) {
             refreshData();
         }
-    }, [authLoading, refreshData]);
+    }, [userId, refreshData]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -81,7 +88,7 @@ const Header = ({ currentPage }) => {
             window.removeEventListener('tradeComplete', handleTradeComplete);
             window.removeEventListener('balanceUpdate', handleBalanceUpdate);
         };
-    }, [userId]);
+    }, [refreshData]);
 
     const handleLogout = async () => {
         try {
@@ -96,16 +103,19 @@ const Header = ({ currentPage }) => {
         }
     };
 
-    if (authLoading) {
-        return <header className="header-container"></header>;
+    // 로그인하지 않은 경우 헤더를 표시하지 않음
+    if (!userId) {
+        return null;
     }
-
-    if (!title) return null;
 
     return (
         <header className={`header ${isExpanded ? 'expanded' : 'collapsed'}`}>
             <div className="header-top">
                 <div className="user-info">
+                    <div className="user-greeting">
+                        <h2>안녕하세요! 👋</h2>
+                        <p>{userName ? `${userName}님, ` : ''}오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
+                    </div>
                     <div className="balance-info">
                         <div className="balance-item">
                             <span className="balance-label">총 자산</span>
@@ -113,7 +123,7 @@ const Header = ({ currentPage }) => {
                         </div>
                         <div className="balance-item">
                             <span className="balance-label">평가손익</span>
-                            <span className={`balance-value ${balanceData?.profit >= 0 ? 'positive' : 'negative'}`}>
+                            <span className={`balance-value ${(balanceData?.profit ?? 0) >= 0 ? 'positive' : 'negative'}`}>
                                 ₩{(balanceData?.profit ?? 0).toLocaleString()} (
                                 <span className="profit-rate">
                                     {balanceData?.profitRate ?? 0}%
@@ -128,7 +138,9 @@ const Header = ({ currentPage }) => {
                             {userPoints !== null ? `₩${(userPoints ?? 0).toLocaleString()}` : '로딩 중...'}
                         </span>
                     </div>
-                    <button onClick={handleLogout} className="logout-button">로그아웃</button>
+                    <button onClick={handleLogout} className="logout-button">
+                        <FaSignOutAlt /> 로그아웃
+                    </button>
                 </div>
             </div>
 
