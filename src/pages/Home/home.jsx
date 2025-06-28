@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { userAPI, stockAPI } from '../../utils/apiClient';
+import { safeToLocaleString, safeCurrencyFormat } from '../../utils/formatUtils';
 
 const Home = ({ onNavigate }) => {
     const [portfolioData, setPortfolioData] = useState({
@@ -78,9 +79,9 @@ const Home = ({ onNavigate }) => {
         const profitLoss = portfolioData.profitLoss ?? 0;
         
         if (rate >= 0) {
-            return `현재 수익률 +${(rate || 0).toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${(profitLoss || 0).toLocaleString()}`;
+            return `현재 수익률 +${safeToLocaleString((rate || 0).toFixed(2))}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +${safeCurrencyFormat(profitLoss)}`;
         } else {
-            return `현재 수익률 ${(rate || 0).toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${(profitLoss || 0).toLocaleString()}`;
+            return `현재 수익률 ${safeToLocaleString((rate || 0).toFixed(2))}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ${safeCurrencyFormat(profitLoss)}`;
         }
     };
 
@@ -92,9 +93,9 @@ const Home = ({ onNavigate }) => {
         if (isNaN(numericRate)) return '포트폴리오 분석 중입니다...';
         
         if (numericRate > 0) {
-            return `현재 수익률 +${numericRate.toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${(profitLoss || 0).toLocaleString()}`;
+            return `현재 수익률 +${safeToLocaleString(numericRate.toFixed(2))}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +${safeCurrencyFormat(profitLoss)}`;
         } else if (numericRate < 0) {
-            return `현재 수익률 ${numericRate.toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${(profitLoss || 0).toLocaleString()}`;
+            return `현재 수익률 ${safeToLocaleString(numericRate.toFixed(2))}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ${safeCurrencyFormat(profitLoss)}`;
         } else {
             return '현재 수익률 0%입니다. 투자를 시작해보세요!';
         }

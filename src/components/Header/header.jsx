@@ -4,6 +4,7 @@ import { FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { userAPI } from '../../utils/apiClient';
+import { safeToLocaleString, safeCurrencyFormat } from '../../utils/formatUtils';
 
 const Header = ({ currentPage }) => {
     const { getCurrentUserName, getCurrentUserId, logout, user } = useAuth();
@@ -119,14 +120,14 @@ const Header = ({ currentPage }) => {
                     <div className="balance-info">
                         <div className="balance-item">
                             <span className="balance-label">총 자산</span>
-                            <span className="balance-value">₩{(balanceData?.totalAsset ?? 0).toLocaleString()}</span>
+                            <span className="balance-value">{safeCurrencyFormat(balanceData?.totalAsset)}</span>
                         </div>
                         <div className="balance-item">
                             <span className="balance-label">평가손익</span>
                             <span className={`balance-value ${(balanceData?.profit ?? 0) >= 0 ? 'positive' : 'negative'}`}>
-                                ₩{(balanceData?.profit ?? 0).toLocaleString()} (
+                                {safeCurrencyFormat(balanceData?.profit)} (
                                 <span className="profit-rate">
-                                    {balanceData?.profitRate ?? 0}%
+                                    {safeToLocaleString(balanceData?.profitRate ?? 0)}%
                                 </span>
                                 )
                             </span>
@@ -135,7 +136,7 @@ const Header = ({ currentPage }) => {
                     <div className="user-points">
                         <span className="points-label">포인트</span>
                         <span className="points-value">
-                            {userPoints !== null ? `₩${(userPoints ?? 0).toLocaleString()}` : '로딩 중...'}
+                            {userPoints !== null ? safeCurrencyFormat(userPoints) : '로딩 중...'}
                         </span>
                     </div>
                     <button onClick={handleLogout} className="logout-button">
@@ -154,7 +155,7 @@ const Header = ({ currentPage }) => {
                         typeof balanceData.rate === 'number' ? (
                             <>
                                 <div className="stat-value">
-                                    ₩{(balanceData.totalAsset || 0).toLocaleString()}
+                                    {safeCurrencyFormat(balanceData.totalAsset)}
                                 </div>
                                 <div
                                     className={`stat-change ${
@@ -162,8 +163,8 @@ const Header = ({ currentPage }) => {
                                     }`}
                                 >
                                     {balanceData.profit >= 0 ? '+' : ''}
-                                    ₩{(balanceData.profit || 0).toLocaleString()} (
-                                    {(balanceData.rate || 0).toFixed(2)}%)
+                                    {safeCurrencyFormat(balanceData.profit)} (
+                                    {safeToLocaleString((balanceData.rate || 0).toFixed(2))}%)
                                 </div>
                             </>
                         ) : (
@@ -174,7 +175,7 @@ const Header = ({ currentPage }) => {
                     <div className="stat-card">
                         <div className="stat-title">사용 가능 금액</div>
                         <div className="stat-value">
-                            {userPoints !== null ? `₩${(userPoints || 0).toLocaleString()}` : '로딩 중...'}
+                            {userPoints !== null ? safeCurrencyFormat(userPoints) : '로딩 중...'}
                         </div>
                     </div>
 

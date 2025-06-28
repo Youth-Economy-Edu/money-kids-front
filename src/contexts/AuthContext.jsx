@@ -57,6 +57,10 @@ export const AuthProvider = ({ children }) => {
         return user?.id || localStorage.getItem('userId');
     };
 
+    const getCurrentUserName = () => {
+        return user?.name || localStorage.getItem('userName') || '사용자';
+    };
+
     const isAuthenticated = () => {
         return user !== null && user.id && localStorage.getItem('userId');
     };
@@ -73,6 +77,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         getCurrentUserId,
+        getCurrentUserName,
         isAuthenticated,
         requireAuth,
         isLoading,
