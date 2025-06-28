@@ -50,7 +50,14 @@ const apiFetch = async (url, options = {}) => {
         return { success: true, data: await response.text() };
 
     } catch (error) {
-        return { success: false, error: error.message };
+        console.error('API 호출 실패:', error);
+        
+        // 인증 실패 시 로그인 페이지로 리다이렉트
+        if (error.status === 401) {
+            window.location.href = '/login';
+        }
+        
+        throw error;
     }
 };
 

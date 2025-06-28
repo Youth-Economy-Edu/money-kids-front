@@ -1,20 +1,15 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './header.css';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { userAPI } from '../../utils/apiClient';
 
-const Header = ({ title, onToggleSidebar }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
+const Header = ({ currentPage }) => {
+    const { getCurrentUserName } = useAuth();
     const [balanceData, setBalanceData] = useState(null);
     const [userPoints, setUserPoints] = useState(null);
-    const { user, logout, getCurrentUserId, loading: authLoading } = useAuth();
-    const intervalRef = useRef(null);
-    const [points, setPoints] = useState(0);
-
-    const userId = getCurrentUserId();
-    const userName = user?.name || '사용자';
+    const [loading, setLoading] = useState(true);
 
     const fetchBalance = async () => {
         try {
