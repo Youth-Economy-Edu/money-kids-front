@@ -243,7 +243,7 @@ const LandingPage = () => {
       <footer className="landing-footer">
         <div className="container">
           <div className="footer-bottom">
-            <p>&copy; 2024 머니키즈. 모든 권리 보유.</p>
+            <p>&copy; 2025 Money Kids. All rights reserved.</p>
           </div>
         </div>
       </footer>

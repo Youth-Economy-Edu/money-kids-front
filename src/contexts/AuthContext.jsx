@@ -14,6 +14,8 @@ export const AuthProvider = ({ children }) => {
             const storedUserId = localStorage.getItem('userId');
             if (storedUserId) {
                 try {
+                    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+                    
                     // 백엔드에서 사용자 정보 재확인
                     const response = await fetch(`${API_BASE_URL}/users/${storedUserId}`);
                     if (response.ok) {

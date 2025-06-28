@@ -59,7 +59,7 @@ export const authAPI = {
         formData.append('id', id);
         formData.append('password', password);
         
-        return apiFetch('/users/login', {
+        return apiFetch('/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -67,7 +67,7 @@ export const authAPI = {
             body: formData
         });
     },
-    register: (userData) => apiFetch('/users/register', {
+    register: (userData) => apiFetch('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),
     }),
