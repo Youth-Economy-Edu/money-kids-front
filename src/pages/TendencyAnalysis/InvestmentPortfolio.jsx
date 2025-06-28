@@ -344,9 +344,9 @@ const InvestmentPortfolio = () => {
                                         </div>
                                         <div className="detail-row">
                                             <span className="detail-label">수익률</span>
-                                            <span className={`detail-value ${profitRate >= 0 ? 'profit-text' : 'loss-text'}`}>
-                                                {profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
-                                            </span>
+                                            <div className={`profit-rate ${profitRate >= 0 ? 'positive' : 'negative'}`}>
+                                                {profitRate >= 0 ? '+' : ''}{(profitRate || 0).toFixed(2)}%
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -398,12 +398,10 @@ const InvestmentPortfolio = () => {
                                 <span className="summary-icon">🎯</span>
                                 <div className="summary-info">
                                     <span className="summary-title">총 수익률</span>
-                                    <span className={`summary-amount ${Object.entries(investmentData?.stockPerformance || {})
-                                        .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
-                                        {((Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + (data.profit || 0), 0) / 
-                                            Math.max(investmentData?.totalInvestmentValue || 1, 1)) * 100).toFixed(2)}%
-                                    </span>
+                                    <div className="metric-value">
+                                        {((investmentData?.totalCurrentValue || 0) / 
+                                        Math.max(investmentData?.totalInvestmentValue || 1, 1) * 100).toFixed(2)}%
+                                    </div>
                                 </div>
                             </div>
                         </div>

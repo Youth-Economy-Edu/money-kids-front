@@ -26,61 +26,28 @@ const Home = ({ onNavigate }) => {
         try {
             // userAPI와 stockAPI 사용으로 변경
             const portfolioResult = await userAPI.getPortfolio(userId);
-            if (portfolioResult.success) {
-                setPortfolioData(portfolioResult.data);
-            }
-
-            const stocksResult = await stockAPI.getAll();
-            if (stocksResult.success) {
-                // 실제 수익률 계산
-                let totalProfitLoss = 0;
-                let totalInvestment = 0;
-                let currentStockValue = 0;
-                
-                if (portfolioData.stocks && portfolioData.stocks.length > 0) {
-                    const activeStocks = portfolioData.stocks.filter(stock => stock.quantity > 0);
-                    
-                    for (const portfolioStock of activeStocks) {
-                        const currentStock = stocksResult.data.find(s => s.name === portfolioStock.stockName);
-                        if (currentStock) {
-                            const currentValue = currentStock.price * portfolioStock.quantity;
-                            currentStockValue += currentValue;
-                            
-                            const investmentAmount = portfolioStock.totalValue;
-                            totalInvestment += investmentAmount;
-                            
-                            const stockProfitLoss = currentValue - investmentAmount;
-                            totalProfitLoss += stockProfitLoss;
-                        }
-                    }
-                }
-                
-                const profitRate = totalInvestment > 0 
-                    ? ((totalProfitLoss / totalInvestment) * 100) 
-                    : 0;
-                
+            if (portfolioResult.success && portfolioResult.data) {
+                // 기본값 설정
                 setPortfolioData({
-                    rate: profitRate,
-                    totalAsset: currentStockValue,
-                    profitLoss: totalProfitLoss,
-                    loading: false
+                    totalAsset: portfolioResult.data.totalAsset || 0,
+                    profitLoss: portfolioResult.data.profitLoss || 0,
+                    profitRate: portfolioResult.data.profitRate || '0.00%'
                 });
-                
-                console.log('홈화면 포트폴리오 데이터 업데이트:', {
-                    totalInvestment,
-                    currentStockValue,
-                    totalProfitLoss,
-                    profitRate: profitRate.toFixed(2) + '%'
+            } else {
+                // API 실패 시 기본값
+                setPortfolioData({
+                    totalAsset: 0,
+                    profitLoss: 0,
+                    profitRate: '0.00%'
                 });
             }
         } catch (error) {
             console.error('사용자 데이터 로드 오류:', error);
             // 에러 시 기본값 설정
             setPortfolioData({
-                rate: 0,
                 totalAsset: 0,
                 profitLoss: 0,
-                loading: false
+                profitRate: '0.00%'
             });
         }
     };
@@ -117,6 +84,22 @@ const Home = ({ onNavigate }) => {
         }
     };
 
+    // 포트폴리오 상태에 따른 메시지 생성
+    const getPortfolioMessage = (profitLoss, rate) => {
+        if (!profitLoss || !rate) return '포트폴리오 데이터를 불러오는 중입니다...';
+        
+        const numericRate = parseFloat(rate);
+        if (isNaN(numericRate)) return '포트폴리오 분석 중입니다...';
+        
+        if (numericRate > 0) {
+            return `현재 수익률 +${numericRate.toFixed(2)}%로 좋은 성과를 보이고 있습니다! 총 평가손익: +₩${(profitLoss || 0).toLocaleString()}`;
+        } else if (numericRate < 0) {
+            return `현재 수익률 ${numericRate.toFixed(2)}%입니다. 투자 전략을 재검토해보는 것이 좋겠습니다. 총 평가손익: ₩${(profitLoss || 0).toLocaleString()}`;
+        } else {
+            return '현재 수익률 0%입니다. 투자를 시작해보세요!';
+        }
+    };
+
     return (
         <div className="page-active" id="home">
             <h1 className="page-title">대시보드</h1>
@@ -142,7 +125,7 @@ const Home = ({ onNavigate }) => {
                     </div>
                     <div className="card-title">포트폴리오 현황</div>
                     <div className="card-description">
-                        {renderInvestmentMessage()}
+                        {getPortfolioMessage(portfolioData.profitLoss, portfolioData.profitRate)}
                     </div>
                     <button className="card-action" onClick={() => onNavigate('invest')}>
                         <FaSearchDollar /> 자세히 보기

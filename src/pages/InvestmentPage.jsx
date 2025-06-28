@@ -337,8 +337,8 @@ const InvestmentPage = () => {
         
         // 등락률 계산 (전일 가격이 0이면 0% 처리)
         const changeRate = stock.beforePrice 
-          ? ((change / stock.beforePrice) * 100).toFixed(2) 
-          : 0;
+          ? (((stock.price - stock.beforePrice) / stock.beforePrice) * 100).toFixed(2)
+          : '0.00';
         
         // 변화 타입 결정 (상승, 하락, 유지)
         const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';

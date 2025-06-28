@@ -140,7 +140,7 @@ const Header = ({ title, onToggleSidebar }) => {
                                 >
                                     {balanceData.profit >= 0 ? '+' : ''}
                                     ₩{balanceData.profit.toLocaleString()} (
-                                    {balanceData.rate.toFixed(2)}%)
+                                    {(balanceData.rate || 0).toFixed(2)}%)
                                 </div>
                             </>
                         ) : (

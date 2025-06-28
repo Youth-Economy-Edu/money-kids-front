@@ -340,8 +340,10 @@ const StockChart = ({ stock, onClose }) => {
 
   if (!stock) return null;
 
-  const change = stock.price - stock.beforePrice;
-  const changePercent = ((change / stock.beforePrice) * 100).toFixed(2);
+  const change = stock.price - (stock.beforePrice || stock.price);
+  const changePercent = stock.beforePrice 
+      ? (((change / stock.beforePrice) * 100) || 0).toFixed(2)
+      : '0.00';
   const isPositive = change > 0;
   const isNegative = change < 0;
 
