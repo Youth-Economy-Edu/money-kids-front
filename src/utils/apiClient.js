@@ -109,7 +109,12 @@ export const tradeAPI = {
 
 // --- 사용자 정보 API ---
 export const userAPI = {
+    getInfo: (userId) => apiFetch(`/users/${userId}`),
     getPoints: (userId) => apiFetch(`/users/${userId}/points`),
+    updatePoints: (userId, points) => apiFetch(`/users/${userId}/points`, {
+        method: 'PUT',
+        body: JSON.stringify({ points }),
+    }),
     getPortfolio: (userId) => apiFetch(`/users/${userId}/portfolio`),
 };
 
@@ -121,21 +126,35 @@ export const tendencyAPI = {
     getRecommendations: (childId) => apiFetch(`/tendency/${childId}/recommendations`),
 };
 
-// --- 학습 및 퀴즈 API ---
+// --- 학습 관련 API ---
 export const learnAPI = {
-    getConcepts: () => apiFetch('/learn/concepts'),
-    getConceptDetail: (conceptId) => apiFetch(`/learn/concepts/${conceptId}`),
-    getQuiz: (difficulty, count) => apiFetch(`/quiz?difficulty=${difficulty}&count=${count}`),
-    submitQuiz: (userId, answers) => apiFetch(`/quiz/submit?userId=${userId}`, {
+    // 워크시트 관련
+    getConceptsByDifficulty: (level) => apiFetch(`/worksheet/difficulty/${level}`),
+    getConceptDetail: (id) => apiFetch(`/worksheet/${id}`),
+    completeWorksheet: (userId, worksheetId, pointsEarned) => apiFetch('/user/worksheet/complete', {
         method: 'POST',
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ userId, worksheetId, pointsEarned }),
+    }),
+    getUserProgress: (userId) => apiFetch(`/user/${userId}/worksheet/progress`),
+    
+    // 퀴즈 관련
+    getRandomQuizzes: (level) => apiFetch(`/quizzes/random?level=${level}`),
+    submitQuiz: (quizData) => apiFetch('/quizzes/submit', {
+        method: 'POST',
+        body: JSON.stringify(quizData),
+    }),
+    getUserQuizProgress: (userId) => apiFetch(`/quizzes/user/${userId}/progress`),
+    completeQuizSession: (sessionData) => apiFetch('/quizzes/session/complete', {
+        method: 'POST',
+        body: JSON.stringify(sessionData),
     }),
 };
 
-// --- 뉴스 기사 API ---
+// --- 기사 관련 API ---
 export const articleAPI = {
     getAll: () => apiFetch('/articles'),
-    getRelated: (stockId) => apiFetch(`/articles/related/${stockId}`),
+    getById: (id) => apiFetch(`/articles/${id}`),
+    getByCategory: (category) => apiFetch(`/articles?category=${category}`),
 };
 
 export default {

@@ -135,71 +135,71 @@ function ConceptListPage() {
     const loadConcepts = useCallback(async () => {
         setLoading(true);
         console.log('loadConcepts 시작, selectedDifficulty:', selectedDifficulty);
-        const result = await learnAPI.getConcepts();
-        if (result.success) {
-            console.log('받은 conceptsData:', result.data);
-            setConcepts(result.data);
-            setLoading(false);
-            console.log('로딩 완료');
-        } else {
-            console.error('학습 데이터 로드 실패:', result.error);
-            setConcepts([]);
-            setLoading(false);
+        const allConcepts = [];
+        
+        // 난이도 1, 2, 3 모두 가져오기
+        for (let level = 1; level <= 3; level++) {
+            const result = await learnAPI.getConceptsByDifficulty(level);
+            if (result.success && result.data.ids) {
+                const conceptsWithLevel = result.data.ids.map(concept => ({
+                    ...concept,
+                    difficulty: level
+                }));
+                allConcepts.push(...conceptsWithLevel);
+            }
         }
+        
+        setConcepts(allConcepts);
+        setLoading(false);
+        console.log('로딩 완료');
     }, [selectedDifficulty]);
 
     const loadUserProgress = async () => {
+        if (!currentUserId) return;
+        
         try {
             console.log('사용자 진도 로딩 시작, userId:', currentUserId);
-            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-            const response = await fetch(`${API_BASE_URL}/learn/worksheet/progress?userId=${currentUserId}`);
-            if (response.ok) {
-                const progress = await response.json();
-                console.log('사용자 진도 응답:', progress);
-                setUserProgress(progress.data || {});
+            const result = await learnAPI.getUserProgress(currentUserId);
+            if (result.success) {
+                console.log('사용자 진도 응답:', result.data);
+                setUserProgress(result.data || {});
             } else {
-                console.error('사용자 진도 로딩 실패, 상태코드:', response.status);
+                console.error('사용자 진도 로딩 실패, 상태코드:', result.error?.status || 'unknown');
             }
         } catch (error) {
-            console.error('진도 로드 실패:', error);
+            console.error('사용자 진도 로딩 실패:', error);
         }
     };
 
     const loadQuizProgress = async () => {
+        if (!currentUserId) return;
+        
         try {
             console.log('퀴즈 진도 로딩 시작, userId:', currentUserId);
-            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-            const response = await fetch(`${API_BASE_URL}/quiz/progress?userId=${currentUserId}`);
-            if (response.ok) {
-                const progress = await response.json();
-                console.log('퀴즈 진도 응답:', progress);
-                setQuizProgress(progress.data || {});
+            const result = await learnAPI.getUserQuizProgress(currentUserId);
+            if (result.success) {
+                console.log('퀴즈 진도 응답:', result.data);
+                setQuizProgress(result.data || {});
             } else {
-                console.error('퀴즈 진도 로딩 실패, 상태코드:', response.status);
+                console.error('퀴즈 진도 로딩 실패, 상태코드:', result.error?.status || 'unknown');
             }
         } catch (error) {
-            console.error('퀴즈 진도 로드 실패:', error);
+            console.error('퀴즈 진도 로딩 실패, 상태코드:', error.status || 'unknown');
         }
     };
 
-    // 오늘 완료한 워크시트 목록 로드
+        // 오늘 완료한 워크시트 확인
     const loadTodayCompletions = async () => {
+        if (!currentUserId) return;
+        
         try {
             console.log('🔄 오늘 완료 워크시트 로딩 시작, userId:', currentUserId);
-            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-            const response = await fetch(`${API_BASE_URL}/learn/worksheet/today-completed?userId=${currentUserId}`);
-            if (response.ok) {
-                const result = await response.json();
-                const todayCompleted = result.data?.completedWorksheetIds || [];
-                setTodayCompletedWorksheets(new Set(todayCompleted));
-                console.log('✅ 오늘 완료 워크시트:', todayCompleted);
-            } else {
-                console.error('오늘 완료 워크시트 로딩 실패, 상태코드:', response.status);
-                setTodayCompletedWorksheets(new Set());
-            }
+            // 임시로 빈 Set 사용 (백엔드에 해당 API가 없음)
+            setTodayCompletions(new Set());
+            console.log('✅ 오늘 완료 워크시트: (임시 빈 데이터)');
         } catch (error) {
-            console.error('오늘 완료 워크시트 로드 실패:', error);
-            setTodayCompletedWorksheets(new Set());
+            console.error('오늘 완료 워크시트 로딩 실패, 상태코드:', error.status || 'unknown');
+            setTodayCompletions(new Set());
         }
     };
 
