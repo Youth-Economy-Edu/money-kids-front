@@ -131,11 +131,11 @@ export const learnAPI = {
     // 워크시트 관련
     getConceptsByDifficulty: (level) => apiFetch(`/worksheet/difficulty/${level}`),
     getConceptDetail: (id) => apiFetch(`/worksheet/${id}`),
-    completeWorksheet: (userId, worksheetId, pointsEarned) => apiFetch('/user/worksheet/complete', {
+    completeWorksheet: (userId, worksheetId, pointsEarned) => apiFetch('/worksheet/complete', {
         method: 'POST',
         body: JSON.stringify({ userId, worksheetId, pointsEarned }),
     }),
-    getUserProgress: (userId) => apiFetch(`/user/${userId}/worksheet/progress`),
+    getUserProgress: (userId) => apiFetch(`/worksheet/user/${userId}/progress`),
     
     // 퀴즈 관련
     getRandomQuizzes: (level) => apiFetch(`/quizzes/random?level=${level}`),
