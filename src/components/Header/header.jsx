@@ -106,13 +106,29 @@ const Header = ({ currentPage }) => {
         <header className={`header ${isExpanded ? 'expanded' : 'collapsed'}`}>
             <div className="header-top">
                 <div className="user-info">
-                    <h2 id="page-title-main">안녕하세요! 👋</h2>
-                    <p>{userName ? `${userName}님, ` : ''}오늘도 경제 공부로 스마트한 하루를 시작해볼까요?</p>
-                </div>
-                <div className="user-actions">
-                    <button className="btn btn-secondary" onClick={handleLogout}>
-                        <FaSignOutAlt /> 로그아웃
-                    </button>
+                    <div className="balance-info">
+                        <div className="balance-item">
+                            <span className="balance-label">총 자산</span>
+                            <span className="balance-value">₩{(balanceData?.totalAsset ?? 0).toLocaleString()}</span>
+                        </div>
+                        <div className="balance-item">
+                            <span className="balance-label">평가손익</span>
+                            <span className={`balance-value ${balanceData?.profit >= 0 ? 'positive' : 'negative'}`}>
+                                ₩{(balanceData?.profit ?? 0).toLocaleString()} (
+                                <span className="profit-rate">
+                                    {balanceData?.profitRate ?? 0}%
+                                </span>
+                                )
+                            </span>
+                        </div>
+                    </div>
+                    <div className="user-points">
+                        <span className="points-label">포인트</span>
+                        <span className="points-value">
+                            {userPoints !== null ? `₩${(userPoints ?? 0).toLocaleString()}` : '로딩 중...'}
+                        </span>
+                    </div>
+                    <button onClick={handleLogout} className="logout-button">로그아웃</button>
                 </div>
             </div>
 

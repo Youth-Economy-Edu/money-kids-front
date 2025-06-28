@@ -203,16 +203,16 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
                     <div className="trade-details">
                       <div className="trade-detail-item">
                         <span className="detail-label">수량</span>
-                        <span className="detail-value">{Math.abs(trade.quantity || 0).toLocaleString()}주</span>
+                        <span className="detail-value">{Math.abs(trade?.quantity ?? 0).toLocaleString()}주</span>
                       </div>
                       <div className="trade-detail-item">
                         <span className="detail-label">단가</span>
-                        <span className="detail-value">₩{(trade.price || 0).toLocaleString()}</span>
+                        <span className="detail-value">₩{(trade?.price ?? 0).toLocaleString()}</span>
                       </div>
                       <div className="trade-detail-item">
                         <span className="detail-label">총액</span>
                         <span className="detail-value total-amount">
-                          ₩{(Math.abs(trade.quantity || 0) * (trade.price || 0)).toLocaleString()}
+                          ₩{(Math.abs(trade?.quantity ?? 0) * (trade?.price ?? 0)).toLocaleString()}
                         </span>
                       </div>
                       <div className="trade-detail-item">

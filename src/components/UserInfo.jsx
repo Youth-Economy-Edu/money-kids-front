@@ -50,7 +50,7 @@ const UserInfo = ({ showDetails = false }) => {
                             )}
                             <div className="info-item">
                                 <span className="info-label">보유 포인트</span>
-                                <span className="info-value">{(user.points || 0).toLocaleString()}P</span>
+                                <span className="info-value">{(user?.points ?? 0).toLocaleString()}P</span>
                             </div>
                         </div>
                     )}
