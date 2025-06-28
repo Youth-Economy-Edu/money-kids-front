@@ -378,7 +378,7 @@ const StockChart = ({ stock, onClose }) => {
         borderWidth: 1,
         callbacks: {
           label: function(context) {
-            return `₩${context.parsed.y.toLocaleString()}`;
+            return `₩${(context?.parsed?.y ?? 0).toLocaleString()}`;
           }
         }
       },
@@ -413,7 +413,7 @@ const StockChart = ({ stock, onClose }) => {
             size: 11,
           },
           callback: function(value) {
-            return '₩' + value.toLocaleString();
+            return '₩' + (value ?? 0).toLocaleString();
           }
         }
       },
@@ -471,14 +471,14 @@ const StockChart = ({ stock, onClose }) => {
         </div>
 
         <div className="price-info">
-          <div className="current-price">₩{(stock.price || 0).toLocaleString()}</div>
+          <div className="current-price">₩{((stock?.price ?? 0)).toLocaleString()}</div>
           <div className={`price-change ${change >= 0 ? 'positive' : 'negative'}`}>
-            {change > 0 ? '+' : change < 0 ? '-' : ''}₩{Math.abs(change || 0).toLocaleString()}
+            {change > 0 ? '+' : change < 0 ? '-' : ''}₩{Math.abs(change ?? 0).toLocaleString()}
           </div>
           {avgPrice && (
             <div className="avg-price-info">
               <span className="avg-price-label">평균 매수가</span>
-              <span className="avg-price-value">₩{(avgPrice || 0).toLocaleString()}</span>
+              <span className="avg-price-value">₩{((avgPrice ?? 0)).toLocaleString()}</span>
             </div>
           )}
         </div>
