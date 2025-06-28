@@ -1,6 +1,8 @@
 // API 클라이언트 V2: 환경 변수, 중앙 에러 처리, 자동 인증
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.PROD 
+    ? 'http://3.25.213.98:8080/api'
+    : import.meta.env.VITE_API_URL || '/api';
 
 // 중앙화된 API 호출 함수
 const apiFetch = async (url, options = {}) => {

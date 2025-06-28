@@ -527,7 +527,7 @@ const InvestmentPage = () => {
       <div className="portfolio-summary">
         <div className="summary-card">
           <div className={`summary-value ${portfolioSummary.profitLoss > 0 ? 'price-positive' : 'price-negative'}`}>
-            {portfolioSummary.profitLoss > 0 ? '+' : ''}₩{portfolioSummary.profitLoss.toLocaleString()}
+            {portfolioSummary.profitLoss > 0 ? '+' : ''}₩{(portfolioSummary.profitLoss || 0).toLocaleString()}
           </div>
           <div className="summary-label">오늘의 평가 손익</div>
         </div>
@@ -615,9 +615,9 @@ const InvestmentPage = () => {
                 </div>
                 <div className="stock-code">{stock.code}</div>
               </div>
-              <div style={{ fontWeight: 600 }}>₩{stock.price.toLocaleString()}</div>
-              <div className={`price-${stock.changeType}`}>
-                {stock.change > 0 ? '+' : stock.change < 0 ? '-' : ''}{Math.abs(stock.change).toLocaleString()}
+              <div style={{ fontWeight: 600 }}>₩{(stock.price || 0).toLocaleString()}</div>
+              <div className={`price-change ${stock.changeType}`}>
+                {stock.change > 0 ? '+' : stock.change < 0 ? '-' : ''}{Math.abs(stock.change || 0).toLocaleString()}
               </div>
               <div className={`price-${stock.changeType}`}>
                 {stock.changeRate > 0 ? '+' : stock.changeRate < 0 ? '-' : ''}{Math.abs(stock.changeRate)}%

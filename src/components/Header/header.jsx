@@ -131,7 +131,7 @@ const Header = ({ title, onToggleSidebar }) => {
                         typeof balanceData.rate === 'number' ? (
                             <>
                                 <div className="stat-value">
-                                    ₩{balanceData.totalAsset.toLocaleString()}
+                                    ₩{(balanceData.totalAsset || 0).toLocaleString()}
                                 </div>
                                 <div
                                     className={`stat-change ${
@@ -139,7 +139,7 @@ const Header = ({ title, onToggleSidebar }) => {
                                     }`}
                                 >
                                     {balanceData.profit >= 0 ? '+' : ''}
-                                    ₩{balanceData.profit.toLocaleString()} (
+                                    ₩{(balanceData.profit || 0).toLocaleString()} (
                                     {(balanceData.rate || 0).toFixed(2)}%)
                                 </div>
                             </>
@@ -151,7 +151,7 @@ const Header = ({ title, onToggleSidebar }) => {
                     <div className="stat-card">
                         <div className="stat-title">사용 가능 금액</div>
                         <div className="stat-value">
-                            {userPoints !== null ? `₩${userPoints.toLocaleString()}` : '로딩 중...'}
+                            {userPoints !== null ? `₩${(userPoints || 0).toLocaleString()}` : '로딩 중...'}
                         </div>
                     </div>
 

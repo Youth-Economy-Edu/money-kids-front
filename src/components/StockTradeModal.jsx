@@ -178,9 +178,11 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
         
         <div className="stock-info">
           <div className="price-info">
-            <div className="current-price">₩{stock.price.toLocaleString()}</div>
-            <div className={`change-info price-${stock.changeType}`}>
-              {stock.change > 0 ? '+' : ''}{stock.change.toLocaleString()} ({stock.changeRate}%)
+            <div className="stock-price-section">
+              <div className="current-price">₩{(stock.price || 0).toLocaleString()}</div>
+              <div className={`price-change ${stock.change >= 0 ? 'positive' : 'negative'}`}>
+                {stock.change > 0 ? '+' : ''}{(stock.change || 0).toLocaleString()} ({stock.changeRate || '0.00'}%)
+              </div>
             </div>
           </div>
           <div className="company-info">
@@ -239,7 +241,10 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
           
           <div className="form-group">
             <label>총 {activeTab === 'buy' ? '매수' : '매도'}금액</label>
-            <div className="total-price">₩{totalPrice.toLocaleString()}</div>
+            <div className="total-section">
+                <div className="total-label">총 금액</div>
+                <div className="total-price">₩{(totalPrice || 0).toLocaleString()}</div>
+            </div>
           </div>
           
           <div className="user-info">
@@ -247,11 +252,11 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
               <>
                 <div className="info-item">
                   <span>보유 포인트</span>
-                  <span>₩{userPoints.toLocaleString()}</span>
+                  <span>₩{(userPoints || 0).toLocaleString()}</span>
                 </div>
                 <div className="info-item">
                   <span>거래 후 포인트</span>
-                  <span>₩{(userPoints - totalPrice).toLocaleString()}</span>
+                  <span>₩{((userPoints || 0) - (totalPrice || 0)).toLocaleString()}</span>
                 </div>
               </>
             ) : (
@@ -266,6 +271,17 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
                 </div>
               </>
             )}
+          </div>
+          
+          <div className="balance-section">
+            <div className="balance-item">
+                <span>현재 잔액</span>
+                <span>₩{(userPoints || 0).toLocaleString()}</span>
+            </div>
+            <div className="balance-item">
+                <span>거래 후 잔액</span>
+                <span>₩{((userPoints || 0) - (totalPrice || 0)).toLocaleString()}</span>
+            </div>
           </div>
           
           <button 

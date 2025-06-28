@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  
+  // 백엔드 API 서버 주소 설정
+  const API_TARGET = mode === 'production' 
+    ? 'http://3.25.213.98:8080' 
+    : env.VITE_API_URL || 'http://3.25.213.98:8080';
 
   return {
     plugins: [react()],
@@ -12,9 +17,10 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://127.0.0.1:8080',
+          target: API_TARGET,
           changeOrigin: true,
-          secure: false
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '/api')
         }
       }
     },
@@ -40,16 +46,18 @@ export default defineConfig(({ mode }) => {
       port: 4173,
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://127.0.0.1:8080',
+          target: API_TARGET,
           changeOrigin: true,
-          secure: false
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '/api')
         }
       }
     },
     // 환경 변수 설정
     define: {
       __APP_VERSION__: JSON.stringify(env.npm_package_version || '1.0.0'),
-      __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __API_URL__: JSON.stringify(API_TARGET + '/api')
     }
   }
 })

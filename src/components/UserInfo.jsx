@@ -48,12 +48,10 @@ const UserInfo = ({ showDetails = false }) => {
                                     <span className="info-value">{user.level}</span>
                                 </div>
                             )}
-                            {user.points && (
-                                <div className="info-item">
-                                    <span className="info-label">포인트:</span>
-                                    <span className="info-value">{user.points.toLocaleString()}P</span>
-                                </div>
-                            )}
+                            <div className="info-item">
+                                <span className="info-label">보유 포인트</span>
+                                <span className="info-value">{(user.points || 0).toLocaleString()}P</span>
+                            </div>
                         </div>
                     )}
                 </div>

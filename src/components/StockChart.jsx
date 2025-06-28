@@ -471,15 +471,14 @@ const StockChart = ({ stock, onClose }) => {
         </div>
 
         <div className="price-info">
-          <div className="current-price">₩{stock.price.toLocaleString()}</div>
-          <div className={`price-change ${isPositive ? 'positive' : isNegative ? 'negative' : 'neutral'}`}>
-            {change > 0 ? '+' : change < 0 ? '-' : ''}₩{Math.abs(change).toLocaleString()} 
-            ({change > 0 ? '+' : change < 0 ? '-' : ''}{Math.abs(changePercent)}%)
+          <div className="current-price">₩{(stock.price || 0).toLocaleString()}</div>
+          <div className={`price-change ${change >= 0 ? 'positive' : 'negative'}`}>
+            {change > 0 ? '+' : change < 0 ? '-' : ''}₩{Math.abs(change || 0).toLocaleString()}
           </div>
           {avgPrice && (
             <div className="avg-price-info">
               <span className="avg-price-label">평균 매수가</span>
-              <span className="avg-price-value">₩{avgPrice.toLocaleString()}</span>
+              <span className="avg-price-value">₩{(avgPrice || 0).toLocaleString()}</span>
             </div>
           )}
         </div>
