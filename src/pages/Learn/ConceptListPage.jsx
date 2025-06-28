@@ -62,7 +62,7 @@ const awardPoints = async (userId, worksheetId) => {
         console.log('포인트 지급 API 호출:', { userId, worksheetId });
         
         const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-        const response = await fetch(`${API_BASE_URL}/learn/worksheet/complete`, {
+        const response = await fetch(`${API_BASE_URL}/worksheet/complete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const awardPoints = async (userId, worksheetId) => {
 const checkTodayCompletion = async (userId, worksheetId) => {
     try {
         const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-        const response = await fetch(`${API_BASE_URL}/learn/worksheet/${worksheetId}/today-status?userId=${userId}`);
+        const response = await fetch(`${API_BASE_URL}/worksheet/${worksheetId}/today-status?userId=${userId}`);
         if (response.ok) {
             const result = await response.json();
             return result.data?.completedToday || false;
@@ -195,11 +195,11 @@ function ConceptListPage() {
         try {
             console.log('🔄 오늘 완료 워크시트 로딩 시작, userId:', currentUserId);
             // 임시로 빈 Set 사용 (백엔드에 해당 API가 없음)
-            setTodayCompletions(new Set());
+            setTodayCompletedWorksheets(new Set());
             console.log('✅ 오늘 완료 워크시트: (임시 빈 데이터)');
         } catch (error) {
             console.error('오늘 완료 워크시트 로딩 실패, 상태코드:', error.status || 'unknown');
-            setTodayCompletions(new Set());
+            setTodayCompletedWorksheets(new Set());
         }
     };
 
