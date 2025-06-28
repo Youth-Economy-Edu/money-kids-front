@@ -32,12 +32,14 @@ const StockChart = ({ stock, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [avgPrice, setAvgPrice] = useState(null); // 평균 매수가
   const [isMinuteView, setIsMinuteView] = useState(true); // 분봉 보기 여부
+  const [error, setError] = useState(null);
 
   // 실제 주가 히스토리 데이터를 기반으로 차트 데이터 생성
   const generateChartData = async (stock, range) => {
     try {
       // 1. 주가 히스토리 API 호출 시도
-      const historyResponse = await fetch(`http://localhost:8080/api/stocks/${stock.id}/history?range=${range}`);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+      const historyResponse = await fetch(`${API_BASE_URL}/stocks/${stock.id}/history?range=${range}`);
       
       if (historyResponse.ok) {
         // 백엔드에서 히스토리 데이터를 제공하는 경우
@@ -538,7 +540,7 @@ const StockChart = ({ stock, onClose }) => {
             <Line data={chartDataConfig} options={chartOptions} />
           ) : (
             <div className="chart-error">
-              <p>차트 데이터를 불러올 수 없습니다.</p>
+              <p>{error || '차트 데이터를 불러올 수 없습니다.'}</p>
             </div>
           )}
         </div>

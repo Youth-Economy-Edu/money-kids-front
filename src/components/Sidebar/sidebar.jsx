@@ -17,7 +17,7 @@ const Sidebar = () => {
     }, []);
 
     const menuItems = [
-        { id: "/", label: "홈", icon: <FaHome /> },
+        { id: "/home", label: "홈", icon: <FaHome /> },
         { id: "/learn", label: "경제배우기", icon: <FaGraduationCap /> },
         { id: "/invest", label: "모의 투자", icon: <FaChartLine /> },
         { id: "/analysis", label: "성향 분석", icon: <FaChartPie /> },

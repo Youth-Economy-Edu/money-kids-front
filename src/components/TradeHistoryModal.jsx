@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './TradeHistoryModal.css';
+import { tradeAPI, stockAPI } from '../utils/apiClient';
 
 const TradeHistoryModal = ({ isOpen, onClose }) => {
   const { getCurrentUserId } = useAuth();
@@ -8,6 +9,7 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
   const [filterType, setFilterType] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stocks, setStocks] = useState([]);
 
   // 거래내역 가져오기
   const fetchTradeHistory = async () => {
@@ -67,10 +69,27 @@ const TradeHistoryModal = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      fetchTradeHistory();
+    const fetchData = async () => {
+      try {
+        // tradeAPI와 stockAPI 사용으로 변경
+        const historyResult = await tradeAPI.getHistory(getCurrentUserId());
+        if (historyResult.success) {
+          setTradeHistory(historyResult.data);
+        }
+
+        const stocksResult = await stockAPI.getAll();
+        if (stocksResult.success) {
+          setStocks(stocksResult.data);
+        }
+      } catch (error) {
+        console.error('거래 내역 조회 실패:', error);
+      }
+    };
+
+    if (isOpen && getCurrentUserId()) {
+      fetchData();
     }
-  }, [isOpen, filterType]);
+  }, [isOpen, getCurrentUserId]);
 
   const getTradeTypeText = (tradeType) => {
     switch (tradeType) {

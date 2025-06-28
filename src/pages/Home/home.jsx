@@ -8,6 +8,7 @@ import {
     FaSearchDollar,
 } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
+import { userAPI, stockAPI } from '../../utils/apiClient';
 
 const Home = ({ onNavigate }) => {
     const [portfolioData, setPortfolioData] = useState({
@@ -19,28 +20,18 @@ const Home = ({ onNavigate }) => {
     const { getCurrentUserId } = useAuth();
     const userId = getCurrentUserId();
 
-    useEffect(() => {
-        const fetchPortfolioData = async () => {
-            if (!userId) {
-                setPortfolioData(prev => ({ ...prev, loading: false }));
-                return;
+    const loadUserData = async () => {
+        if (!userId) return;
+        
+        try {
+            // userAPI와 stockAPI 사용으로 변경
+            const portfolioResult = await userAPI.getPortfolio(userId);
+            if (portfolioResult.success) {
+                setPortfolioData(portfolioResult.data);
             }
 
-            try {
-                // 사용자 포트폴리오 정보 가져오기
-                const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`);
-                if (!portfolioResponse.ok) {
-                    throw new Error('포트폴리오 조회 실패');
-                }
-                const portfolioData = await portfolioResponse.json();
-                
-                // 주식 현재가 정보 가져오기
-                const stocksResponse = await fetch('http://localhost:8080/api/stocks');
-                if (!stocksResponse.ok) {
-                    throw new Error('주식 정보 조회 실패');
-                }
-                const stocksData = await stocksResponse.json();
-                
+            const stocksResult = await stockAPI.getAll();
+            if (stocksResult.success) {
                 // 실제 수익률 계산
                 let totalProfitLoss = 0;
                 let totalInvestment = 0;
@@ -50,7 +41,7 @@ const Home = ({ onNavigate }) => {
                     const activeStocks = portfolioData.stocks.filter(stock => stock.quantity > 0);
                     
                     for (const portfolioStock of activeStocks) {
-                        const currentStock = stocksData.find(s => s.name === portfolioStock.stockName);
+                        const currentStock = stocksResult.data.find(s => s.name === portfolioStock.stockName);
                         if (currentStock) {
                             const currentValue = currentStock.price * portfolioStock.quantity;
                             currentStockValue += currentValue;
@@ -81,23 +72,24 @@ const Home = ({ onNavigate }) => {
                     totalProfitLoss,
                     profitRate: profitRate.toFixed(2) + '%'
                 });
-                
-            } catch (error) {
-                console.error('포트폴리오 데이터 조회 실패:', error);
-                // 에러 시 기본값 설정
-                setPortfolioData({
-                    rate: 0,
-                    totalAsset: 0,
-                    profitLoss: 0,
-                    loading: false
-                });
             }
-        };
+        } catch (error) {
+            console.error('사용자 데이터 로드 오류:', error);
+            // 에러 시 기본값 설정
+            setPortfolioData({
+                rate: 0,
+                totalAsset: 0,
+                profitLoss: 0,
+                loading: false
+            });
+        }
+    };
 
-        fetchPortfolioData();
+    useEffect(() => {
+        loadUserData();
         
         // 30초마다 데이터 새로고침
-        const interval = setInterval(fetchPortfolioData, 30000);
+        const interval = setInterval(loadUserData, 30000);
         
         return () => clearInterval(interval);
     }, [userId]);

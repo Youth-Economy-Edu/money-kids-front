@@ -61,7 +61,8 @@ const awardPoints = async (userId, worksheetId) => {
     try {
         console.log('포인트 지급 API 호출:', { userId, worksheetId });
         
-        const response = await fetch('/api/user/worksheet/complete', {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+        const response = await fetch(`${API_BASE_URL}/learn/worksheet/complete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -93,7 +94,8 @@ const awardPoints = async (userId, worksheetId) => {
 // 일일 학습 완료 상태 체크 함수
 const checkTodayCompletion = async (userId, worksheetId) => {
     try {
-        const response = await fetch(`/api/user/${userId}/worksheet/${worksheetId}/today-status`);
+        const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+        const response = await fetch(`${API_BASE_URL}/learn/worksheet/${worksheetId}/today-status?userId=${userId}`);
         if (response.ok) {
             const result = await response.json();
             return result.data?.completedToday || false;
@@ -149,7 +151,8 @@ function ConceptListPage() {
     const loadUserProgress = async () => {
         try {
             console.log('사용자 진도 로딩 시작, userId:', currentUserId);
-            const response = await fetch(`/api/user/${currentUserId}/worksheet/progress`);
+            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+            const response = await fetch(`${API_BASE_URL}/learn/worksheet/progress?userId=${currentUserId}`);
             if (response.ok) {
                 const progress = await response.json();
                 console.log('사용자 진도 응답:', progress);
@@ -165,7 +168,8 @@ function ConceptListPage() {
     const loadQuizProgress = async () => {
         try {
             console.log('퀴즈 진도 로딩 시작, userId:', currentUserId);
-            const response = await fetch(`/api/quizzes/user/${currentUserId}/progress`);
+            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+            const response = await fetch(`${API_BASE_URL}/quiz/progress?userId=${currentUserId}`);
             if (response.ok) {
                 const progress = await response.json();
                 console.log('퀴즈 진도 응답:', progress);
@@ -182,7 +186,8 @@ function ConceptListPage() {
     const loadTodayCompletions = async () => {
         try {
             console.log('🔄 오늘 완료 워크시트 로딩 시작, userId:', currentUserId);
-            const response = await fetch(`/api/user/${currentUserId}/worksheet/today-completed`);
+            const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+            const response = await fetch(`${API_BASE_URL}/learn/worksheet/today-completed?userId=${currentUserId}`);
             if (response.ok) {
                 const result = await response.json();
                 const todayCompleted = result.data?.completedWorksheetIds || [];

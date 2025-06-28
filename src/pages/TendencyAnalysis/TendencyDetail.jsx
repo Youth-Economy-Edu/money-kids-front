@@ -13,7 +13,7 @@ import {
     CategoryScale,
     LinearScale
 } from 'chart.js';
-import { tendencyAPI } from '../../utils/api';
+import { tendencyAPI } from '../../utils/apiClient';
 import './TendencyDetail.css';
 
 // Chart.js 등록

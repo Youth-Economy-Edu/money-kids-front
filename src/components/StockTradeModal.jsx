@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { tradeAPI, stockAPI } from '../utils/apiClient';
+import { tradeAPI, stockAPI, userAPI } from '../utils/apiClient';
 import './StockTradeModal.css';
 
 const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
@@ -17,45 +17,24 @@ const StockTradeModal = ({ stock, onClose, onTradeComplete }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // 사용자 포인트 정보 가져오기
-        const pointsResponse = await fetch(`http://localhost:8080/api/users/${userId}/points`);
-        if (pointsResponse.ok) {
-          const pointsData = await pointsResponse.json();
-          setUserPoints(pointsData.data.points || 0);
+        // userAPI와 stockAPI 사용으로 변경
+        const pointsResult = await userAPI.getPoints(userId);
+        if (pointsResult.success) {
+          setUserPoints(pointsResult.data.points);
         }
-        
-        // 보유 주식 정보 가져오기 (캐시 방지)
-        const portfolioResponse = await fetch(`http://localhost:8080/api/users/${userId}/portfolio`, {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        if (portfolioResponse.ok) {
-          const portfolioData = await portfolioResponse.json();
-          const ownedStock = portfolioData.stocks?.find(s => s.stockName === stock.name);
-          setOwnedQuantity(ownedStock?.quantity || 0);
-          console.log(`${stock.name} 보유 수량:`, ownedStock?.quantity || 0);
+
+        const portfolioResult = await userAPI.getPortfolio(userId);
+        if (portfolioResult.success) {
+          const userStock = portfolioResult.data.stocks?.find(s => s.stockName === stock.name);
+          setOwnedQuantity(userStock ? userStock.quantity : 0);
         }
-        
-        // 관심 종목 여부 확인
-        const favoritesResponse = await fetch(`http://localhost:8080/api/stocks/favorite?userId=${userId}`);
-        
-        // 응답이 204 No Content인 경우 빈 배열로 처리
-        if (favoritesResponse.status === 204) {
-          setIsFavorite(false);
-          return;
+
+        const favoritesResult = await stockAPI.getFavorites(userId);
+        if (favoritesResult.success) {
+          setIsFavorite(favoritesResult.data.some(fav => fav.stockId === stock.id));
         }
-        
-        if (favoritesResponse.ok) {
-          const favoritesData = await favoritesResponse.json();
-          // 응답이 Stock 객체 배열인 경우
-          const isFav = favoritesData.some(fav => String(fav.id) === String(stock.id));
-          setIsFavorite(isFav);
-        }
-      } catch (err) {
-        console.error('사용자 데이터 로드 오류:', err);
+      } catch (error) {
+        console.error('사용자 데이터 조회 실패:', error);
       }
     };
 
