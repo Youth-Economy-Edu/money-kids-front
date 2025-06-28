@@ -308,8 +308,8 @@ const InvestmentPortfolio = () => {
                     <h2>📊 개별 주식 성과</h2>
                     <div className="stock-performance-list">
                         {investmentData?.stockPerformance && Object.entries(investmentData.stockPerformance).map(([stock, data]) => {
-                            const profitRate = ((data.profit || 0) / ((data.currentPrice || 0) * (data.shares || 1))) * 100;
-                            const totalValue = (data.currentPrice || 0) * (data.shares || 0);
+                            const profitRate = ((data.profit ?? 0) / ((data.currentPrice ?? 0) * (data.shares ?? 1))) * 100;
+                            const totalValue = (data.currentPrice ?? 0) * (data.shares ?? 0);
                             
                             return (
                                 <div key={stock} className="detailed-stock-item">
@@ -375,7 +375,7 @@ const InvestmentPortfolio = () => {
                                     <span className="summary-title">총 투자가치</span>
                                     <span className="summary-amount">
                                         ₩{Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + ((data.currentPrice || 0) * (data.shares || 0)), 0)
+                                            .reduce((total, [, data]) => total + ((data.currentPrice ?? 0) * (data.shares ?? 0)), 0)
                                             .toLocaleString()}
                                     </span>
                                 </div>
@@ -385,11 +385,11 @@ const InvestmentPortfolio = () => {
                                 <div className="summary-info">
                                     <span className="summary-title">총 수익/손실</span>
                                     <span className={`summary-amount ${Object.entries(investmentData?.stockPerformance || {})
-                                        .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
+                                        .reduce((total, [, data]) => total + (data.profit ?? 0), 0) >= 0 ? 'profit-text' : 'loss-text'}`}>
                                         {Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + (data.profit || 0), 0) >= 0 ? '+' : ''}
+                                            .reduce((total, [, data]) => total + (data.profit ?? 0), 0) >= 0 ? '+' : ''}
                                         ₩{Object.entries(investmentData?.stockPerformance || {})
-                                            .reduce((total, [, data]) => total + (data.profit || 0), 0)
+                                            .reduce((total, [, data]) => total + (data.profit ?? 0), 0)
                                             .toLocaleString()}
                                     </span>
                                 </div>
@@ -399,8 +399,8 @@ const InvestmentPortfolio = () => {
                                 <div className="summary-info">
                                     <span className="summary-title">총 수익률</span>
                                     <div className="metric-value">
-                                        {((investmentData?.totalCurrentValue || 0) / 
-                                        Math.max(investmentData?.totalInvestmentValue || 1, 1) * 100).toFixed(2)}%
+                                        {((investmentData?.totalCurrentValue ?? 0) / 
+                                        Math.max(investmentData?.totalInvestmentValue ?? 1, 1) * 100).toFixed(2)}%
                                     </div>
                                 </div>
                             </div>
